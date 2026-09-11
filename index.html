@@ -247,26 +247,6 @@
   .game-name{font-family:var(--serif); font-weight:700; font-size:15.5px; margin-bottom:7px; line-height:1.25;}
   .game-desc{font-size:11.5px; color:var(--text-dim); font-weight:300; margin-bottom:13px; min-height:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
   .game-desc.coming-soon{font-style:italic; color:var(--text-dimmer);}
-
-  .game-media.has-poster{background-size:cover; background-position:center;}
-  .game-media.has-poster::after{
-    content:''; position:absolute; inset:0;
-    background:linear-gradient(180deg, rgba(10,10,13,0) 40%, rgba(10,10,13,0.55) 100%);
-  }
-
-  .game-tags{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;}
-  .game-tag{
-    display:inline-flex; align-items:center; gap:5px;
-    font-size:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600;
-    color:var(--text-dim); border:1px solid var(--line); border-radius:2px; padding:3px 8px;
-  }
-  .game-tag-horror{color:var(--red-bright); border-color:rgba(165,55,42,0.35);}
-  .game-tag-en{color:var(--gold-bright); border-color:var(--line-strong);}
-  .game-tag-en.off{color:var(--text-dimmer); border-color:var(--line);}
-  .horror-pips{display:flex; gap:2px; margin-left:2px;}
-  .horror-pips .pip{width:6px; height:6px; border-radius:1px; background:rgba(165,55,42,0.2);}
-  .horror-pips .pip.on{background:var(--red-bright);}
-  .game-facts{font-size:11.5px; color:var(--text-dim); font-weight:600; margin-bottom:10px; letter-spacing:.02em;}
   .game-meta{
     display:flex; flex-direction:column; align-items:flex-start; gap:8px;
     padding-top:11px; border-top:1px solid var(--line);
@@ -666,14 +646,6 @@
     line-height:1;
   }
   .room-modal-media .game-monogram{font-size:56px;}
-  .room-modal-media.has-poster{background-size:cover; background-position:center;}
-  .room-modal-media.has-poster::after{
-    content:''; position:absolute; inset:0;
-    background:linear-gradient(180deg, rgba(10,10,13,0) 40%, rgba(10,10,13,0.55) 100%);
-  }
-  .room-modal-body .game-tags{margin-bottom:16px;}
-  .room-modal-body .game-tag{font-size:11px; padding:4px 10px;}
-  .room-modal-body .game-facts{font-size:13px; margin-bottom:18px;}
   .room-modal-body{padding:30px 32px 34px;}
   .room-modal-city{font-size:12px; color:var(--text-dimmer); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px;}
   .room-modal-name{font-family:var(--serif); font-weight:700; font-size:26px; color:var(--text); margin-bottom:10px;}
@@ -754,8 +726,6 @@
       <div class="room-modal-city" id="roomModalCity"></div>
       <h3 class="room-modal-name" id="roomModalName"></h3>
       <div class="room-modal-rank" id="roomModalRank"></div>
-      <div id="roomModalTags"></div>
-      <div id="roomModalFacts"></div>
       <p class="room-modal-long" id="roomModalLong"></p>
       <a href="#booking" class="btn btn-primary room-modal-cta" id="roomModalCta" data-i18n="game.modal.cta">Ask About Booking →</a>
     </div>
@@ -1077,68 +1047,6 @@
     return name;
   }
 
-  // Per-room extra details, keyed by the canonical name used in TOP30 / CITY_ROOMS.
-  // Fill in as real data comes in — every field is optional and only renders when present.
-  // Shape: { players: '4-6', priceRMB: 168, duration: 90, type: 'Horror', horror: 4 (1-5), hasEnglish: true, poster: 'https://…' }
-  const ROOM_INFO = {};
-  function roomInfo(name){ return ROOM_INFO[name] || {}; }
-
-  function buildHorrorPips(level){
-    const wrap = document.createElement('span');
-    wrap.className = 'horror-pips';
-    for(let i = 1; i <= 5; i++){
-      const pip = document.createElement('span');
-      pip.className = 'pip' + (i <= level ? ' on' : '');
-      wrap.appendChild(pip);
-    }
-    return wrap;
-  }
-
-  function buildRoomTags(info){
-    const bits = [];
-    if(info.type){
-      const t = document.createElement('span');
-      t.className = 'game-tag';
-      t.textContent = info.type;
-      bits.push(t);
-    }
-    if(info.horror){
-      const h = document.createElement('span');
-      h.className = 'game-tag game-tag-horror';
-      const dict = translations[currentLang] || translations.en;
-      const label = document.createElement('span');
-      label.textContent = dict['room.horror'] || 'Horror';
-      h.appendChild(label);
-      h.appendChild(buildHorrorPips(info.horror));
-      bits.push(h);
-    }
-    if(info.hasEnglish !== undefined){
-      const e = document.createElement('span');
-      e.className = 'game-tag game-tag-en' + (info.hasEnglish ? '' : ' off');
-      const dict = translations[currentLang] || translations.en;
-      e.textContent = info.hasEnglish ? (dict['room.enYes'] || 'English Available') : (dict['room.enNo'] || 'Chinese Only');
-      bits.push(e);
-    }
-    if(!bits.length) return null;
-    const wrap = document.createElement('div');
-    wrap.className = 'game-tags';
-    bits.forEach(b => wrap.appendChild(b));
-    return wrap;
-  }
-
-  function buildRoomFacts(info){
-    const dict = translations[currentLang] || translations.en;
-    const parts = [];
-    if(info.priceRMB) parts.push('¥' + info.priceRMB);
-    if(info.duration) parts.push(info.duration + (dict['room.min'] || ' min'));
-    if(info.players) parts.push(info.players + (dict['room.players'] || ' players'));
-    if(!parts.length) return null;
-    const el = document.createElement('div');
-    el.className = 'game-facts';
-    el.textContent = parts.join(' · ');
-    return el;
-  }
-
   // ---------- i18n ----------
   const translations = {
     en: {
@@ -1168,11 +1076,6 @@
       'game.modal.comingSoon': "Full details for this room are coming soon. In the meantime, reach out and we'll help you book it directly.",
       'game.modal.topRank': 'All-Time Top 30 · #',
       'game.comingSoon': 'Full details coming soon',
-      'room.horror': 'Fear Level',
-      'room.enYes': 'English Available',
-      'room.enNo': 'Chinese Only',
-      'room.min': ' min',
-      'room.players': ' players',
       'games.more': 'Browse More by City →',
       'booking.title': 'How to Book an Escape Room in China',
       'booking.desc': "Most rooms take bookings through local platforms rather than their own website — here's the standard process.",
@@ -1269,11 +1172,6 @@
       'game.modal.comingSoon': '这间密室的详细介绍即将上线。如果你现在就想预定，欢迎联系我们，我们会直接协助你完成预定。',
       'game.modal.topRank': '全部精选密室 · 第',
       'game.comingSoon': '详细介绍即将上线',
-      'room.horror': '恐怖程度',
-      'room.enYes': '提供英文版',
-      'room.enNo': '仅中文',
-      'room.min': '分钟',
-      'room.players': '人',
       'games.more': '按城市探索更多 →',
       'booking.title': '如何预定中国密室',
       'booking.desc': '大多数中国密室店铺主要通过本地平台接受预定，以下是标准流程与建议。',
@@ -1370,26 +1268,18 @@
     card.tabIndex = 0;
     card.setAttribute('role', 'button');
 
-    const info = roomInfo(name);
-
     const media = document.createElement('div');
     media.className = 'game-media';
-    if(info.poster){
-      media.classList.add('has-poster');
-      media.style.backgroundImage = `url("${info.poster}")`;
-    }
     if(rank){
       const badge = document.createElement('span');
       badge.className = 'game-badge';
       badge.textContent = '#' + rank;
       media.appendChild(badge);
     }
-    if(!info.poster){
-      const mono = document.createElement('span');
-      mono.className = 'game-monogram';
-      mono.textContent = displayName(name).trim().charAt(0);
-      media.appendChild(mono);
-    }
+    const mono = document.createElement('span');
+    mono.className = 'game-monogram';
+    mono.textContent = displayName(name).trim().charAt(0);
+    media.appendChild(mono);
 
     const body = document.createElement('div');
     body.className = 'game-body';
@@ -1403,27 +1293,20 @@
     nameEl.className = 'game-name';
     nameEl.textContent = displayName(name);
 
-    body.appendChild(cityEl);
-    body.appendChild(nameEl);
-
-    const tags = buildRoomTags(info);
-    if(tags) body.appendChild(tags);
-
-    const facts = buildRoomFacts(info);
-    if(facts) body.appendChild(facts);
-
     const descEl = document.createElement('p');
     descEl.className = 'game-desc coming-soon';
     descEl.setAttribute('data-i18n', 'game.comingSoon');
     descEl.textContent = 'Full details coming soon';
-    body.appendChild(descEl);
 
     const hint = document.createElement('div');
     hint.className = 'game-view-hint';
     hint.setAttribute('data-i18n', 'game.viewMore');
     hint.textContent = 'View Details →';
-    body.appendChild(hint);
 
+    body.appendChild(cityEl);
+    body.appendChild(nameEl);
+    body.appendChild(descEl);
+    body.appendChild(hint);
     card.appendChild(media);
     card.appendChild(body);
 
@@ -1757,21 +1640,12 @@
 
   function renderRoomModal(name, cities, rank){
     const dict = translations[currentLang] || translations.en;
-    const info = roomInfo(name);
 
-    const mediaEl = document.getElementById('roomModalMedia');
-    mediaEl.innerHTML = '';
-    mediaEl.classList.remove('has-poster');
-    mediaEl.style.backgroundImage = '';
-    if(info.poster){
-      mediaEl.classList.add('has-poster');
-      mediaEl.style.backgroundImage = `url("${info.poster}")`;
-    } else {
-      const mono = document.createElement('span');
-      mono.className = 'game-monogram';
-      mono.textContent = displayName(name).trim().charAt(0);
-      mediaEl.appendChild(mono);
-    }
+    document.getElementById('roomModalMedia').innerHTML = '';
+    const mono = document.createElement('span');
+    mono.className = 'game-monogram';
+    mono.textContent = displayName(name).trim().charAt(0);
+    document.getElementById('roomModalMedia').appendChild(mono);
 
     document.getElementById('roomModalCity').textContent = cityLabel(cities);
     document.getElementById('roomModalName').textContent = displayName(name);
@@ -1783,16 +1657,6 @@
     } else {
       rankEl.textContent = '';
     }
-
-    const tagsHost = document.getElementById('roomModalTags');
-    tagsHost.innerHTML = '';
-    const tags = buildRoomTags(info);
-    if(tags) tagsHost.appendChild(tags);
-
-    const factsHost = document.getElementById('roomModalFacts');
-    factsHost.innerHTML = '';
-    const facts = buildRoomFacts(info);
-    if(facts) factsHost.appendChild(facts);
 
     document.getElementById('roomModalLong').textContent = dict['game.modal.comingSoon'] || '';
   }
