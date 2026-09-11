@@ -1,7 +1,7 @@
 // Shared data, i18n, and room-rendering helpers for index.html and room.html
   const CITY_ROOMS = {
     guangzhou: ['不可名状','溃烂缪斯','Dream','暂放的绽放','污秽','幻觉游戏','这没有游戏','纸人回魂'],
-    shanghai: ['HAVEN','INSANE II','GATEMAN','REVIVER','白夜','Cindy死了九次','WUKONG','SOUL HOUSE','Undeveloped Memory','昆仑寒宫2','找到你了2','Strike it! Rich!','溃烂缪斯','INSANE','AFTERLIFE'],
+    shanghai: ['HAVEN','INSANE II','GATEMAN','REVIVER','白夜','Cindy死了九次','WUKONG','SOUL HOUSE','Undeveloped Memory','昆仑寒宫2','找到你了2','Strike it! Rich!','溃烂缪斯','INSANE','AFTERLIFE','复原'],
     hangzhou: ['坏机器','镇灵村','不可名状','溃烂缪斯','萨乌达德'],
     chongqing: ['太岁','活神仙','逢魔时'],
     chengdu: ['朝圣','神佑','安乐','Lily','Dollshouse','再见黛安娜','玛雅','观落阴'],
@@ -9,9 +9,9 @@
   };
   const CITY_ORDER = ['beijing','shanghai','guangzhou','hangzhou','chengdu','chongqing'];
   const TOP30 = [
-    '不可名状','溃烂缪斯','HAVEN','INSANE II','诺亚','女屋','朝圣','坏机器','Dream','Cindy死了九次',
-    '太岁','Dollshouse','Lily','GATEMAN','SOUL HOUSE','REVIVER','安乐','ENOLA','白夜','玛雅',
-    '昆仑寒宫2','污秽','纸人回魂','艾洛拉','神佑','逢魔时','观落阴','神话','WUKONG','INSANE'
+    '不可名状','溃烂缪斯','太岁','INSANE II','Dollshouse','SOUL HOUSE','Dream','REVIVER','Cindy死了九次','HAVEN',
+    '坏机器','Lily','女屋','安乐','INSANE','GATEMAN','诺亚','ENOLA','朝圣','复原',
+    '污秽','神佑','玛雅','白夜','纸人回魂','逢魔时','观落阴','神话','WUKONG','艾洛拉'
   ];
   const NAME_EN = {
     '不可名状': 'Unnameable',
@@ -33,7 +33,8 @@
     '逢魔时': 'Witching Hour',
     '观落阴': 'Descent to the Netherworld',
     '神话': 'Myth',
-    'WUKONG': 'WuKong'
+    'WUKONG': 'WuKong',
+    '复原': 'ABEILLE'
   };
   function displayName(name){
     if(currentLang === 'en' && NAME_EN[name]) return NAME_EN[name];
@@ -310,7 +311,8 @@
     '观落阴': { priceRMB: 268, hasEnglish: false },
     '太岁': { priceRMB: 238, hasEnglish: false },
     '活神仙': { priceRMB: 238, hasEnglish: false },
-    '逢魔时': { priceRMB: 198, hasEnglish: false }
+    '逢魔时': { priceRMB: 198, hasEnglish: false },
+    '复原': { priceRMB: 398, hasEnglish: true }
   };
   function roomInfo(name){ return ROOM_INFO[name] || {}; }
 
