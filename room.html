@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Escape room details — city, price, duration and booking info.">
+<title>Room Details — China Escape Room Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html#top" class="logo">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="7" y="14" width="18" height="14" rx="1.5" stroke="#e9c98a" stroke-width="1.4"/>
+        <path d="M11 14v-3a5 5 0 0 1 10 0v3" stroke="#e9c98a" stroke-width="1.4"/>
+        <circle cx="16" cy="20" r="2" stroke="#a5372a" stroke-width="1.4"/>
+        <path d="M16 22v2.4" stroke="#a5372a" stroke-width="1.4"/>
+      </svg>
+      <span data-i18n="nav.logo">Escape Guide</span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html#games" data-i18n="nav.games">Top Games</a>
+      <a href="index.html#cities" data-i18n="nav.cities">Cities</a>
+      <a href="index.html#booking" data-i18n="nav.booking">How to Book</a>
+      <a href="index.html#why" data-i18n="nav.why">Why Us</a>
+      <a href="index.html#faq" data-i18n="nav.faq">FAQ</a>
+      <div class="lang-switch lang-switch-mobile">
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="zh">中文</button>
+      </div>
+    </nav>
+    <div class="nav-right">
+      <button class="sfx-btn" id="sfxBtn" aria-label="Toggle sound effects" title="Sound effects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16 9a4 4 0 010 6" stroke-linecap="round"/></svg>
+      </button>
+      <div class="lang-switch lang-switch-desktop">
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="zh">中文</button>
+      </div>
+      <a href="index.html#booking" class="nav-cta" data-i18n="nav.cta">Book Now</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="room-page">
+  <div class="wrap">
+    <a href="index.html#games" class="room-back" data-i18n="room.back">← All Rooms</a>
+
+    <div id="roomNotFound" hidden>
+      <h1 class="section-title">Room not found</h1>
+      <p class="section-desc">We couldn't find that room. <a href="index.html#games" style="color:var(--gold-bright)">Browse all rooms →</a></p>
+    </div>
+
+    <div id="roomContent">
+      <div class="room-hero">
+        <div class="room-hero-media" id="roomHeroMedia"></div>
+        <div class="room-hero-body">
+          <div class="room-hero-city" id="roomHeroCity"></div>
+          <h1 class="room-hero-name" id="roomHeroName"></h1>
+          <div class="room-hero-rank" id="roomHeroRank" hidden></div>
+          <div id="roomHeroTags"></div>
+          <div id="roomHeroFacts"></div>
+          <p class="room-hero-long" id="roomHeroLong"></p>
+          <a href="index.html#booking" class="btn btn-primary" data-i18n="game.modal.cta">Ask About Booking →</a>
+        </div>
+      </div>
+
+      <div class="room-more-cities" id="roomMoreWrap" hidden>
+        <h3 id="roomMoreTitle"></h3>
+        <div class="city-modal-list" id="roomMoreList"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html#top" class="logo">
+          <svg class="mark" viewBox="0 0 32 32" fill="none"><rect x="7" y="14" width="18" height="14" rx="1.5" stroke="#e9c98a" stroke-width="1.4"/><path d="M11 14v-3a5 5 0 0 1 10 0v3" stroke="#e9c98a" stroke-width="1.4"/><circle cx="16" cy="20" r="2" stroke="#a5372a" stroke-width="1.4"/><path d="M16 22v2.4" stroke="#a5372a" stroke-width="1.4"/></svg>
+          <span data-i18n="nav.logo">Escape Guide</span>
+        </a>
+        <p data-i18n="footer.desc">Curated recommendations and booking assistance for international players exploring China's escape rooms.</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.explore">Explore</h4>
+        <a href="index.html#games" data-i18n="nav.games">Top Games</a>
+        <a href="index.html#cities" data-i18n="nav.cities">Cities</a>
+        <a href="index.html#booking" data-i18n="nav.booking">How to Book</a>
+        <a href="index.html#why" data-i18n="nav.why">Why Us</a>
+        <a href="index.html#faq" data-i18n="nav.faq">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.citiesHead">Cities</h4>
+        <a href="index.html#cities" data-i18n="city.beijing">Beijing</a>
+        <a href="index.html#cities" data-i18n="city.shanghai">Shanghai</a>
+        <a href="index.html#cities" data-i18n="city.guangzhou">Guangzhou</a>
+        <a href="index.html#cities" data-i18n="city.hangzhou">Hangzhou</a>
+        <a href="index.html#cities" data-i18n="city.chengdu">Chengdu</a>
+        <a href="index.html#cities" data-i18n="city.chongqing">Chongqing</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.contact">Contact</h4>
+        <a href="mailto:wxiang@sva.edu">wxiang@sva.edu</a>
+        <a href="#">WeChat: Xym20001026</a>
+        <a href="https://wa.me/16469395960" target="_blank" rel="noopener">WhatsApp: +1 646 939 5960</a>
+        <a href="https://www.instagram.com/1026kk_xiang" target="_blank" rel="noopener">Instagram: @1026kk_xiang</a>
+        <a href="#">Discord: kkxiang</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-i18n="footer.copyright">© 2026 China Escape Room Guide</span>
+      <span data-i18n="footer.disclaimer">For reference only — please confirm details with each venue</span>
+    </div>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script>
+  // nav scroll state
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 10);
+  });
+
+  // mobile nav toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  // ---------- SFX (lightweight, matches index.html) ----------
+  let sfxOn = false;
+  try{ sfxOn = localStorage.getItem('escapeGuideSfx') === '1'; }catch(e){}
+  const sfxBtn = document.getElementById('sfxBtn');
+  let audioCtx = null;
+  function getAudioCtx(){
+    if(!audioCtx){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(Ctx) audioCtx = new Ctx();
+    }
+    return audioCtx;
+  }
+  function playTone(freq, duration){
+    if(!sfxOn) return;
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration + 0.05);
+  }
+  function setSfx(on){
+    sfxOn = on;
+    sfxBtn.classList.toggle('on', on);
+    try{ localStorage.setItem('escapeGuideSfx', on ? '1' : '0'); }catch(e){}
+  }
+  sfxBtn.addEventListener('click', () => {
+    getAudioCtx();
+    setSfx(!sfxOn);
+    if(sfxOn) playTone(520, 0.12);
+  });
+  setSfx(sfxOn);
+
+  // ---------- room lookup ----------
+  function findRoomBySlug(slug){
+    const seen = new Set();
+    for(const city of CITY_ORDER){
+      for(const name of (CITY_ROOMS[city] || [])){
+        if(seen.has(name)) continue;
+        seen.add(name);
+        if(slugify(name) === slug) return name;
+      }
+    }
+    return null;
+  }
+
+  function buildMiniRow(name){
+    const dict = translations[currentLang] || translations.en;
+    const row = document.createElement('a');
+    row.className = 'city-room-row';
+    row.href = 'room.html?room=' + encodeURIComponent(slugify(name));
+
+    const iconWrap = document.createElement('span');
+    iconWrap.className = 'city-room-icon';
+    const mono = document.createElement('span');
+    mono.className = 'game-monogram';
+    mono.style.fontSize = '18px';
+    mono.textContent = displayName(name).trim().charAt(0);
+    iconWrap.appendChild(mono);
+
+    const info = document.createElement('span');
+    info.className = 'city-room-info';
+    const nameEl = document.createElement('span');
+    nameEl.className = 'city-room-name';
+    nameEl.textContent = displayName(name);
+    const badgeEl = document.createElement('span');
+    badgeEl.className = 'city-room-badge';
+    const rank = TOP30.indexOf(name) + 1;
+    badgeEl.textContent = rank > 0 ? ('#' + rank + ' · ' + (dict['games.title'] || '')) : cityLabel(citiesForName(name));
+    info.appendChild(nameEl);
+    info.appendChild(badgeEl);
+
+    const arrow = document.createElement('span');
+    arrow.className = 'city-room-arrow';
+    arrow.textContent = '→';
+
+    row.appendChild(iconWrap);
+    row.appendChild(info);
+    row.appendChild(arrow);
+    return row;
+  }
+
+  let currentRoomName = null;
+
+  function renderRoomPage(){
+    const params = new URLSearchParams(location.search);
+    const slug = params.get('room');
+    const name = slug ? findRoomBySlug(slug) : null;
+    currentRoomName = name;
+
+    const notFound = document.getElementById('roomNotFound');
+    const content = document.getElementById('roomContent');
+    if(!name){
+      notFound.hidden = false;
+      content.hidden = true;
+      return;
+    }
+    notFound.hidden = true;
+    content.hidden = false;
+
+    const dict = translations[currentLang] || translations.en;
+    const cities = citiesForName(name);
+    const rank = TOP30.indexOf(name) + 1;
+    const info = roomInfo(name);
+
+    document.title = displayName(name) + ' — ' + (dict['meta.title'] || 'China Escape Room Guide');
+
+    const media = document.getElementById('roomHeroMedia');
+    media.innerHTML = '';
+    media.classList.remove('has-poster');
+    media.style.backgroundImage = '';
+    if(info.poster){
+      media.classList.add('has-poster');
+      media.style.backgroundImage = `url("${info.poster}")`;
+    } else {
+      const mono = document.createElement('span');
+      mono.className = 'game-monogram';
+      mono.textContent = displayName(name).trim().charAt(0);
+      media.appendChild(mono);
+    }
+
+    document.getElementById('roomHeroCity').textContent = cityLabel(cities);
+    document.getElementById('roomHeroName').textContent = displayName(name);
+
+    const rankEl = document.getElementById('roomHeroRank');
+    if(rank > 0){
+      const suffix = currentLang === 'zh' ? '名' : '';
+      rankEl.textContent = (dict['game.modal.topRank'] || '') + rank + suffix;
+      rankEl.hidden = false;
+    } else {
+      rankEl.hidden = true;
+    }
+
+    const tagsHost = document.getElementById('roomHeroTags');
+    tagsHost.innerHTML = '';
+    const tags = buildRoomTags(info);
+    if(tags) tagsHost.appendChild(tags);
+
+    const factsHost = document.getElementById('roomHeroFacts');
+    factsHost.innerHTML = '';
+    const facts = buildRoomFacts(info);
+    if(facts) factsHost.appendChild(facts);
+
+    document.getElementById('roomHeroLong').textContent = dict['game.modal.comingSoon'] || '';
+
+    // more rooms in the same city
+    const moreWrap = document.getElementById('roomMoreWrap');
+    const moreList = document.getElementById('roomMoreList');
+    const moreTitle = document.getElementById('roomMoreTitle');
+    moreList.innerHTML = '';
+    const seen = new Set([name]);
+    const more = [];
+    cities.forEach(cityKey => {
+      (CITY_ROOMS[cityKey] || []).forEach(otherName => {
+        if(seen.has(otherName) || more.length >= 6) return;
+        seen.add(otherName);
+        more.push(otherName);
+      });
+    });
+    if(more.length){
+      moreTitle.textContent = (dict['room.moreInCity'] || 'More rooms in ') + cityLabel(cities);
+      more.forEach(n => moreList.appendChild(buildMiniRow(n)));
+      moreWrap.hidden = false;
+    } else {
+      moreWrap.hidden = true;
+    }
+  }
+
+  function applyLang(lang){
+    currentLang = lang;
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    const dict = translations[lang] || translations.en;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const val = dict[key];
+      if(val === undefined) return;
+      if(el.hasAttribute('data-i18n-html')) el.innerHTML = val;
+      else el.textContent = val;
+    });
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+    try{ localStorage.setItem('escapeGuideLang', lang); }catch(e){}
+    renderRoomPage();
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.addEventListener('click', () => applyLang(b.dataset.lang));
+  });
+
+  applyLang(currentLang);
+</script>
+</body>
+</html>
