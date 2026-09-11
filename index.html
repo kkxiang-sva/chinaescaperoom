@@ -230,6 +230,7 @@
     overflow:hidden;
   }
   .game-media svg{width:36px; height:36px; opacity:.85; position:relative; z-index:1;}
+  .game-media .game-monogram{font-size:34px; position:relative; z-index:1;}
   .game-media::after{
     content:''; position:absolute; inset:0;
     background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 1px);
@@ -245,6 +246,7 @@
   .game-city{font-size:10.5px; color:var(--text-dimmer); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px;}
   .game-name{font-family:var(--serif); font-weight:700; font-size:15.5px; margin-bottom:7px; line-height:1.25;}
   .game-desc{font-size:11.5px; color:var(--text-dim); font-weight:300; margin-bottom:13px; min-height:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .game-desc.coming-soon{font-style:italic; color:var(--text-dimmer);}
   .game-meta{
     display:flex; flex-direction:column; align-items:flex-start; gap:8px;
     padding-top:11px; border-top:1px solid var(--line);
@@ -482,7 +484,8 @@
   }
   .game-card:hover::before{opacity:1;}
   .game-card .game-name{position:relative;}
-  .game-card:hover .game-media svg{animation:iconPulse .9s ease-in-out infinite;}
+  .game-card:hover .game-media svg,
+  .game-card:hover .game-media .game-monogram{animation:iconPulse .9s ease-in-out infinite;}
   @keyframes iconPulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.08);}}
 
   @keyframes lockGlow{
@@ -638,33 +641,21 @@
     display:flex; align-items:center; justify-content:center;
   }
   .room-modal-media svg{width:64px; height:64px; opacity:.9;}
+  .game-monogram, .room-modal-media .game-monogram{
+    font-family:var(--serif); font-weight:700; color:var(--gold-bright); opacity:.9;
+    line-height:1;
+  }
+  .room-modal-media .game-monogram{font-size:56px;}
   .room-modal-body{padding:30px 32px 34px;}
   .room-modal-city{font-size:12px; color:var(--text-dimmer); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px;}
-  .room-modal-name{font-family:var(--serif); font-weight:700; font-size:26px; color:var(--text); margin-bottom:14px;}
-  .room-modal-meta{
-    display:flex; align-items:center; gap:16px;
-    padding-bottom:18px; margin-bottom:18px; border-bottom:1px solid var(--line);
-    font-size:12.5px; color:var(--text-dim);
+  .room-modal-name{font-family:var(--serif); font-weight:700; font-size:26px; color:var(--text); margin-bottom:10px;}
+  .room-modal-rank{
+    display:inline-block; font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--gold-bright); border:1px solid var(--line-strong); border-radius:2px;
+    padding:5px 12px; margin-bottom:18px;
   }
-  .room-modal-meta .locks{display:flex; gap:3px;}
-  .room-modal-meta .lock{width:12px; height:12px; opacity:.25;}
-  .room-modal-meta .lock.on{opacity:1;}
-  .room-modal-meta .lock svg{width:100%; height:100%;}
-  .room-modal-desc{font-size:14.5px; color:var(--text-dim); font-weight:300; margin-bottom:14px;}
-  .room-modal-long{font-size:14px; color:var(--text-dim); font-weight:300; margin-bottom:22px;}
-  .room-modal-label{
-    font-size:11.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
-    color:var(--gold); margin-bottom:12px;
-  }
-  .room-modal-highlights ul{list-style:none; margin-bottom:26px;}
-  .room-modal-highlights li{
-    font-size:13.5px; color:var(--text-dim); font-weight:300; margin-bottom:9px;
-    padding-left:22px; position:relative;
-  }
-  .room-modal-highlights li::before{
-    content:''; position:absolute; left:0; top:6px; width:10px; height:10px;
-    border:1px solid var(--gold-bright); border-radius:2px; background:rgba(233,201,138,0.12);
-  }
+  .room-modal-rank:empty{display:none; margin-bottom:0;}
+  .room-modal-long{font-size:14px; color:var(--text-dim); font-weight:300; margin-bottom:26px;}
   .room-modal-cta{width:100%; justify-content:center;}
 
   /* ---------- RESPONSIVE ---------- */
@@ -734,16 +725,8 @@
     <div class="room-modal-body">
       <div class="room-modal-city" id="roomModalCity"></div>
       <h3 class="room-modal-name" id="roomModalName"></h3>
-      <div class="room-modal-meta">
-        <div class="locks" id="roomModalLocks"></div>
-        <span id="roomModalDuration"></span>
-      </div>
-      <p class="room-modal-desc" id="roomModalDesc"></p>
+      <div class="room-modal-rank" id="roomModalRank"></div>
       <p class="room-modal-long" id="roomModalLong"></p>
-      <div class="room-modal-highlights">
-        <div class="room-modal-label" data-i18n="game.modal.highlights">Highlights</div>
-        <ul id="roomModalHighlights"></ul>
-      </div>
       <a href="#booking" class="btn btn-primary room-modal-cta" id="roomModalCta" data-i18n="game.modal.cta">Ask About Booking →</a>
     </div>
   </div>
@@ -812,8 +795,8 @@
     <a href="#booking" class="btn btn-ghost" data-i18n="hero.cta2">How to Book</a>
   </div>
   <div class="hero-stats">
-    <div class="stat"><div class="stat-num" data-target="30" data-suffix="+">0</div><div class="stat-label" data-i18n="stat.cities">Cities Covered</div></div>
-    <div class="stat"><div class="stat-num" data-target="120" data-suffix="+">0</div><div class="stat-label" data-i18n="stat.rooms">Curated Rooms</div></div>
+    <div class="stat"><div class="stat-num" data-target="6" data-suffix="+">0</div><div class="stat-label" data-i18n="stat.cities">Cities Covered</div></div>
+    <div class="stat"><div class="stat-num" data-target="47" data-suffix="+">0</div><div class="stat-label" data-i18n="stat.rooms">Curated Rooms</div></div>
     <div class="stat"><div class="stat-num" data-target="4.8" data-decimals="1" data-suffix=" / 5">0</div><div class="stat-label" data-i18n="stat.rating">Average Rating</div></div>
     <div class="stat"><div class="stat-num" data-target="100" data-suffix="%">0</div><div class="stat-label" data-i18n="stat.assist">Booking Assistance</div></div>
   </div>
@@ -822,280 +805,14 @@
 <section class="games" id="games">
   <div class="wrap">
     <div class="section-head">
-      <span class="section-tag">Top Games</span>
+      <span class="section-tag">Top 30</span>
       <h2 class="section-title" data-i18n="games.title">All-Time Top Picks</h2>
       <div class="games-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="games.note">All room info available in English</span></div>
-      <p class="section-desc" data-i18n="games.desc">Shown below is sample content — swap in your real room data (name, city, photos, difficulty, duration, group size) before launch.</p>
+      <p class="section-desc" data-i18n="games.desc">Our ranked list of the 30 best escape rooms across China right now. Full write-ups for each room are coming soon.</p>
     </div>
-    <div class="game-grid">
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game1.badge">Horror · Immersive</span>
-          <svg viewBox="0 0 48 48" fill="none"><path d="M24 4 6 12v10c0 12 7.5 18.5 18 22 10.5-3.5 18-10 18-22V12L24 4Z" stroke="#e9c98a" stroke-width="1.4"/><path d="M17 24l5 5 9-11" stroke="#a5372a" stroke-width="1.6"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game1.city">Beijing · Dongcheng</div>
-          <div class="game-name" data-i18n="game1.name">Red Wall Shadows</div>
-          <p class="game-desc" data-i18n="game1.desc">A century-old courtyard house deep in a Beijing hutong hides a disappearance no one has ever solved.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game1.meta">60 min · 4-6 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game2.badge">Mystery · Detective</span>
-          <svg viewBox="0 0 48 48" fill="none"><circle cx="20" cy="20" r="12" stroke="#e9c98a" stroke-width="1.4"/><path d="M29 29l11 11" stroke="#e9c98a" stroke-width="1.6" stroke-linecap="round"/><path d="M15 20a5 5 0 015-5" stroke="#a5372a" stroke-width="1.4" stroke-linecap="round"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game2.city">Shanghai · Jing'an</div>
-          <div class="game-name" data-i18n="game2.name">The Bund, 1932</div>
-          <p class="game-desc" data-i18n="game2.desc">A stolen dossier from a Republic-era trading house — play the detective and chase down the truth.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game2.meta">75 min · 3-5 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game3.badge">Historical · Imperial</span>
-          <svg viewBox="0 0 48 48" fill="none"><path d="M8 40h32M12 40V20l4-4h16l4 4v20" stroke="#e9c98a" stroke-width="1.4"/><path d="M24 4l6 8H18l6-8Z" stroke="#a5372a" stroke-width="1.4"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game3.city">Xi'an · Beilin</div>
-          <div class="game-name" data-i18n="game3.name">Tang Dynasty Banquet</div>
-          <p class="game-desc" data-i18n="game3.desc">Travel back to imperial Chang'an and hunt for a missing royal decree amid a lavish palace feast.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game3.meta">90 min · 4-8 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game4.badge">Sci-Fi · Tech</span>
-          <svg viewBox="0 0 48 48" fill="none"><rect x="10" y="10" width="28" height="28" rx="2" stroke="#e9c98a" stroke-width="1.4"/><circle cx="24" cy="24" r="6" stroke="#a5372a" stroke-width="1.4"/><path d="M24 6v4M24 38v4M6 24h4M38 24h4" stroke="#e9c98a" stroke-width="1.4"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game4.city">Shenzhen · Nanshan</div>
-          <div class="game-name" data-i18n="game4.name">Quantum Lab</div>
-          <p class="game-desc" data-i18n="game4.desc">A research facility's core is about to overload — your team has one countdown to restart it.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game4.meta">60 min · 2-4 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game5.badge">Suspense · Narrative</span>
-          <svg viewBox="0 0 48 48" fill="none"><path d="M24 44c9-6 16-14 16-24a16 16 0 10-32 0c0 10 7 18 16 24Z" stroke="#e9c98a" stroke-width="1.4"/><circle cx="24" cy="20" r="4" stroke="#a5372a" stroke-width="1.4"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game5.city">Chengdu · Jinjiang</div>
-          <div class="game-name" data-i18n="game5.name">The Old Post House</div>
-          <p class="game-desc" data-i18n="game5.desc">Travelers keep vanishing from this ancient waystation — the truth is buried under layers of clues.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game5.meta">70 min · 3-6 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game6.badge">Live Actor</span>
-          <svg viewBox="0 0 48 48" fill="none"><path d="M24 6l4.8 9.7 10.7 1.6-7.7 7.5 1.8 10.6L24 30.2l-9.6 5.2 1.8-10.6-7.7-7.5 10.7-1.6L24 6Z" stroke="#e9c98a" stroke-width="1.4"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game6.city">Guangzhou · Tianhe</div>
-          <div class="game-name" data-i18n="game6.name">Opera House Nightmare</div>
-          <p class="game-desc" data-i18n="game6.desc">A haunted backstage legend at a Cantonese opera house, where performer and audience swap roles.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game6.meta">80 min · 4-6 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game7.badge">Folklore · Romance</span>
-          <svg viewBox="0 0 48 48" fill="none"><path d="M24 6c-8 6-16 10-16 20a16 16 0 0032 0c0-10-8-14-16-20Z" stroke="#e9c98a" stroke-width="1.4"/><path d="M24 16v18" stroke="#a5372a" stroke-width="1.6"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game7.city">Hangzhou · Xihu</div>
-          <div class="game-name" data-i18n="game7.name">The White Snake's Vow</div>
-          <p class="game-desc" data-i18n="game7.desc">A rain-soaked West Lake bridge, a forbidden love, and a spirit racing to break an ancient curse before dawn.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game7.meta">65 min · 4-6 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game8.badge">Historical · Espionage</span>
-          <svg viewBox="0 0 48 48" fill="none"><path d="M8 14h32v24H8V14Z" stroke="#e9c98a" stroke-width="1.4"/><path d="M8 14l16 14 16-14" stroke="#a5372a" stroke-width="1.6"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game8.city">Nanjing · Xuanwu</div>
-          <div class="game-name" data-i18n="game8.name">The Presidential Cipher</div>
-          <p class="game-desc" data-i18n="game8.desc">1946: a Republic-era mansion, a defecting officer, and a coded ledger that could rewrite history.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game8.meta">85 min · 3-5 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game9.badge">Adventure · Heist</span>
-          <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="22" r="10" stroke="#e9c98a" stroke-width="1.4"/><path d="M24 12v-4M24 36v4M14 22H10M38 22h-4M17 15l-3-3M31 15l3-3M17 29l-3 3M31 29l3 3" stroke="#a5372a" stroke-width="1.4"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game9.city">Wuhan · Jiang'an</div>
-          <div class="game-name" data-i18n="game9.name">The Yangtze Code</div>
-          <p class="game-desc" data-i18n="game9.desc">A sunken cargo ship, a smuggler's cipher, and one night to crack it before the river claims the truth.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game9.meta">70 min · 4-6 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game10.badge">Thriller · Maze</span>
-          <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="32" rx="2" stroke="#e9c98a" stroke-width="1.4"/><path d="M14 14h12v8h8v12" stroke="#a5372a" stroke-width="1.6"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game10.city">Chongqing · Yuzhong</div>
-          <div class="game-name" data-i18n="game10.name">Fog City Labyrinth</div>
-          <p class="game-desc" data-i18n="game10.desc">Chongqing's stacked alleyways hide a killer's trail — chase it through fog, stairwells, and dead ends.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game10.meta">75 min · 2-4 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game11.badge">Historical · Puzzle</span>
-          <svg viewBox="0 0 48 48" fill="none"><path d="M8 40h32M10 16h28v8H10z" stroke="#e9c98a" stroke-width="1.4"/><path d="M14 24v16M34 24v16M20 24v16M28 24v16" stroke="#a5372a" stroke-width="1.4"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game11.city">Beijing · Chaoyang</div>
-          <div class="game-name" data-i18n="game11.name">The Imperial Academy Riddle</div>
-          <p class="game-desc" data-i18n="game11.desc">A former imperial academy's archive holds a centuries-old riddle that only a true scholar can solve.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game11.meta">75 min · 3-5 players</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-media">
-          <span class="game-badge" data-i18n="game12.badge">Sci-Fi · Cyberpunk</span>
-          <svg viewBox="0 0 48 48" fill="none"><path d="M10 38V18l14-10 14 10v20" stroke="#e9c98a" stroke-width="1.4"/><path d="M18 38V24h12v14" stroke="#a5372a" stroke-width="1.6"/></svg>
-        </div>
-        <div class="game-body">
-          <div class="game-city" data-i18n="game12.city">Shanghai · Pudong</div>
-          <div class="game-name" data-i18n="game12.name">Neon Shanghai 2088</div>
-          <p class="game-desc" data-i18n="game12.desc">In a neon-drenched near-future Shanghai, a rogue AI has locked down a skyscraper — you have one hour before it purges everything.</p>
-          <div class="game-meta">
-            <div class="locks">
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
-            </div>
-            <span data-i18n="game12.meta">60 min · 2-4 players</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
+    <div class="game-grid" id="gameGrid"></div>
     <div class="games-more">
-      <a href="#" class="btn btn-ghost" data-i18n="games.more">View All Rooms →</a>
+      <a href="#cities" class="btn btn-ghost" data-i18n="games.more">Browse More by City →</a>
     </div>
   </div>
 </section>
@@ -1107,58 +824,7 @@
       <h2 class="section-title" data-i18n="cities.title">Explore by City</h2>
       <p class="section-desc" data-i18n="cities.desc">Pick a city to see our top-recommended rooms there.</p>
     </div>
-    <div class="city-grid" id="cityGrid">
-      <button type="button" class="city-card" data-city="beijing">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.beijing">Beijing</div>
-        <div class="city-count" data-count></div>
-      </button>
-      <button type="button" class="city-card" data-city="shanghai">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.shanghai">Shanghai</div>
-        <div class="city-count" data-count></div>
-      </button>
-      <button type="button" class="city-card" data-city="xian">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.xian">Xi'an</div>
-        <div class="city-count" data-count></div>
-      </button>
-      <button type="button" class="city-card" data-city="shenzhen">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.shenzhen">Shenzhen</div>
-        <div class="city-count" data-count></div>
-      </button>
-      <button type="button" class="city-card" data-city="chengdu">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.chengdu">Chengdu</div>
-        <div class="city-count" data-count></div>
-      </button>
-      <button type="button" class="city-card" data-city="guangzhou">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.guangzhou">Guangzhou</div>
-        <div class="city-count" data-count></div>
-      </button>
-      <button type="button" class="city-card" data-city="hangzhou">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.hangzhou">Hangzhou</div>
-        <div class="city-count" data-count></div>
-      </button>
-      <button type="button" class="city-card" data-city="nanjing">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.nanjing">Nanjing</div>
-        <div class="city-count" data-count></div>
-      </button>
-      <button type="button" class="city-card" data-city="wuhan">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.wuhan">Wuhan</div>
-        <div class="city-count" data-count></div>
-      </button>
-      <button type="button" class="city-card" data-city="chongqing">
-        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
-        <div class="city-name" data-i18n="city.chongqing">Chongqing</div>
-        <div class="city-count" data-count></div>
-      </button>
-    </div>
+    <div class="city-grid" id="cityGrid"></div>
   </div>
 </section>
 
@@ -1317,10 +983,10 @@
         <h4 data-i18n="footer.citiesHead">Cities</h4>
         <a href="#cities" class="footer-city-link" data-city="beijing" data-i18n="city.beijing">Beijing</a>
         <a href="#cities" class="footer-city-link" data-city="shanghai" data-i18n="city.shanghai">Shanghai</a>
-        <a href="#cities" class="footer-city-link" data-city="hangzhou" data-i18n="city.hangzhou">Hangzhou</a>
         <a href="#cities" class="footer-city-link" data-city="guangzhou" data-i18n="city.guangzhou">Guangzhou</a>
+        <a href="#cities" class="footer-city-link" data-city="hangzhou" data-i18n="city.hangzhou">Hangzhou</a>
         <a href="#cities" class="footer-city-link" data-city="chengdu" data-i18n="city.chengdu">Chengdu</a>
-        <a href="#cities" data-i18n="city.more">&amp; More</a>
+        <a href="#cities" class="footer-city-link" data-city="chongqing" data-i18n="city.chongqing">Chongqing</a>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer.contact">Contact</h4>
@@ -1339,110 +1005,21 @@
 </footer>
 
 <script>
-  // nav scroll state
-  const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 10);
-  });
-
-  // mobile nav toggle
-  const navToggle = document.getElementById('navToggle');
-  const navLinks = document.getElementById('navLinks');
-  navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
-  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
-
-  // faq accordion
-  document.querySelectorAll('.faq-item').forEach(item => {
-    const q = item.querySelector('.faq-q');
-    const a = item.querySelector('.faq-a');
-    if(item.classList.contains('open')) a.style.maxHeight = a.scrollHeight + 'px';
-    q.addEventListener('click', () => {
-      const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i => {
-        i.classList.remove('open');
-        i.querySelector('.faq-a').style.maxHeight = 0;
-      });
-      if(!isOpen){
-        item.classList.add('open');
-        a.style.maxHeight = a.scrollHeight + 'px';
-      }
-    });
-  });
-
-  // countdown clock — loops 60:00 down to 00:00 for atmosphere
-  const clockEl = document.getElementById('countdownClock');
-  let secondsLeft = 60 * 60;
-  setInterval(() => {
-    secondsLeft = secondsLeft > 0 ? secondsLeft - 1 : 60 * 60;
-    const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
-    const s = String(secondsLeft % 60).padStart(2, '0');
-    clockEl.textContent = `${m}:${s}`;
-  }, 1000);
-
-  // scroll reveal for sections, cards, steps, etc.
-  document.querySelectorAll(
-    '.section-head, .game-card, .city-card, .step, .channel, .feature, .founder, .faq-item, .cta-band .wrap > *'
-  ).forEach(el => el.classList.add('reveal'));
-
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if(entry.isIntersecting){
-        setTimeout(() => entry.target.classList.add('in-view'), i * 60);
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.15 });
-  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-
-  // count-up stats once visible
-  const countEls = document.querySelectorAll('.stat-num[data-target]');
-  const statObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if(!entry.isIntersecting) return;
-      entry.target.closest('.stat').classList.add('in-view');
-      const target = parseFloat(entry.target.dataset.target);
-      const decimals = parseInt(entry.target.dataset.decimals || '0', 10);
-      const suffix = entry.target.dataset.suffix || '';
-      const duration = 1400;
-      const start = performance.now();
-      function tick(now){
-        const progress = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        entry.target.textContent = (target * eased).toFixed(decimals) + suffix;
-        if(progress < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-      statObserver.unobserve(entry.target);
-    });
-  }, { threshold: 0.4 });
-  countEls.forEach(el => statObserver.observe(el));
-
-  // spotlight follows cursor on game cards
-  document.querySelectorAll('.game-card').forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
-      card.style.setProperty('--my', `${e.clientY - rect.top}px`);
-    });
-  });
-
-  // ---------- game card setup: id + city + click-to-open details ----------
-  const cityByRoom = [
-    'beijing','shanghai','xian','shenzhen','chengdu','guangzhou',
-    'hangzhou','nanjing','wuhan','chongqing','beijing','shanghai'
+  // ---------- room & city data ----------
+  const CITY_ROOMS = {
+    guangzhou: ['不可名状','溃烂缪斯','Dream','暂放的绽放','污秽','幻觉游戏','这没有游戏','纸人回魂'],
+    shanghai: ['HAVEN','INSANE II','GATEMAN','REVIVER','WHITE NIGHT','Cindy死了九次','WUKONG','SOUL HOUSE','Undeveloped Memory','昆仑寒宫2','找到你了2','Strike it! Rich!','溃烂缪斯','INSANE','AFTERLIFE'],
+    hangzhou: ['坏机器','镇灵村','不可名状','溃烂缪斯','萨乌达德'],
+    chongqing: ['太岁','活神仙','逢魔时'],
+    chengdu: ['朝圣','神佑','安乐','Lily','Dollshouse','再见黛安娜','玛雅','观落阴'],
+    beijing: ['诺亚','女屋','艾洛拉','神话','VISAGE','ENOLA','SINNER','楼兰古墓2']
+  };
+  const CITY_ORDER = ['beijing','shanghai','guangzhou','hangzhou','chengdu','chongqing'];
+  const TOP30 = [
+    '不可名状','溃烂缪斯','HAVEN','INSANE II','诺亚','女屋','朝圣','坏机器','Dream','Cindy死了九次',
+    '太岁','Dollshouse','Lily','GATEMAN','SOUL HOUSE','REVIVER','安乐','ENOLA','WHITE NIGHT','玛雅',
+    '昆仑寒宫2','污秽','纸人回魂','艾洛拉','神佑','逢魔时','观落阴','神话','WUKONG','INSANE'
   ];
-  document.querySelectorAll('.game-grid .game-card').forEach((card, i) => {
-    const key = 'game' + (i + 1);
-    card.dataset.room = key;
-    card.dataset.city = cityByRoom[i] || '';
-    card.tabIndex = 0;
-    card.setAttribute('role', 'button');
-    const hint = document.createElement('div');
-    hint.className = 'game-view-hint';
-    hint.setAttribute('data-i18n', 'game.viewMore');
-    hint.textContent = 'View Details →';
-    card.querySelector('.game-body').appendChild(hint);
-  });
 
   // ---------- i18n ----------
   const translations = {
@@ -1467,120 +1044,13 @@
       'stat.assist': 'Booking Assistance',
       'games.title': "All-Time Top Picks",
       'games.note': 'All room info available in English',
-      'games.desc': 'Shown below is sample content — swap in your real room data (name, city, photos, difficulty, duration, group size) before launch.',
-      'game1.badge': 'Horror · Immersive',
-      'game1.city': 'Beijing · Dongcheng',
-      'game1.name': 'Red Wall Shadows',
-      'game1.desc': 'A century-old courtyard house deep in a Beijing hutong hides a disappearance no one has ever solved.',
-      'game1.meta': '60 min · 4-6 players',
-      'game2.badge': 'Mystery · Detective',
-      'game2.city': "Shanghai · Jing'an",
-      'game2.name': 'The Bund, 1932',
-      'game2.desc': 'A stolen dossier from a Republic-era trading house — play the detective and chase down the truth.',
-      'game2.meta': '75 min · 3-5 players',
-      'game3.badge': 'Historical · Imperial',
-      'game3.city': "Xi'an · Beilin",
-      'game3.name': 'Tang Dynasty Banquet',
-      'game3.desc': "Travel back to imperial Chang'an and hunt for a missing royal decree amid a lavish palace feast.",
-      'game3.meta': '90 min · 4-8 players',
-      'game4.badge': 'Sci-Fi · Tech',
-      'game4.city': 'Shenzhen · Nanshan',
-      'game4.name': 'Quantum Lab',
-      'game4.desc': "A research facility's core is about to overload — your team has one countdown to restart it.",
-      'game4.meta': '60 min · 2-4 players',
-      'game5.badge': 'Suspense · Narrative',
-      'game5.city': 'Chengdu · Jinjiang',
-      'game5.name': 'The Old Post House',
-      'game5.desc': 'Travelers keep vanishing from this ancient waystation — the truth is buried under layers of clues.',
-      'game5.meta': '70 min · 3-6 players',
-      'game6.badge': 'Live Actor',
-      'game6.city': 'Guangzhou · Tianhe',
-      'game6.name': 'Opera House Nightmare',
-      'game6.desc': 'A haunted backstage legend at a Cantonese opera house, where performer and audience swap roles.',
-      'game6.meta': '80 min · 4-6 players',
-      'game7.badge': 'Folklore · Romance',
-      'game7.city': 'Hangzhou · Xihu',
-      'game7.name': "The White Snake's Vow",
-      'game7.desc': 'A rain-soaked West Lake bridge, a forbidden love, and a spirit racing to break an ancient curse before dawn.',
-      'game7.meta': '65 min · 4-6 players',
-      'game8.badge': 'Historical · Espionage',
-      'game8.city': 'Nanjing · Xuanwu',
-      'game8.name': 'The Presidential Cipher',
-      'game8.desc': '1946: a Republic-era mansion, a defecting officer, and a coded ledger that could rewrite history.',
-      'game8.meta': '85 min · 3-5 players',
-      'game9.badge': 'Adventure · Heist',
-      'game9.city': "Wuhan · Jiang'an",
-      'game9.name': 'The Yangtze Code',
-      'game9.desc': "A sunken cargo ship, a smuggler's cipher, and one night to crack it before the river claims the truth.",
-      'game9.meta': '70 min · 4-6 players',
-      'game10.badge': 'Thriller · Maze',
-      'game10.city': 'Chongqing · Yuzhong',
-      'game10.name': 'Fog City Labyrinth',
-      'game10.desc': "Chongqing's stacked alleyways hide a killer's trail — chase it through fog, stairwells, and dead ends.",
-      'game10.meta': '75 min · 2-4 players',
-      'game11.badge': 'Historical · Puzzle',
-      'game11.city': 'Beijing · Chaoyang',
-      'game11.name': 'The Imperial Academy Riddle',
-      'game11.desc': "A former imperial academy's archive holds a centuries-old riddle that only a true scholar can solve.",
-      'game11.meta': '75 min · 3-5 players',
-      'game12.badge': 'Sci-Fi · Cyberpunk',
-      'game12.city': 'Shanghai · Pudong',
-      'game12.name': 'Neon Shanghai 2088',
-      'game12.desc': 'In a neon-drenched near-future Shanghai, a rogue AI has locked down a skyscraper — you have one hour before it purges everything.',
-      'game12.meta': '60 min · 2-4 players',
+      'games.desc': 'Our ranked list of the 30 best escape rooms across China right now. Full write-ups for each room are coming soon.',
       'game.viewMore': 'View Details →',
-      'game.modal.about': 'About This Room',
-      'game.modal.highlights': 'Highlights',
       'game.modal.cta': 'Ask About Booking →',
-      'game1.long': "Built inside a real restored siheyuan courtyard, this room blends genuine antique furniture with modern show-control lighting for a horror experience that never feels like a set.",
-      'game1.h1': 'Real antique courtyard setting',
-      'game1.h2': 'Optional live-actor path',
-      'game1.h3': 'Multi-sensory scares (scent, temperature, sound)',
-      'game2.long': 'Set inside a recreated 1930s trading house office, players piece together ciphers, ledgers and radio transmissions in period-accurate detail.',
-      'game2.h1': 'Period-accurate 1930s set design',
-      'game2.h2': 'Ledger- and cipher-based puzzles',
-      'game2.h3': 'Great for mystery-novel fans',
-      'game3.long': 'A large-format banquet hall room with layered mechanical puzzles inspired by real Tang-dynasty artifacts and court customs.',
-      'game3.h1': 'Large-format palace set',
-      'game3.h2': 'Mechanical, artifact-inspired puzzles',
-      'game3.h3': 'Good for groups up to 8',
-      'game4.long': 'Electronic and light-based puzzles dominate this tech-forward room, built with real circuit props and a countdown-driven finale.',
-      'game4.h1': 'Real circuit and electronic props',
-      'game4.h2': 'Countdown-driven finale',
-      'game4.h3': 'Great for tech and sci-fi fans',
-      'game5.long': 'A slow-burn narrative room built around a real Sichuan waystation theme, with strong writing and minimal jump scares.',
-      'game5.h1': 'Strong narrative writing',
-      'game5.h2': 'Low jump-scare, high tension',
-      'game5.h3': 'A good first horror-adjacent room',
-      'game6.long': 'Full live-actor immersion room set backstage at a working Cantonese opera house, with a flexible no-contact mode available.',
-      'game6.h1': 'Full live-actor immersion',
-      'game6.h2': 'Real working opera house setting',
-      'game6.h3': 'No-contact mode available on request',
-      'game7.long': "Inspired by the classic Legend of the White Snake, this room favors atmosphere and story over difficulty, with a gorgeous water-and-lantern set.",
-      'game7.h1': 'Inspired by a classic Chinese legend',
-      'game7.h2': 'Atmosphere-first, story-driven',
-      'game7.h3': 'Beautiful water and lantern set design',
-      'game8.long': 'A Republic-era espionage thriller set inside a recreated 1940s official residence, with layered cipher puzzles and a defection subplot.',
-      'game8.h1': 'Republic-era spy storyline',
-      'game8.h2': 'Multi-layer cipher puzzles',
-      'game8.h3': 'Rich period set dressing',
-      'game9.long': 'A high-energy heist room aboard a recreated cargo ship set, with physical puzzles and a race-the-clock finale.',
-      'game9.h1': 'High-energy, physical puzzles',
-      'game9.h2': 'Recreated cargo-ship interior',
-      'game9.h3': 'Race-the-clock finale',
-      'game10.long': 'A multi-level chase-thriller built into a real stepped-alley set, testing navigation and nerve as much as puzzle-solving.',
-      'game10.h1': 'Multi-level stepped-alley set',
-      'game10.h2': 'Navigation and nerve, not just puzzles',
-      'game10.h3': "Chongqing's toughest maze layout",
-      'game11.long': "Housed in a real archive wing of a former imperial academy, this room pairs elegant calligraphy-based puzzles with a genuinely scholarly atmosphere.",
-      'game11.h1': 'Set inside a real archive wing',
-      'game11.h2': 'Calligraphy and text-based puzzles',
-      'game11.h3': 'A quieter, cerebral alternative to horror rooms',
-      'game12.long': "A fully synced lighting and sound rig turns this room into a living cyberpunk skyline, with touch-panel and projection-based puzzles throughout.",
-      'game12.h1': 'Full synced lighting and sound design',
-      'game12.h2': 'Touch-panel and projection puzzles',
-      'game12.h3': "Shanghai's most visually striking room",
-      'games.more': 'View All Rooms →',
+      'game.modal.comingSoon': "Full details for this room are coming soon. In the meantime, reach out and we'll help you book it directly.",
+      'game.modal.topRank': 'All-Time Top 30 · #',
+      'game.comingSoon': 'Full details coming soon',
+      'games.more': 'Browse More by City →',
       'booking.title': 'How to Book an Escape Room in China',
       'booking.desc': "Most rooms take bookings through local platforms rather than their own website — here's the standard process.",
       'step1.title': 'Choose a Room & Time',
@@ -1636,12 +1106,7 @@
       'city.hangzhou': 'Hangzhou',
       'city.chengdu': 'Chengdu',
       'city.guangzhou': 'Guangzhou',
-      'city.xian': "Xi'an",
-      'city.shenzhen': 'Shenzhen',
-      'city.nanjing': 'Nanjing',
-      'city.wuhan': 'Wuhan',
       'city.chongqing': 'Chongqing',
-      'city.more': '& More',
       'nav.cities': 'Cities',
       'cities.title': 'Explore by City',
       'cities.desc': 'Pick a city to see our top-recommended rooms there.',
@@ -1675,120 +1140,13 @@
       'stat.assist': '中文预定协助',
       'games.title': '全部精选密室',
       'games.note': '全部密室信息均提供英文介绍',
-      'games.desc': '以下为示例展示，实际上线内容可替换为你的真实密室数据（名称 / 城市 / 图片 / 难度 / 时长 / 人数）。',
-      'game1.badge': '恐怖 · 沉浸式',
-      'game1.city': '北京 · 东城区',
-      'game1.name': '红墙秘影',
-      'game1.desc': '深夜胡同里的百年宅院，一桩尘封的失踪案等待被揭开。',
-      'game1.meta': '60分钟 · 4-6人',
-      'game2.badge': '推理 · 探案',
-      'game2.city': '上海 · 静安区',
-      'game2.name': '外滩1932',
-      'game2.desc': '民国洋行密函失窃案，玩家将扮演探员追查幕后真相。',
-      'game2.meta': '75分钟 · 3-5人',
-      'game3.badge': '历史 · 宫廷',
-      'game3.city': '西安 · 碑林区',
-      'game3.name': '大唐夜宴',
-      'game3.desc': '穿越回盛唐长安，在一场宫廷夜宴中寻找失落的诏书。',
-      'game3.meta': '90分钟 · 4-8人',
-      'game4.badge': '科幻 · 机关',
-      'game4.city': '深圳 · 南山区',
-      'game4.name': '量子实验室',
-      'game4.desc': '科研基地能源系统即将过载，团队需要在倒计时内重启装置。',
-      'game4.meta': '60分钟 · 2-4人',
-      'game5.badge': '悬疑 · 剧情',
-      'game5.city': '成都 · 锦江区',
-      'game5.name': '锦官驿站',
-      'game5.desc': '古驿站中往来商旅接连失踪，真相藏在层层线索之下。',
-      'game5.meta': '70分钟 · 3-6人',
-      'game6.badge': '真人演绎',
-      'game6.city': '广州 · 天河区',
-      'game6.name': '戏台惊梦',
-      'game6.desc': '粤剧后台的诡异传说，演员与观众身份在故事中悄然互换。',
-      'game6.meta': '80分钟 · 4-6人',
-      'game7.badge': '传说 · 爱情',
-      'game7.city': '杭州 · 西湖',
-      'game7.name': '白蛇传说',
-      'game7.desc': '西湖断桥雨夜，一段人妖殊途的爱恋，白娘子要在天亮前破除古老的诅咒。',
-      'game7.meta': '65分钟 · 4-6人',
-      'game8.badge': '谍战 · 民国',
-      'game8.city': '南京 · 玄武区',
-      'game8.name': '总统府密电',
-      'game8.desc': '1946年，一座民国官邸，一名叛逃的军官，一本足以改写历史的密码账本。',
-      'game8.meta': '85分钟 · 3-5人',
-      'game9.badge': '冒险 · 盗窃',
-      'game9.city': '武汉 · 江岸区',
-      'game9.name': '长江密码',
-      'game9.desc': '一艘沉没的货轮，一套走私者留下的密码，只有一晚时间在江水吞没真相前破解它。',
-      'game9.meta': '70分钟 · 4-6人',
-      'game10.badge': '惊悚 · 迷宫',
-      'game10.city': '重庆 · 渝中区',
-      'game10.name': '雾都迷巷',
-      'game10.desc': '重庆错落的山城巷道里藏着凶手的踪迹——在雾气、天梯与死路间追踪真相。',
-      'game10.meta': '75分钟 · 2-4人',
-      'game11.badge': '历史 · 解谜',
-      'game11.city': '北京 · 朝阳区',
-      'game11.name': '国子监之谜',
-      'game11.desc': '一座旧日国子监的藏书阁里，藏着一道只有真正的学者才能破解的百年谜题。',
-      'game11.meta': '75分钟 · 3-5人',
-      'game12.badge': '科幻 · 赛博朋克',
-      'game12.city': '上海 · 浦东新区',
-      'game12.name': '霓虹上海2088',
-      'game12.desc': '在霓虹闪烁的近未来上海，一个失控的AI锁死了整栋大楼——你只有一小时时间阻止它清除一切。',
-      'game12.meta': '60分钟 · 2-4人',
+      'games.desc': '目前全国排名前 30 的密室主题榜单，每个主题的详细介绍即将上线。',
       'game.viewMore': '查看详情 →',
-      'game.modal.about': '关于这间密室',
-      'game.modal.highlights': '亮点',
       'game.modal.cta': '咨询预定 →',
-      'game1.long': '整个场景搭建在一座真实修复的四合院内，老家具与现代灯光控制系统结合，让恐怖体验完全不像在"布景"里。',
-      'game1.h1': '真实古董四合院实景',
-      'game1.h2': '可选真人演员路线',
-      'game1.h3': '多感官惊吓（气味/温度/声效）',
-      'game2.long': '场景还原1930年代洋行办公室，玩家需要在高度还原的年代道具中破解密码、账本与电台信号。',
-      'game2.h1': '高度还原1930年代场景',
-      'game2.h2': '账本密码类解谜为主',
-      'game2.h3': '适合推理小说爱好者',
-      'game3.long': '大型宫廷宴会厅实景，机关谜题灵感来自真实唐代文物与宫廷礼制。',
-      'game3.h1': '大体量宫廷实景',
-      'game3.h2': '文物灵感机关谜题',
-      'game3.h3': '适合最多8人的团队',
-      'game4.long': '以电子与光效谜题为主的科技风密室，使用真实电路道具，结局有真实倒计时驱动。',
-      'game4.h1': '真实电路电子道具',
-      'game4.h2': '倒计时驱动的结局',
-      'game4.h3': '适合科技科幻爱好者',
-      'game5.long': '叙事节奏偏慢，围绕川渝驿站主题展开，文本扎实，几乎没有突然惊吓。',
-      'game5.h1': '文本叙事扎实',
-      'game5.h2': '低突然惊吓、高张力',
-      'game5.h3': '适合刚接触恐怖类的新手',
-      'game6.long': '全程真人演绎，场景设在一座真实运作的粤剧后台，也提供可选择的无接触模式。',
-      'game6.h1': '全程真人演绎',
-      'game6.h2': '真实运作粤剧后台实景',
-      'game6.h3': '可申请无接触模式',
-      'game7.long': '灵感来自经典的白蛇传说，更注重氛围与剧情而非高难度，水景与灯笼布景非常唯美。',
-      'game7.h1': '取材经典中国传说',
-      'game7.h2': '氛围叙事优先于高难度',
-      'game7.h3': '水景灯笼布景唯美',
-      'game8.long': '民国谍战悬疑主题，场景还原1940年代官邸，密码类谜题层层递进，并带有一条叛逃支线剧情。',
-      'game8.h1': '民国谍战剧情',
-      'game8.h2': '多层密码类谜题',
-      'game8.h3': '年代布景考究',
-      'game9.long': '节奏紧凑的盗窃冒险主题，场景还原货轮舱室，实体机关谜题为主，结局是与时间赛跑。',
-      'game9.h1': '高强度实体机关谜题',
-      'game9.h2': '货轮舱室实景还原',
-      'game9.h3': '结局与时间赛跑',
-      'game10.long': '多层级追逐惊悚主题，实景还原重庆阶梯山城巷道，对方向感和心理素质的考验不亚于解谜本身。',
-      'game10.h1': '多层级阶梯巷道实景',
-      'game10.h2': '方向感与心理素质考验不亚于解谜',
-      'game10.h3': '重庆最复杂的迷宫布局',
-      'game11.long': '场景设在一座旧日国子监的真实藏书阁内，以书法与文字类谜题为主，氛围沉静而富有书卷气。',
-      'game11.h1': '真实藏书阁实景',
-      'game11.h2': '书法与文字类谜题',
-      'game11.h3': '比恐怖类更安静、更烧脑的选择',
-      'game12.long': '灯光与音效全程联动，将整个空间打造成一座"活着"的赛博朋克天际线，谜题以触控面板与投影互动为主。',
-      'game12.h1': '灯光音效全程联动',
-      'game12.h2': '触控面板与投影类谜题',
-      'game12.h3': '上海视觉效果最震撼的主题',
-      'games.more': '查看全部密室 →',
+      'game.modal.comingSoon': '这间密室的详细介绍即将上线。如果你现在就想预定，欢迎联系我们，我们会直接协助你完成预定。',
+      'game.modal.topRank': '全部精选密室 · 第',
+      'game.comingSoon': '详细介绍即将上线',
+      'games.more': '按城市探索更多 →',
       'booking.title': '如何预定中国密室',
       'booking.desc': '大多数中国密室店铺主要通过本地平台接受预定，以下是标准流程与建议。',
       'step1.title': '选择密室与场次',
@@ -1844,12 +1202,7 @@
       'city.hangzhou': '杭州',
       'city.chengdu': '成都',
       'city.guangzhou': '广州',
-      'city.xian': '西安',
-      'city.shenzhen': '深圳',
-      'city.nanjing': '南京',
-      'city.wuhan': '武汉',
       'city.chongqing': '重庆',
-      'city.more': '及更多城市',
       'nav.cities': '城市',
       'cities.title': '按城市探索',
       'cities.desc': '选择一座城市，查看我们在当地推荐的密室主题。',
@@ -1865,8 +1218,226 @@
   };
 
   let currentLang = 'en';
-  let openRoomKey = null;
-  let openCityKey = null;
+  try{ currentLang = localStorage.getItem('escapeGuideLang') || 'en'; }catch(e){}
+  let openRoom = null;
+  let openCity = null;
+
+  function citiesForName(name){
+    return Object.keys(CITY_ROOMS).filter(city => CITY_ROOMS[city].includes(name));
+  }
+  function slugify(name){
+    return (name || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-').replace(/^-+|-+$/g, '') || 'room';
+  }
+  function cityLabel(cityKeys){
+    const dict = translations[currentLang] || translations.en;
+    return (cityKeys || []).map(k => dict['city.' + k] || k).join(' · ');
+  }
+
+  function buildRoomCard(name, rank){
+    const cities = citiesForName(name);
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.dataset.room = slugify(name) + (rank ? ('-' + rank) : '');
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+
+    const media = document.createElement('div');
+    media.className = 'game-media';
+    if(rank){
+      const badge = document.createElement('span');
+      badge.className = 'game-badge';
+      badge.textContent = '#' + rank;
+      media.appendChild(badge);
+    }
+    const mono = document.createElement('span');
+    mono.className = 'game-monogram';
+    mono.textContent = name.trim().charAt(0);
+    media.appendChild(mono);
+
+    const body = document.createElement('div');
+    body.className = 'game-body';
+
+    const cityEl = document.createElement('div');
+    cityEl.className = 'game-city';
+    cityEl.dataset.cities = cities.join(',');
+    cityEl.textContent = cityLabel(cities);
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'game-name';
+    nameEl.textContent = name;
+
+    const descEl = document.createElement('p');
+    descEl.className = 'game-desc coming-soon';
+    descEl.setAttribute('data-i18n', 'game.comingSoon');
+    descEl.textContent = 'Full details coming soon';
+
+    const hint = document.createElement('div');
+    hint.className = 'game-view-hint';
+    hint.setAttribute('data-i18n', 'game.viewMore');
+    hint.textContent = 'View Details →';
+
+    body.appendChild(cityEl);
+    body.appendChild(nameEl);
+    body.appendChild(descEl);
+    body.appendChild(hint);
+    card.appendChild(media);
+    card.appendChild(body);
+
+    card.addEventListener('click', () => openRoomModal(name, cities, rank));
+    card.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        openRoomModal(name, cities, rank);
+      }
+    });
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+      card.style.setProperty('--my', `${e.clientY - rect.top}px`);
+    });
+    let hoverPlayed = false;
+    card.addEventListener('mouseenter', () => {
+      if(hoverPlayed) return;
+      hoverPlayed = true;
+      playTone(880, 0.06, 'blip');
+      setTimeout(() => { hoverPlayed = false; }, 600);
+    });
+
+    return card;
+  }
+
+  function renderRooms(){
+    const grid = document.getElementById('gameGrid');
+    grid.innerHTML = '';
+    TOP30.forEach((name, i) => grid.appendChild(buildRoomCard(name, i + 1)));
+  }
+
+  function buildCityCard(cityKey){
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'city-card';
+    card.dataset.city = cityKey;
+
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('fill', 'none');
+    icon.setAttribute('stroke', 'currentColor');
+    icon.setAttribute('stroke-width', '1.4');
+    icon.classList.add('city-icon');
+    icon.innerHTML = '<path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"></path><circle cx="12" cy="9" r="2.4"></circle>';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'city-name';
+    nameEl.setAttribute('data-i18n', 'city.' + cityKey);
+    nameEl.textContent = (translations[currentLang] || translations.en)['city.' + cityKey] || cityKey;
+
+    const countEl = document.createElement('div');
+    countEl.className = 'city-count';
+    countEl.setAttribute('data-count', '');
+
+    card.appendChild(icon);
+    card.appendChild(nameEl);
+    card.appendChild(countEl);
+    card.addEventListener('click', () => openCityModal(cityKey));
+    return card;
+  }
+
+  function renderCities(){
+    const grid = document.getElementById('cityGrid');
+    grid.innerHTML = '';
+    CITY_ORDER.forEach(cityKey => grid.appendChild(buildCityCard(cityKey)));
+    updateCityCounts();
+  }
+
+  function refreshRoomCityLabels(){
+    document.querySelectorAll('.game-city[data-cities]').forEach(el => {
+      const cities = el.dataset.cities ? el.dataset.cities.split(',').filter(Boolean) : [];
+      el.textContent = cityLabel(cities);
+    });
+  }
+
+  renderRooms();
+  renderCities();
+
+  // nav scroll state
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 10);
+  });
+
+  // mobile nav toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  // faq accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-q');
+    const a = item.querySelector('.faq-a');
+    if(item.classList.contains('open')) a.style.maxHeight = a.scrollHeight + 'px';
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-a').style.maxHeight = 0;
+      });
+      if(!isOpen){
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+      playTone(600, 0.1, 'unlock');
+    });
+  });
+
+  // countdown clock — loops 60:00 down to 00:00 for atmosphere
+  const clockEl = document.getElementById('countdownClock');
+  let secondsLeft = 60 * 60;
+  setInterval(() => {
+    secondsLeft = secondsLeft > 0 ? secondsLeft - 1 : 60 * 60;
+    const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+    const s = String(secondsLeft % 60).padStart(2, '0');
+    clockEl.textContent = `${m}:${s}`;
+  }, 1000);
+
+  // scroll reveal for sections, cards, steps, etc.
+  document.querySelectorAll(
+    '.section-head, .game-card, .city-card, .step, .channel, .feature, .founder, .faq-item, .cta-band .wrap > *'
+  ).forEach(el => el.classList.add('reveal'));
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if(entry.isIntersecting){
+        setTimeout(() => entry.target.classList.add('in-view'), i * 60);
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // count-up stats once visible
+  const countEls = document.querySelectorAll('.stat-num[data-target]');
+  const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(!entry.isIntersecting) return;
+      entry.target.closest('.stat').classList.add('in-view');
+      const target = parseFloat(entry.target.dataset.target);
+      const decimals = parseInt(entry.target.dataset.decimals || '0', 10);
+      const suffix = entry.target.dataset.suffix || '';
+      const duration = 1400;
+      const start = performance.now();
+      function tick(now){
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        entry.target.textContent = (target * eased).toFixed(decimals) + suffix;
+        if(progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      statObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.4 });
+  countEls.forEach(el => statObserver.observe(el));
+
   function applyLang(lang){
     currentLang = lang;
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
@@ -1879,23 +1450,21 @@
       else el.textContent = val;
     });
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
-    // recalc open FAQ height since translated text changes its length
     document.querySelectorAll('.faq-item.open .faq-a').forEach(a => {
       a.style.maxHeight = a.scrollHeight + 'px';
     });
-    try{ localStorage.setItem('escapeGuideLang', lang); }catch(e){}
-    if(openRoomKey) renderRoomModal(openRoomKey);
-    if(openCityKey) renderCityModal(openCityKey);
+    refreshRoomCityLabels();
     updateCityCounts();
+    if(openRoom) renderRoomModal(openRoom.name, openRoom.cities, openRoom.rank);
+    if(openCity) renderCityModal(openCity);
+    try{ localStorage.setItem('escapeGuideLang', lang); }catch(e){}
   }
 
   document.querySelectorAll('.lang-btn').forEach(b => {
     b.addEventListener('click', () => applyLang(b.dataset.lang));
   });
 
-  let savedLang = 'en';
-  try{ savedLang = localStorage.getItem('escapeGuideLang') || 'en'; }catch(e){}
-  applyLang(savedLang);
+  applyLang(currentLang);
 
   // ---------- boot sequence ----------
   const boot = document.getElementById('boot');
@@ -1922,15 +1491,6 @@
   }
   window.addEventListener('scroll', updateScrollProgress, { passive: true });
   updateScrollProgress();
-
-  // ---------- target-lock corners on game cards ----------
-  document.querySelectorAll('.game-card').forEach(card => {
-    ['tl', 'tr', 'bl', 'br'].forEach(pos => {
-      const span = document.createElement('span');
-      span.className = 'corner ' + pos;
-      card.appendChild(span);
-    });
-  });
 
   // ---------- achievement toasts ----------
   const toastHost = document.getElementById('toastHost');
@@ -2017,18 +1577,6 @@
   document.querySelectorAll('.btn, .lang-btn, .nav-cta').forEach(el => {
     el.addEventListener('click', () => playTone(440, 0.1, 'blip'));
   });
-  document.querySelectorAll('.game-card').forEach(card => {
-    let played = false;
-    card.addEventListener('mouseenter', () => {
-      if(played) return;
-      played = true;
-      playTone(880, 0.06, 'blip');
-      setTimeout(() => { played = false; }, 600);
-    });
-  });
-  document.querySelectorAll('.faq-q').forEach(q => {
-    q.addEventListener('click', () => playTone(600, 0.1, 'unlock'));
-  });
 
   // ---------- konami code easter egg ----------
   const konamiSeq = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
@@ -2052,69 +1600,53 @@
   const roomOverlay = document.getElementById('roomModalOverlay');
   const roomModalClose = document.getElementById('roomModalClose');
 
-  function renderRoomModal(key){
-    const card = document.querySelector('.game-card[data-room="' + key + '"]');
-    if(!card) return;
+  function renderRoomModal(name, cities, rank){
     const dict = translations[currentLang] || translations.en;
 
     document.getElementById('roomModalMedia').innerHTML = '';
-    const iconSvg = card.querySelector('.game-media svg');
-    if(iconSvg) document.getElementById('roomModalMedia').appendChild(iconSvg.cloneNode(true));
+    const mono = document.createElement('span');
+    mono.className = 'game-monogram';
+    mono.textContent = name.trim().charAt(0);
+    document.getElementById('roomModalMedia').appendChild(mono);
 
-    document.getElementById('roomModalCity').textContent = card.querySelector('.game-city').textContent;
-    document.getElementById('roomModalName').textContent = card.querySelector('.game-name').textContent;
-    document.getElementById('roomModalLocks').innerHTML = card.querySelector('.locks').innerHTML;
-    document.getElementById('roomModalDuration').textContent = card.querySelector('.game-meta > span').textContent;
-    document.getElementById('roomModalDesc').textContent = card.querySelector('.game-desc').textContent;
-    document.getElementById('roomModalLong').textContent = dict[key + '.long'] || '';
+    document.getElementById('roomModalCity').textContent = cityLabel(cities);
+    document.getElementById('roomModalName').textContent = name;
 
-    const hl = document.getElementById('roomModalHighlights');
-    hl.innerHTML = '';
-    ['h1','h2','h3'].forEach(suffix => {
-      const text = dict[key + '.' + suffix];
-      if(!text) return;
-      const li = document.createElement('li');
-      li.textContent = text;
-      hl.appendChild(li);
-    });
+    const rankEl = document.getElementById('roomModalRank');
+    if(rank){
+      const suffix = currentLang === 'zh' ? '名' : '';
+      rankEl.textContent = (dict['game.modal.topRank'] || '') + rank + suffix;
+    } else {
+      rankEl.textContent = '';
+    }
+
+    document.getElementById('roomModalLong').textContent = dict['game.modal.comingSoon'] || '';
   }
 
-  function openRoomModal(key){
-    openRoomKey = key;
-    renderRoomModal(key);
+  function openRoomModal(name, cities, rank){
+    openRoom = { name, cities, rank };
+    renderRoomModal(name, cities, rank);
     roomOverlay.hidden = false;
     requestAnimationFrame(() => roomOverlay.classList.add('open'));
     document.body.style.overflow = 'hidden';
-    try{ history.replaceState(null, '', '#room-' + key); }catch(e){}
+    try{ history.replaceState(null, '', '#room-' + slugify(name)); }catch(e){}
     playTone(720, 0.07, 'blip');
   }
 
   function closeRoomModal(){
-    openRoomKey = null;
+    openRoom = null;
     roomOverlay.classList.remove('open');
     document.body.style.overflow = '';
     try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
     setTimeout(() => { roomOverlay.hidden = true; }, 250);
   }
 
-  document.querySelectorAll('.game-grid .game-card').forEach(card => {
-    card.addEventListener('click', () => openRoomModal(card.dataset.room));
-    card.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        openRoomModal(card.dataset.room);
-      }
-    });
-  });
   roomModalClose.addEventListener('click', closeRoomModal);
   roomOverlay.addEventListener('click', (e) => { if(e.target === roomOverlay) closeRoomModal(); });
   document.getElementById('roomModalCta').addEventListener('click', closeRoomModal);
   window.addEventListener('keydown', (e) => {
     if(e.key === 'Escape' && !roomOverlay.hidden) closeRoomModal();
   });
-
-  const hashRoomMatch = location.hash.match(/^#room-(game\d+)$/);
-  if(hashRoomMatch) openRoomModal(hashRoomMatch[1]);
 
   // ---------- city detail modal ----------
   const cityOverlay = document.getElementById('cityModalOverlay');
@@ -2123,12 +1655,13 @@
   function updateCityCounts(){
     document.querySelectorAll('.city-card').forEach(cardEl => {
       const cityKey = cardEl.dataset.city;
-      const count = document.querySelectorAll('.game-card[data-city="' + cityKey + '"]').length;
+      const count = (CITY_ROOMS[cityKey] || []).length;
       const dict = translations[currentLang] || translations.en;
       const label = currentLang === 'zh'
         ? count + (dict['cities.room'] || '个推荐主题')
         : count + ' ' + (count === 1 ? (dict['cities.room'] || 'room') : (dict['cities.rooms'] || 'rooms'));
-      cardEl.querySelector('[data-count]').textContent = label;
+      const countEl = cardEl.querySelector('[data-count]');
+      if(countEl) countEl.textContent = label;
     });
   }
 
@@ -2136,42 +1669,42 @@
     const dict = translations[currentLang] || translations.en;
     document.getElementById('cityModalName').textContent = dict['city.' + cityKey] || cityKey;
 
-    const cards = [...document.querySelectorAll('.game-card[data-city="' + cityKey + '"]')];
+    const names = CITY_ROOMS[cityKey] || [];
     const countLabel = currentLang === 'zh'
-      ? cards.length + (dict['cities.room'] || '个推荐主题')
-      : cards.length + ' ' + (cards.length === 1 ? (dict['cities.room'] || 'room') : (dict['cities.rooms'] || 'rooms'));
+      ? names.length + (dict['cities.room'] || '个推荐主题')
+      : names.length + ' ' + (names.length === 1 ? (dict['cities.room'] || 'room') : (dict['cities.rooms'] || 'rooms'));
     document.getElementById('cityModalCount').textContent = countLabel;
 
     const list = document.getElementById('cityModalList');
     list.innerHTML = '';
-    cards.forEach(card => {
+    names.forEach(name => {
+      const cities = citiesForName(name);
+      const rank = TOP30.indexOf(name) + 1;
       const row = document.createElement('button');
       row.type = 'button';
       row.className = 'city-room-row';
 
       const iconWrap = document.createElement('span');
       iconWrap.className = 'city-room-icon';
-      const iconSvg = card.querySelector('.game-media svg');
-      if(iconSvg) iconWrap.appendChild(iconSvg.cloneNode(true));
+      const mono = document.createElement('span');
+      mono.className = 'game-monogram';
+      mono.style.fontSize = '18px';
+      mono.textContent = name.trim().charAt(0);
+      iconWrap.appendChild(mono);
 
       const info = document.createElement('span');
       info.className = 'city-room-info';
 
       const nameEl = document.createElement('span');
       nameEl.className = 'city-room-name';
-      nameEl.textContent = card.querySelector('.game-name').textContent;
+      nameEl.textContent = name;
 
       const badgeEl = document.createElement('span');
       badgeEl.className = 'city-room-badge';
-      badgeEl.textContent = card.querySelector('.game-badge').textContent;
-
-      const descEl = document.createElement('span');
-      descEl.className = 'city-room-desc';
-      descEl.textContent = card.querySelector('.game-desc').textContent;
+      badgeEl.textContent = rank > 0 ? ('#' + rank + ' · ' + (dict['games.title'] || '')) : cityLabel(cities);
 
       info.appendChild(nameEl);
       info.appendChild(badgeEl);
-      info.appendChild(descEl);
 
       const arrow = document.createElement('span');
       arrow.className = 'city-room-arrow';
@@ -2181,16 +1714,15 @@
       row.appendChild(info);
       row.appendChild(arrow);
       row.addEventListener('click', () => {
-        const roomKey = card.dataset.room;
         closeCityModal();
-        setTimeout(() => openRoomModal(roomKey), 260);
+        setTimeout(() => openRoomModal(name, cities, rank > 0 ? rank : null), 260);
       });
       list.appendChild(row);
     });
   }
 
   function openCityModal(cityKey){
-    openCityKey = cityKey;
+    openCity = cityKey;
     renderCityModal(cityKey);
     cityOverlay.hidden = false;
     requestAnimationFrame(() => cityOverlay.classList.add('open'));
@@ -2200,16 +1732,13 @@
   }
 
   function closeCityModal(){
-    openCityKey = null;
+    openCity = null;
     cityOverlay.classList.remove('open');
     document.body.style.overflow = '';
     try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
     setTimeout(() => { cityOverlay.hidden = true; }, 250);
   }
 
-  document.querySelectorAll('.city-card').forEach(cardEl => {
-    cardEl.addEventListener('click', () => openCityModal(cardEl.dataset.city));
-  });
   document.querySelectorAll('.footer-city-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -2222,10 +1751,8 @@
     if(e.key === 'Escape' && !cityOverlay.hidden) closeCityModal();
   });
 
-  updateCityCounts();
-
   const hashCityMatch = location.hash.match(/^#city-([a-z]+)$/);
-  if(hashCityMatch) openCityModal(hashCityMatch[1]);
+  if(hashCityMatch && CITY_ROOMS[hashCityMatch[1]]) openCityModal(hashCityMatch[1]);
 </script>
 </body>
 </html>
