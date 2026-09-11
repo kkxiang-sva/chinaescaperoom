@@ -60,8 +60,18 @@
     </div>
 
     <div id="roomContent">
+      <div class="room-edit-bar">
+        <span class="local-draft-badge" id="localDraftBadge" hidden data-i18n="edit.localDraft">LOCAL DRAFT · this device only</span>
+        <button type="button" class="edit-btn" id="editToggleBtn" data-i18n="edit.button">Edit</button>
+      </div>
+
       <div class="room-hero">
-        <div class="room-hero-media" id="roomHeroMedia"></div>
+        <div class="room-hero-media" id="roomHeroMedia">
+          <label class="media-add-btn" id="mediaAddBtn" hidden>
+            <input type="file" accept="image/*" id="posterInput" hidden>
+            <span data-i18n="edit.addImage">+ Add Photo</span>
+          </label>
+        </div>
         <div class="room-hero-body">
           <div class="room-hero-city" id="roomHeroCity"></div>
           <h1 class="room-hero-name" id="roomHeroName"></h1>
@@ -70,7 +80,49 @@
           <div id="roomHeroFacts"></div>
           <div id="roomHeroCompany"></div>
           <p class="room-hero-long" id="roomHeroLong"></p>
-          <a href="index.html#booking" class="btn btn-primary" data-i18n="game.modal.cta">Ask About Booking →</a>
+
+          <div class="room-edit-form" id="editForm" hidden>
+            <div class="edit-row">
+              <label data-i18n="edit.type">Type / Genre</label>
+              <input type="text" id="editType">
+            </div>
+            <div class="edit-row">
+              <label data-i18n="edit.horror">Fear Level (1-5)</label>
+              <input type="number" id="editHorror" min="1" max="5">
+            </div>
+            <div class="edit-row">
+              <label data-i18n="edit.hasEnglish">English Version?</label>
+              <select id="editHasEnglish">
+                <option value="" data-i18n="edit.hasEnglishUnset">— Leave as is —</option>
+                <option value="true" data-i18n="edit.yes">Yes</option>
+                <option value="false" data-i18n="edit.no">No</option>
+              </select>
+            </div>
+            <div class="edit-row">
+              <label data-i18n="edit.price">Price (RMB)</label>
+              <input type="number" id="editPrice">
+            </div>
+            <div class="edit-row">
+              <label data-i18n="edit.duration">Duration (min)</label>
+              <input type="number" id="editDuration">
+            </div>
+            <div class="edit-row">
+              <label data-i18n="edit.players">Players (e.g. 4-6)</label>
+              <input type="text" id="editPlayers">
+            </div>
+            <div class="edit-actions">
+              <button type="button" class="btn btn-primary" id="editSaveBtn" data-i18n="edit.save">Save</button>
+              <button type="button" class="btn btn-ghost" id="editCancelBtn" data-i18n="edit.cancel">Cancel</button>
+              <button type="button" class="btn btn-ghost" id="editClearBtn" data-i18n="edit.reset">Reset to Original</button>
+            </div>
+            <div class="edit-export">
+              <button type="button" class="btn btn-ghost" id="exportBtn" data-i18n="edit.export">Copy Edits as JSON</button>
+              <span class="edit-export-note" id="exportNote" hidden data-i18n="edit.exportDone">Copied — paste into chat to send to KK</span>
+            </div>
+            <textarea class="edit-export-fallback" id="exportFallback" hidden readonly></textarea>
+          </div>
+
+          <a href="index.html#booking" class="btn btn-primary" data-i18n="game.modal.cta" id="bookingCta">Ask About Booking →</a>
         </div>
       </div>
 
@@ -253,6 +305,7 @@
     document.title = displayName(name) + ' — ' + (dict['meta.title'] || 'China Escape Room Guide');
 
     const media = document.getElementById('roomHeroMedia');
+    const addBtnEl = document.getElementById('mediaAddBtn');
     media.innerHTML = '';
     media.classList.remove('has-poster');
     media.style.backgroundImage = '';
@@ -265,6 +318,9 @@
       mono.textContent = displayName(name).trim().charAt(0);
       media.appendChild(mono);
     }
+    const heroCaption = buildMediaCaption(info);
+    if(heroCaption) media.appendChild(heroCaption);
+    if(addBtnEl) media.appendChild(addBtnEl);
 
     document.getElementById('roomHeroCity').textContent = cityLabel(cities);
     document.getElementById('roomHeroName').textContent = displayName(name);
@@ -294,6 +350,9 @@
     if(company) companyHost.appendChild(company);
 
     document.getElementById('roomHeroLong').textContent = dict['game.modal.comingSoon'] || '';
+
+    const draftBadge = document.getElementById('localDraftBadge');
+    draftBadge.hidden = !hasLocalEdit(name);
 
     // more rooms in the same city
     const moreWrap = document.getElementById('roomMoreWrap');
@@ -339,6 +398,121 @@
   });
 
   applyLang(currentLang);
+
+  // ---------- local edit mode ----------
+  const editToggleBtn = document.getElementById('editToggleBtn');
+  const editForm = document.getElementById('editForm');
+  const mediaAddBtn = document.getElementById('mediaAddBtn');
+  const posterInput = document.getElementById('posterInput');
+  let editModeOn = false;
+
+  function setEditMode(on){
+    editModeOn = on;
+    editForm.hidden = !on;
+    mediaAddBtn.hidden = !on;
+    if(on) populateEditForm();
+  }
+
+  function populateEditForm(){
+    if(!currentRoomName) return;
+    const info = roomInfo(currentRoomName);
+    document.getElementById('editType').value = (currentLang === 'zh' ? info.type : (info.typeEn || info.type)) || '';
+    document.getElementById('editHorror').value = info.horror || '';
+    document.getElementById('editHasEnglish').value = info.hasEnglish === undefined ? '' : String(info.hasEnglish);
+    document.getElementById('editPrice').value = info.priceRMB || '';
+    document.getElementById('editDuration').value = info.duration || '';
+    document.getElementById('editPlayers').value = info.players || '';
+  }
+
+  editToggleBtn.addEventListener('click', () => setEditMode(!editModeOn));
+
+  document.getElementById('editCancelBtn').addEventListener('click', () => setEditMode(false));
+
+  document.getElementById('editSaveBtn').addEventListener('click', () => {
+    if(!currentRoomName) return;
+    const typeVal = document.getElementById('editType').value.trim();
+    const horrorVal = document.getElementById('editHorror').value;
+    const hasEnglishVal = document.getElementById('editHasEnglish').value;
+    const priceVal = document.getElementById('editPrice').value;
+    const durationVal = document.getElementById('editDuration').value;
+    const playersVal = document.getElementById('editPlayers').value.trim();
+
+    const patch = {};
+    if(typeVal){
+      if(currentLang === 'zh') patch.type = typeVal;
+      else patch.typeEn = typeVal;
+    }
+    if(horrorVal) patch.horror = Math.max(1, Math.min(5, parseInt(horrorVal, 10)));
+    if(hasEnglishVal !== '') patch.hasEnglish = hasEnglishVal === 'true';
+    if(priceVal) patch.priceRMB = parseFloat(priceVal);
+    if(durationVal) patch.duration = parseInt(durationVal, 10);
+    if(playersVal) patch.players = playersVal;
+
+    setLocalEdit(currentRoomName, patch);
+    setEditMode(false);
+    renderRoomPage();
+  });
+
+  document.getElementById('editClearBtn').addEventListener('click', () => {
+    if(!currentRoomName) return;
+    clearLocalEdit(currentRoomName);
+    setEditMode(false);
+    renderRoomPage();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', async () => {
+    const edits = getLocalEdits();
+    const json = JSON.stringify(edits, null, 2);
+    const note = document.getElementById('exportNote');
+    try{
+      await navigator.clipboard.writeText(json);
+      note.hidden = false;
+      setTimeout(() => { note.hidden = true; }, 4000);
+    }catch(e){
+      const fallback = document.getElementById('exportFallback');
+      fallback.value = json;
+      fallback.hidden = false;
+      fallback.focus();
+      fallback.select();
+    }
+  });
+
+  function compressImage(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maxW = 700;
+          const scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  posterInput.addEventListener('change', async () => {
+    const file = posterInput.files && posterInput.files[0];
+    if(!file || !currentRoomName) return;
+    try{
+      const dataUrl = await compressImage(file);
+      setLocalEdit(currentRoomName, { poster: dataUrl });
+      renderRoomPage();
+      setEditMode(true);
+    }catch(e){
+      // ignore — unsupported file, leave state unchanged
+    }
+    posterInput.value = '';
+  });
 </script>
 </body>
 </html>

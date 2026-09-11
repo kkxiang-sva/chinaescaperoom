@@ -335,6 +335,8 @@
       mono.textContent = displayName(name).trim().charAt(0);
       media.appendChild(mono);
     }
+    const caption = buildMediaCaption(info);
+    if(caption) media.appendChild(caption);
 
     const body = document.createElement('div');
     body.className = 'game-body';
@@ -474,6 +476,13 @@
       swapBlock(card, '.game-tags', buildRoomTags, info);
       swapBlock(card, '.game-facts', buildRoomFacts, info);
       swapBlock(card, '.game-company', buildRoomCompany, info);
+
+      const media = card.querySelector('.game-media');
+      const oldCaption = card.querySelector('.game-media-caption');
+      const newCaption = buildMediaCaption(info);
+      if(oldCaption && newCaption) oldCaption.replaceWith(newCaption);
+      else if(oldCaption && !newCaption) oldCaption.remove();
+      else if(!oldCaption && newCaption) media.appendChild(newCaption);
     });
   }
 

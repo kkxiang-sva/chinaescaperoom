@@ -231,6 +231,12 @@
     background:rgba(10,10,13,0.75); border:1px solid var(--line-strong);
     color:var(--gold-bright); border-radius:2px; text-transform:uppercase;
   }
+  .game-media-caption{
+    position:absolute; bottom:8px; right:10px; z-index:2; max-width:70%;
+    font-size:9px; letter-spacing:.02em; color:var(--text-dim);
+    background:rgba(10,10,13,0.6); padding:2px 7px; border-radius:2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
   .game-body{padding:15px 15px 16px;}
   .game-city{font-size:10.5px; color:var(--text-dimmer); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px;}
   .game-name{font-family:var(--serif); font-weight:700; font-size:15.5px; margin-bottom:7px; line-height:1.25;}
@@ -749,6 +755,51 @@
   .room-hero-long{font-size:15px; color:var(--text-dim); font-weight:300; margin-bottom:30px; max-width:520px;}
   .room-more-cities{margin-top:56px;}
   .room-more-cities h3{font-family:var(--serif); font-weight:700; font-size:20px; margin-bottom:20px;}
+
+  /* ---------- LOCAL EDIT MODE ---------- */
+  .room-edit-bar{
+    display:flex; align-items:center; justify-content:flex-end; gap:14px;
+    margin-bottom:16px;
+  }
+  .local-draft-badge{
+    font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:700;
+    color:var(--gold-bright); border:1px solid var(--line-strong); border-radius:2px;
+    padding:5px 10px;
+  }
+  .edit-btn{
+    font-family:var(--sans); font-size:12.5px; font-weight:600; letter-spacing:.02em;
+    color:var(--text-dim); border:1px solid var(--line-strong); border-radius:2px;
+    padding:8px 16px; background:none; cursor:pointer; transition:color .2s, border-color .2s;
+  }
+  .edit-btn:hover{color:var(--gold-bright); border-color:var(--gold-bright);}
+  .media-add-btn{
+    position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center;
+    background:rgba(10,10,13,0.55); color:var(--gold-bright); font-size:13px; font-weight:700;
+    letter-spacing:.03em; cursor:pointer; opacity:0; transition:opacity .2s;
+  }
+  .room-hero-media:hover .media-add-btn{opacity:1;}
+  .room-edit-form{
+    margin-top:6px; margin-bottom:24px; padding:20px; border:1px solid var(--line-strong);
+    border-radius:6px; background:var(--panel-2);
+  }
+  .edit-row{display:flex; flex-direction:column; gap:6px; margin-bottom:14px;}
+  .edit-row label{font-size:11.5px; color:var(--text-dimmer); letter-spacing:.04em; text-transform:uppercase;}
+  .edit-row input, .edit-row select{
+    font-family:var(--sans); font-size:13.5px; color:var(--text); background:var(--bg);
+    border:1px solid var(--line-strong); border-radius:2px; padding:9px 11px;
+  }
+  .edit-row input:focus, .edit-row select:focus{outline:none; border-color:var(--gold-bright);}
+  .edit-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;}
+  .edit-actions .btn{font-size:12.5px; padding:10px 18px;}
+  .edit-export{margin-top:16px; padding-top:16px; border-top:1px solid var(--line); display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .edit-export .btn{font-size:12px; padding:9px 16px;}
+  .edit-export-note{font-size:12px; color:var(--gold-bright);}
+  .edit-export-fallback{
+    width:100%; margin-top:12px; height:100px; resize:vertical;
+    font-family:var(--mono, monospace); font-size:11px; color:var(--text-dim);
+    background:var(--bg); border:1px solid var(--line-strong); border-radius:2px; padding:10px;
+  }
+
   @media (max-width:820px){
     .room-hero{grid-template-columns:1fr;}
     .room-hero-media{min-height:220px;}

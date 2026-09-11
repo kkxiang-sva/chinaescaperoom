@@ -76,6 +76,24 @@
       'room.min': ' min',
       'room.players': ' players',
       'room.by': 'By ',
+      'edit.button': 'Edit',
+      'edit.addImage': '+ Add Photo',
+      'edit.type': 'Type / Genre',
+      'edit.horror': 'Fear Level (1-5)',
+      'edit.hasEnglish': 'English Version?',
+      'edit.hasEnglishUnset': '— Leave as is —',
+      'edit.yes': 'Yes',
+      'edit.no': 'No',
+      'edit.price': 'Price (RMB)',
+      'edit.duration': 'Duration (min)',
+      'edit.players': 'Players (e.g. 4-6)',
+      'edit.save': 'Save',
+      'edit.cancel': 'Cancel',
+      'edit.reset': 'Reset to Original',
+      'edit.export': 'Copy Edits as JSON',
+      'edit.exportDone': 'Copied — paste into chat to send to KK',
+      'edit.localDraft': 'LOCAL DRAFT · this device only',
+      'edit.saved': 'Saved on this device',
       'room.back': '← All Rooms',
       'room.moreInCity': 'More rooms in ',
       'games.more': 'Browse More by City →',
@@ -180,6 +198,24 @@
       'room.min': '分钟',
       'room.players': '人',
       'room.by': '出品：',
+      'edit.button': '编辑',
+      'edit.addImage': '+ 添加图片',
+      'edit.type': '类型 / 题材',
+      'edit.horror': '恐怖程度 (1-5)',
+      'edit.hasEnglish': '是否有英文版？',
+      'edit.hasEnglishUnset': '— 保持不变 —',
+      'edit.yes': '有',
+      'edit.no': '没有',
+      'edit.price': '价格 (RMB)',
+      'edit.duration': '时长 (分钟)',
+      'edit.players': '人数（例如 4-6）',
+      'edit.save': '保存',
+      'edit.cancel': '取消',
+      'edit.reset': '恢复原始数据',
+      'edit.export': '复制编辑内容 (JSON)',
+      'edit.exportDone': '已复制——粘贴发给 KK 即可',
+      'edit.localDraft': '本地草稿 · 仅本设备可见',
+      'edit.saved': '已保存到本设备',
       'room.back': '← 返回全部密室',
       'room.moreInCity': '更多推荐 · ',
       'games.more': '按城市探索更多 →',
@@ -319,7 +355,34 @@
     '逢魔时': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'City of Fantasy', type: '日式汤泉，大型机关', typeEn: 'Japanese Hot Spring, Large-Scale Mechanisms' },
     '复原': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' }
   };
-  function roomInfo(name){ return ROOM_INFO[name] || {}; }
+  // ---------- local (per-device) edits ----------
+  // Lets KK add a poster / tweak fields right on the room page without a backend.
+  // Saved only in this browser's localStorage — not visible to other visitors.
+  // Use the "Copy Edits as JSON" button on the room page to send changes back for publishing.
+  function getLocalEdits(){
+    try{ return JSON.parse(localStorage.getItem('escapeGuideLocalEdits') || '{}'); }catch(e){ return {}; }
+  }
+  function setLocalEdit(name, patch){
+    const edits = getLocalEdits();
+    const clean = {};
+    Object.keys(patch).forEach(k => { if(patch[k] !== undefined) clean[k] = patch[k]; });
+    edits[name] = Object.assign({}, edits[name] || {}, clean);
+    try{ localStorage.setItem('escapeGuideLocalEdits', JSON.stringify(edits)); }catch(e){}
+  }
+  function clearLocalEdit(name){
+    const edits = getLocalEdits();
+    delete edits[name];
+    try{ localStorage.setItem('escapeGuideLocalEdits', JSON.stringify(edits)); }catch(e){}
+  }
+  function hasLocalEdit(name){
+    return !!getLocalEdits()[name];
+  }
+
+  function roomInfo(name){
+    const base = ROOM_INFO[name] || {};
+    const local = getLocalEdits()[name];
+    return local ? Object.assign({}, base, local) : base;
+  }
 
   function buildHorrorPips(level){
     const wrap = document.createElement('span');
@@ -332,18 +395,25 @@
     return wrap;
   }
 
+  function primaryType(info){
+    const typeStr = currentLang === 'zh' ? info.type : (info.typeEn || info.type);
+    if(!typeStr) return null;
+    const first = typeStr.split(/[,，]/).map(s => s.trim()).filter(Boolean)[0];
+    return first || null;
+  }
+
+  function buildMediaCaption(info){
+    const label = primaryType(info);
+    if(!label) return null;
+    const el = document.createElement('span');
+    el.className = 'game-media-caption';
+    el.textContent = label;
+    return el;
+  }
+
   function buildRoomTags(info){
     const bits = [];
     const dict = translations[currentLang] || translations.en;
-    const typeStr = currentLang === 'zh' ? info.type : (info.typeEn || info.type);
-    if(typeStr){
-      typeStr.split(/[,，]/).map(s => s.trim()).filter(Boolean).forEach(segment => {
-        const t = document.createElement('span');
-        t.className = 'game-tag';
-        t.textContent = segment;
-        bits.push(t);
-      });
-    }
     if(info.horror){
       const h = document.createElement('span');
       h.className = 'game-tag game-tag-horror';
