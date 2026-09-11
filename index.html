@@ -357,6 +357,9 @@
     const facts = buildRoomFacts(info);
     if(facts) body.appendChild(facts);
 
+    const company = buildRoomCompany(info);
+    if(company) body.appendChild(company);
+
     const descEl = document.createElement('p');
     descEl.className = 'game-desc coming-soon';
     descEl.setAttribute('data-i18n', 'game.comingSoon');

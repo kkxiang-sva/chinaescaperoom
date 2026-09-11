@@ -706,6 +706,7 @@
   .horror-pips .pip{width:6px; height:6px; border-radius:1px; background:rgba(165,55,42,0.2);}
   .horror-pips .pip.on{background:var(--red-bright);}
   .game-facts{font-size:11.5px; color:var(--text-dim); font-weight:600; margin-bottom:10px; letter-spacing:.02em;}
+  .game-company{font-size:10.5px; color:var(--text-dimmer); font-style:italic; margin-bottom:10px;}
   .game-media .game-monogram{font-size:34px; position:relative; z-index:1;}
   .game-monogram{
     font-family:var(--serif); font-weight:700; color:var(--gold-bright); opacity:.9; line-height:1;
@@ -743,7 +744,8 @@
   }
   .room-hero-body .game-tags{margin-bottom:18px;}
   .room-hero-body .game-tag{font-size:11.5px; padding:5px 11px;}
-  .room-hero-body .game-facts{font-size:14.5px; margin-bottom:22px;}
+  .room-hero-body .game-facts{font-size:14.5px; margin-bottom:8px;}
+  .room-hero-body .game-company{font-size:12.5px; margin-bottom:22px;}
   .room-hero-long{font-size:15px; color:var(--text-dim); font-weight:300; margin-bottom:30px; max-width:520px;}
   .room-more-cities{margin-top:56px;}
   .room-more-cities h3{font-family:var(--serif); font-weight:700; font-size:20px; margin-bottom:20px;}

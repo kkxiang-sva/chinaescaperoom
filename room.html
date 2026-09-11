@@ -68,6 +68,7 @@
           <div class="room-hero-rank" id="roomHeroRank" hidden></div>
           <div id="roomHeroTags"></div>
           <div id="roomHeroFacts"></div>
+          <div id="roomHeroCompany"></div>
           <p class="room-hero-long" id="roomHeroLong"></p>
           <a href="index.html#booking" class="btn btn-primary" data-i18n="game.modal.cta">Ask About Booking →</a>
         </div>
@@ -286,6 +287,11 @@
     factsHost.innerHTML = '';
     const facts = buildRoomFacts(info);
     if(facts) factsHost.appendChild(facts);
+
+    const companyHost = document.getElementById('roomHeroCompany');
+    companyHost.innerHTML = '';
+    const company = buildRoomCompany(info);
+    if(company) companyHost.appendChild(company);
 
     document.getElementById('roomHeroLong').textContent = dict['game.modal.comingSoon'] || '';
 

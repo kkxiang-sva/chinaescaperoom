@@ -75,6 +75,7 @@
       'room.enNo': 'Chinese Only',
       'room.min': ' min',
       'room.players': ' players',
+      'room.by': 'By ',
       'room.back': '← All Rooms',
       'room.moreInCity': 'More rooms in ',
       'games.more': 'Browse More by City →',
@@ -178,6 +179,7 @@
       'room.enNo': '仅中文',
       'room.min': '分钟',
       'room.players': '人',
+      'room.by': '出品：',
       'room.back': '← 返回全部密室',
       'room.moreInCity': '更多推荐 · ',
       'games.more': '按城市探索更多 →',
@@ -268,51 +270,51 @@
   // Per-room extra details, keyed by the canonical name used in TOP30 / CITY_ROOMS.
   // priceRMB/hasEnglish collected from KK directly; other fields fill in as they're provided.
   const ROOM_INFO = {
-    '诺亚': { priceRMB: 338, hasEnglish: true },
-    '女屋': { hasEnglish: true },
-    '艾洛拉': { priceRMB: 288, hasEnglish: true },
-    '神话': { priceRMB: 298, hasEnglish: true },
-    'VISAGE': { priceRMB: 398, hasEnglish: true },
-    'ENOLA': { priceRMB: 398, hasEnglish: true },
-    'SINNER': { priceRMB: 398, hasEnglish: true },
-    '楼兰古墓2': { priceRMB: 328, hasEnglish: false },
-    'HAVEN': { priceRMB: 398, hasEnglish: true },
-    'INSANE II': { hasEnglish: true },
-    'GATEMAN': { priceRMB: 398, hasEnglish: true },
-    'REVIVER': { priceRMB: 398, hasEnglish: true },
-    '白夜': { priceRMB: 298, hasEnglish: true },
-    'Cindy死了九次': { priceRMB: 360, hasEnglish: true },
-    'WUKONG': { priceRMB: 328, hasEnglish: false },
-    'SOUL HOUSE': { priceRMB: 288, hasEnglish: true },
-    'Undeveloped Memory': { hasEnglish: true },
-    '昆仑寒宫2': { priceRMB: 328, hasEnglish: false },
-    '找到你了2': { priceRMB: 298, hasEnglish: false },
-    'Strike it! Rich!': { priceRMB: 179, hasEnglish: true },
-    '溃烂缪斯': { priceRMB: 298, hasEnglish: true },
-    'INSANE': { priceRMB: 398, hasEnglish: true },
-    'AFTERLIFE': { hasEnglish: true },
-    '不可名状': { priceRMB: 278, hasEnglish: true },
-    'Dream': { priceRMB: 298, hasEnglish: false },
-    '暂放的绽放': { hasEnglish: true },
-    '污秽': { priceRMB: 278, hasEnglish: false },
-    '幻觉游戏': { priceRMB: 178, hasEnglish: false },
-    '这没有游戏': { priceRMB: 138, hasEnglish: false },
-    '纸人回魂': { priceRMB: 198, hasEnglish: false },
-    '坏机器': { priceRMB: 298, hasEnglish: true },
-    '镇灵村': { priceRMB: 268, hasEnglish: false },
-    '萨乌达德': { priceRMB: 238, hasEnglish: true },
-    '朝圣': { priceRMB: 288, hasEnglish: true },
-    '神佑': { priceRMB: 298, hasEnglish: true },
-    '安乐': { priceRMB: 268, hasEnglish: true },
-    'Lily': { priceRMB: 268, hasEnglish: true },
-    'Dollshouse': { priceRMB: 258, hasEnglish: false },
-    '再见黛安娜': { priceRMB: 258, hasEnglish: false },
-    '玛雅': { priceRMB: 348, hasEnglish: false },
-    '观落阴': { priceRMB: 268, hasEnglish: false },
-    '太岁': { priceRMB: 238, hasEnglish: false },
-    '活神仙': { priceRMB: 238, hasEnglish: false },
-    '逢魔时': { priceRMB: 198, hasEnglish: false },
-    '复原': { priceRMB: 398, hasEnglish: true }
+    '诺亚': { priceRMB: 338, hasEnglish: true, duration: 100, company: 'MRX' },
+    '女屋': { hasEnglish: true, duration: 100, company: 'The Second World' },
+    '艾洛拉': { priceRMB: 288, hasEnglish: true, duration: 100, company: 'MRX' },
+    '神话': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World' },
+    'VISAGE': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    'ENOLA': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    'SINNER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    '楼兰古墓2': { priceRMB: 328, hasEnglish: false, duration: 90, company: '301 Immersive' },
+    'HAVEN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    'INSANE II': { hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    'GATEMAN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    'REVIVER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    '白夜': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World' },
+    'Cindy死了九次': { priceRMB: 360, hasEnglish: true, duration: 120, company: 'Cubic Escape - 6min' },
+    'WUKONG': { priceRMB: 328, hasEnglish: false, duration: 90, company: 'MRX' },
+    'SOUL HOUSE': { priceRMB: 288, hasEnglish: true, duration: 65, company: 'UMEPLAY x INS' },
+    'Undeveloped Memory': { hasEnglish: true, duration: 5, company: 'KK x UMEPLAY x INS' },
+    '昆仑寒宫2': { priceRMB: 328, hasEnglish: false, duration: 90, company: 'E+' },
+    '找到你了2': { priceRMB: 298, hasEnglish: false, duration: 90, company: 'MRX' },
+    'Strike it! Rich!': { priceRMB: 179, hasEnglish: true, duration: 60, company: 'WOW!BOXX' },
+    '溃烂缪斯': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Dreamland Traveller' },
+    'INSANE': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    'AFTERLIFE': { hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    '不可名状': { priceRMB: 278, hasEnglish: true, duration: 90, company: 'Dreamland Traveller' },
+    'Dream': { priceRMB: 298, hasEnglish: false, duration: 90, company: 'V Factory' },
+    '暂放的绽放': { hasEnglish: true, duration: 10, company: 'KK x Dreamland Traveller' },
+    '污秽': { priceRMB: 278, hasEnglish: false, duration: 90, company: 'Dreamland Traveller' },
+    '幻觉游戏': { priceRMB: 178, hasEnglish: false, duration: 135, company: 'The Lost Planet' },
+    '这没有游戏': { priceRMB: 138, hasEnglish: false, duration: 90, company: 'The Lost Planet' },
+    '纸人回魂': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'Dreamland Traveller' },
+    '坏机器': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Free City' },
+    '镇灵村': { priceRMB: 268, hasEnglish: false, duration: 90, company: 'MRX' },
+    '萨乌达德': { priceRMB: 238, hasEnglish: true, duration: 90, company: 'Free City' },
+    '朝圣': { priceRMB: 288, hasEnglish: true, duration: 80, company: 'Witch Travel Agency' },
+    '神佑': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Witch Travel Agency' },
+    '安乐': { priceRMB: 268, hasEnglish: true, duration: 80, company: 'Witch Travel Agency' },
+    'Lily': { priceRMB: 268, hasEnglish: true, duration: 80, company: 'Witch Travel Agency' },
+    'Dollshouse': { priceRMB: 258, hasEnglish: false, duration: 80, company: 'Lostland' },
+    '再见黛安娜': { priceRMB: 258, hasEnglish: false, duration: 80, company: 'Grey Raven' },
+    '玛雅': { priceRMB: 348, hasEnglish: false, duration: 140, company: 'Brain Storm Lab' },
+    '观落阴': { priceRMB: 268, hasEnglish: false, duration: 100, company: 'Spiritual Investigation Bureau' },
+    '太岁': { priceRMB: 238, hasEnglish: false, duration: 90, company: 'RE.Creature' },
+    '活神仙': { priceRMB: 238, hasEnglish: false, duration: 105, company: 'Dragon Gallery' },
+    '逢魔时': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'City of Fantasy' },
+    '复原': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' }
   };
   function roomInfo(name){ return ROOM_INFO[name] || {}; }
 
@@ -368,5 +370,14 @@
     const el = document.createElement('div');
     el.className = 'game-facts';
     el.textContent = parts.join(' · ');
+    return el;
+  }
+
+  function buildRoomCompany(info){
+    if(!info.company) return null;
+    const dict = translations[currentLang] || translations.en;
+    const el = document.createElement('div');
+    el.className = 'game-company';
+    el.textContent = (dict['room.by'] || 'By ') + info.company;
     return el;
   }
