@@ -7,7 +7,7 @@
 <title data-i18n="meta.title">China Escape Room Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0a0a0d;
@@ -23,7 +23,7 @@
     --text:#f2ede1;
     --text-dim:#a39d95;
     --text-dimmer:#716c66;
-    --serif:'Cinzel', 'Noto Serif SC', serif;
+    --serif:'Cormorant Garamond', 'Noto Serif SC', serif;
     --sans:'Inter', 'Noto Sans SC', sans-serif;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
@@ -78,7 +78,7 @@
   .logo .mark{
     width:30px; height:30px; flex:none;
   }
-  .nav-links{display:flex; gap:34px; align-items:center; flex:1; justify-content:center;}
+  .nav-links{display:flex; gap:24px; align-items:center; flex:1; justify-content:center;}
   .nav-links a{
     font-size:14.5px; color:var(--text-dim); letter-spacing:.02em;
     position:relative; padding:6px 0; transition:color .25s;
@@ -139,14 +139,15 @@
   }
   .hero-eyebrow .dot{width:5px; height:5px; background:var(--red-bright); border-radius:50%; box-shadow:0 0 10px var(--red-bright); flex:none;}
   h1.hero-title{
-    font-family:var(--serif); font-weight:700;
-    font-size:clamp(36px, 6.4vw, 76px);
-    line-height:1.2;
-    letter-spacing:.005em;
+    font-family:var(--serif); font-weight:600; font-style:italic;
+    font-size:clamp(44px, 7.6vw, 94px);
+    line-height:1.12;
+    letter-spacing:.002em;
     background:linear-gradient(180deg, #fdf6e6 0%, var(--gold-bright) 55%, var(--gold) 100%);
     -webkit-background-clip:text; background-clip:text; color:transparent;
     margin-bottom:22px;
   }
+  h1.hero-title:lang(zh-CN){font-style:normal;}
   .hero-sub{
     font-size:clamp(15px, 2vw, 18px); color:var(--text-dim);
     max-width:600px; margin:0 auto 42px; font-weight:300;
@@ -189,10 +190,16 @@
     margin-bottom:16px; display:block;
   }
   .section-title{
-    font-family:var(--serif); font-weight:700; font-size:clamp(26px, 3.6vw, 40px);
+    font-family:var(--serif); font-weight:700; font-size:clamp(30px, 4.2vw, 46px);
     color:var(--text); margin-bottom:16px;
   }
   .section-desc{color:var(--text-dim); font-size:15px; font-weight:300;}
+  .games-note{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; color:var(--gold-bright); font-weight:600; letter-spacing:.02em;
+    margin-bottom:14px;
+  }
+  .games-note svg{width:13px; height:13px; flex:none;}
 
   /* ---------- GAMES ---------- */
   .games{padding:130px 0 110px;}
@@ -250,6 +257,48 @@
   .meta-item{display:flex; align-items:center; gap:6px;}
 
   .games-more{text-align:center; margin-top:52px;}
+
+  /* ---------- CITIES ---------- */
+  .cities{padding:100px 0 110px; border-top:1px solid var(--line);}
+  .city-grid{display:grid; grid-template-columns:repeat(5, 1fr); gap:16px;}
+  .city-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:26px 16px; text-align:center; cursor:pointer; font-family:var(--sans); color:var(--text);
+    transition:transform .25s, border-color .25s, box-shadow .25s;
+  }
+  .city-card:hover{
+    transform:translateY(-4px); border-color:var(--line-strong);
+    box-shadow:0 16px 40px rgba(0,0,0,0.35);
+  }
+  .city-icon{width:26px; height:26px; margin:0 auto 14px; color:var(--gold-bright);}
+  .city-name{font-family:var(--serif); font-weight:700; font-size:16px; color:var(--text); margin-bottom:6px;}
+  .city-count{font-size:10.5px; color:var(--text-dimmer); letter-spacing:.05em; text-transform:uppercase;}
+
+  .city-modal{max-width:560px;}
+  .city-modal-header{padding:32px 32px 4px;}
+  .city-modal-name{font-family:var(--serif); font-weight:700; font-size:24px; color:var(--text);}
+  .city-modal-count{
+    font-size:11.5px; color:var(--text-dimmer); letter-spacing:.06em; text-transform:uppercase;
+    margin-top:6px;
+  }
+  .city-modal-list{padding:20px 20px 28px; display:flex; flex-direction:column; gap:10px;}
+  .city-room-row{
+    display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:6px;
+    padding:13px 16px; cursor:pointer; transition:border-color .2s, transform .2s;
+    font-family:var(--sans); color:var(--text);
+  }
+  .city-room-row:hover{border-color:var(--line-strong); transform:translateX(3px);}
+  .city-room-icon{
+    flex:none; width:40px; height:40px; border-radius:50%; background:var(--panel);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+  }
+  .city-room-icon svg{width:20px; height:20px; color:var(--gold-bright);}
+  .city-room-info{flex:1; display:flex; flex-direction:column; gap:3px; min-width:0;}
+  .city-room-name{font-family:var(--serif); font-weight:700; font-size:14.5px;}
+  .city-room-badge{font-size:10px; color:var(--gold-bright); letter-spacing:.05em; text-transform:uppercase;}
+  .city-room-desc{font-size:12px; color:var(--text-dim); font-weight:300; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .city-room-arrow{flex:none; color:var(--gold); font-size:16px;}
 
   /* ---------- BOOKING ---------- */
   .booking{
@@ -621,9 +670,11 @@
   /* ---------- RESPONSIVE ---------- */
   @media (max-width:1100px){
     .game-grid{grid-template-columns:repeat(4,1fr);}
+    .city-grid{grid-template-columns:repeat(4,1fr);}
   }
   @media (max-width:900px){
     .game-grid{grid-template-columns:repeat(3,1fr);}
+    .city-grid{grid-template-columns:repeat(3,1fr);}
     .steps{grid-template-columns:repeat(2,1fr); row-gap:40px;}
     .steps::before{display:none;}
     .booking-channels{grid-template-columns:repeat(2,1fr);}
@@ -642,6 +693,7 @@
     .lang-switch-desktop{display:none;}
     .lang-switch-mobile{display:flex;}
     .game-grid{grid-template-columns:repeat(2,1fr);}
+    .city-grid{grid-template-columns:repeat(2,1fr);}
     .hero-stats{flex-direction:column; gap:20px;}
     .stat:not(:last-child)::after{display:none;}
     .stat{border-bottom:1px solid var(--line); padding-bottom:16px;}
@@ -651,6 +703,7 @@
   }
   @media (max-width:420px){
     .game-grid{grid-template-columns:1fr;}
+    .city-grid{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -696,6 +749,17 @@
   </div>
 </div>
 
+<div id="cityModalOverlay" class="room-modal-overlay" hidden>
+  <div class="room-modal city-modal" role="dialog" aria-modal="true">
+    <button class="room-modal-close" id="cityModalClose" aria-label="Close">&times;</button>
+    <div class="city-modal-header">
+      <div class="city-modal-name" id="cityModalName"></div>
+      <div class="city-modal-count" id="cityModalCount"></div>
+    </div>
+    <div class="city-modal-list" id="cityModalList"></div>
+  </div>
+</div>
+
 <header class="nav" id="nav">
   <div class="nav-inner">
     <a href="#top" class="logo">
@@ -709,6 +773,7 @@
     </a>
     <nav class="nav-links" id="navLinks">
       <a href="#games" data-i18n="nav.games">Top Games</a>
+      <a href="#cities" data-i18n="nav.cities">Cities</a>
       <a href="#booking" data-i18n="nav.booking">How to Book</a>
       <a href="#why" data-i18n="nav.why">Why Us</a>
       <a href="#faq" data-i18n="nav.faq">FAQ</a>
@@ -738,7 +803,7 @@
   <span class="hero-corner br"></span>
   <div class="hero-eyebrow"><span class="dot"></span><span data-i18n="hero.eyebrow">THE ULTIMATE ESCAPE ROOM GUIDE IN CHINA</span><span class="cursor"></span></div>
   <h1 class="hero-title" data-i18n="hero.title" data-i18n-html>Unlock China's Best<br>Escape Room Adventures</h1>
-  <p class="hero-sub" data-i18n="hero.sub">From century-old mysteries in Beijing's hutongs to noir theater on the Shanghai Bund — we curate the country's most unforgettable escape rooms and make booking simple, even if you don't read Chinese.</p>
+  <p class="hero-sub" data-i18n="hero.sub">Playing escape rooms in China has become a rising trend among international travelers — and it's easy to see why. Expect large-scale mechanical sets, immersive live-actor interaction, and film-quality production design you won't find anywhere else. Come experience it for yourself. Not sure how to book? You're already in the right place.</p>
   <div class="console">
     <span data-i18n="console.label">SYSTEM · CHALLENGE TIMER</span><span class="sep">|</span><span class="clock" id="countdownClock">60:00</span><span class="sep">|</span><span data-i18n="console.status">STATUS: LOCKED</span>
   </div>
@@ -759,6 +824,7 @@
     <div class="section-head">
       <span class="section-tag">Top Games</span>
       <h2 class="section-title" data-i18n="games.title">All-Time Top Picks</h2>
+      <div class="games-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="games.note">All room info available in English</span></div>
       <p class="section-desc" data-i18n="games.desc">Shown below is sample content — swap in your real room data (name, city, photos, difficulty, duration, group size) before launch.</p>
     </div>
     <div class="game-grid">
@@ -983,9 +1049,115 @@
         </div>
       </div>
 
+      <div class="game-card">
+        <div class="game-media">
+          <span class="game-badge" data-i18n="game11.badge">Historical · Puzzle</span>
+          <svg viewBox="0 0 48 48" fill="none"><path d="M8 40h32M10 16h28v8H10z" stroke="#e9c98a" stroke-width="1.4"/><path d="M14 24v16M34 24v16M20 24v16M28 24v16" stroke="#a5372a" stroke-width="1.4"/></svg>
+        </div>
+        <div class="game-body">
+          <div class="game-city" data-i18n="game11.city">Beijing · Chaoyang</div>
+          <div class="game-name" data-i18n="game11.name">The Imperial Academy Riddle</div>
+          <p class="game-desc" data-i18n="game11.desc">A former imperial academy's archive holds a centuries-old riddle that only a true scholar can solve.</p>
+          <div class="game-meta">
+            <div class="locks">
+              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+            </div>
+            <span data-i18n="game11.meta">75 min · 3-5 players</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-media">
+          <span class="game-badge" data-i18n="game12.badge">Sci-Fi · Cyberpunk</span>
+          <svg viewBox="0 0 48 48" fill="none"><path d="M10 38V18l14-10 14 10v20" stroke="#e9c98a" stroke-width="1.4"/><path d="M18 38V24h12v14" stroke="#a5372a" stroke-width="1.6"/></svg>
+        </div>
+        <div class="game-body">
+          <div class="game-city" data-i18n="game12.city">Shanghai · Pudong</div>
+          <div class="game-name" data-i18n="game12.name">Neon Shanghai 2088</div>
+          <p class="game-desc" data-i18n="game12.desc">In a neon-drenched near-future Shanghai, a rogue AI has locked down a skyscraper — you have one hour before it purges everything.</p>
+          <div class="game-meta">
+            <div class="locks">
+              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+              <span class="lock on"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#e9c98a"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+              <span class="lock"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V7a6 6 0 1112 0v3h1a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V11a1 1 0 011-1h1zm2 0h8V7a4 4 0 00-8 0v3z"/></svg></span>
+            </div>
+            <span data-i18n="game12.meta">60 min · 2-4 players</span>
+          </div>
+        </div>
+      </div>
+
     </div>
     <div class="games-more">
       <a href="#" class="btn btn-ghost" data-i18n="games.more">View All Rooms →</a>
+    </div>
+  </div>
+</section>
+
+<section class="cities" id="cities">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">Browse by City</span>
+      <h2 class="section-title" data-i18n="cities.title">Explore by City</h2>
+      <p class="section-desc" data-i18n="cities.desc">Pick a city to see our top-recommended rooms there.</p>
+    </div>
+    <div class="city-grid" id="cityGrid">
+      <button type="button" class="city-card" data-city="beijing">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.beijing">Beijing</div>
+        <div class="city-count" data-count></div>
+      </button>
+      <button type="button" class="city-card" data-city="shanghai">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.shanghai">Shanghai</div>
+        <div class="city-count" data-count></div>
+      </button>
+      <button type="button" class="city-card" data-city="xian">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.xian">Xi'an</div>
+        <div class="city-count" data-count></div>
+      </button>
+      <button type="button" class="city-card" data-city="shenzhen">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.shenzhen">Shenzhen</div>
+        <div class="city-count" data-count></div>
+      </button>
+      <button type="button" class="city-card" data-city="chengdu">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.chengdu">Chengdu</div>
+        <div class="city-count" data-count></div>
+      </button>
+      <button type="button" class="city-card" data-city="guangzhou">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.guangzhou">Guangzhou</div>
+        <div class="city-count" data-count></div>
+      </button>
+      <button type="button" class="city-card" data-city="hangzhou">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.hangzhou">Hangzhou</div>
+        <div class="city-count" data-count></div>
+      </button>
+      <button type="button" class="city-card" data-city="nanjing">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.nanjing">Nanjing</div>
+        <div class="city-count" data-count></div>
+      </button>
+      <button type="button" class="city-card" data-city="wuhan">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.wuhan">Wuhan</div>
+        <div class="city-count" data-count></div>
+      </button>
+      <button type="button" class="city-card" data-city="chongqing">
+        <svg class="city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <div class="city-name" data-i18n="city.chongqing">Chongqing</div>
+        <div class="city-count" data-count></div>
+      </button>
     </div>
   </div>
 </section>
@@ -1136,22 +1308,27 @@
       <div class="footer-col">
         <h4 data-i18n="footer.explore">Explore</h4>
         <a href="#games" data-i18n="nav.games">Top Games</a>
+        <a href="#cities" data-i18n="nav.cities">Cities</a>
         <a href="#booking" data-i18n="nav.booking">How to Book</a>
         <a href="#why" data-i18n="nav.why">Why Us</a>
         <a href="#faq" data-i18n="nav.faq">FAQ</a>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer.citiesHead">Cities</h4>
-        <a href="#" data-i18n="city.beijing">Beijing</a>
-        <a href="#" data-i18n="city.shanghai">Shanghai</a>
-        <a href="#" data-i18n="city.chengdu">Chengdu</a>
-        <a href="#" data-i18n="city.guangzhou">Guangzhou</a>
+        <a href="#cities" class="footer-city-link" data-city="beijing" data-i18n="city.beijing">Beijing</a>
+        <a href="#cities" class="footer-city-link" data-city="shanghai" data-i18n="city.shanghai">Shanghai</a>
+        <a href="#cities" class="footer-city-link" data-city="hangzhou" data-i18n="city.hangzhou">Hangzhou</a>
+        <a href="#cities" class="footer-city-link" data-city="guangzhou" data-i18n="city.guangzhou">Guangzhou</a>
+        <a href="#cities" class="footer-city-link" data-city="chengdu" data-i18n="city.chengdu">Chengdu</a>
+        <a href="#cities" data-i18n="city.more">&amp; More</a>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer.contact">Contact</h4>
-        <a href="mailto:hello@example.com">hello@example.com</a>
-        <a href="#" data-i18n="footer.wechat">WeChat</a>
-        <a href="#">Instagram</a>
+        <a href="mailto:wxiang@sva.edu">wxiang@sva.edu</a>
+        <a href="#">WeChat: Xym20001026</a>
+        <a href="https://wa.me/16469395960" target="_blank" rel="noopener">WhatsApp: +1 646 939 5960</a>
+        <a href="https://www.instagram.com/1026kk_xiang" target="_blank" rel="noopener">Instagram: @1026kk_xiang</a>
+        <a href="#">Discord: kkxiang</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -1204,7 +1381,7 @@
 
   // scroll reveal for sections, cards, steps, etc.
   document.querySelectorAll(
-    '.section-head, .game-card, .step, .channel, .feature, .founder, .faq-item, .cta-band .wrap > *'
+    '.section-head, .game-card, .city-card, .step, .channel, .feature, .founder, .faq-item, .cta-band .wrap > *'
   ).forEach(el => el.classList.add('reveal'));
 
   const revealObserver = new IntersectionObserver((entries) => {
@@ -1249,10 +1426,15 @@
     });
   });
 
-  // ---------- game card setup: id + click-to-open details ----------
+  // ---------- game card setup: id + city + click-to-open details ----------
+  const cityByRoom = [
+    'beijing','shanghai','xian','shenzhen','chengdu','guangzhou',
+    'hangzhou','nanjing','wuhan','chongqing','beijing','shanghai'
+  ];
   document.querySelectorAll('.game-grid .game-card').forEach((card, i) => {
     const key = 'game' + (i + 1);
     card.dataset.room = key;
+    card.dataset.city = cityByRoom[i] || '';
     card.tabIndex = 0;
     card.setAttribute('role', 'button');
     const hint = document.createElement('div');
@@ -1274,7 +1456,7 @@
       'nav.cta': 'Book Now',
       'hero.eyebrow': 'THE ULTIMATE ESCAPE ROOM GUIDE IN CHINA',
       'hero.title': "Unlock China's Best<br>Escape Room Adventures",
-      'hero.sub': "From century-old mysteries in Beijing's hutongs to noir theater on the Shanghai Bund — we curate the country's most unforgettable escape rooms and make booking simple, even if you don't read Chinese.",
+      'hero.sub': "Playing escape rooms in China has become a rising trend among international travelers — and it's easy to see why. Expect large-scale mechanical sets, immersive live-actor interaction, and film-quality production design you won't find anywhere else. Come experience it for yourself. Not sure how to book? You're already in the right place.",
       'console.label': 'SYSTEM · CHALLENGE TIMER',
       'console.status': 'STATUS: LOCKED',
       'hero.cta1': 'Browse Top Games →',
@@ -1284,6 +1466,7 @@
       'stat.rating': 'Average Rating',
       'stat.assist': 'Booking Assistance',
       'games.title': "All-Time Top Picks",
+      'games.note': 'All room info available in English',
       'games.desc': 'Shown below is sample content — swap in your real room data (name, city, photos, difficulty, duration, group size) before launch.',
       'game1.badge': 'Horror · Immersive',
       'game1.city': 'Beijing · Dongcheng',
@@ -1335,6 +1518,16 @@
       'game10.name': 'Fog City Labyrinth',
       'game10.desc': "Chongqing's stacked alleyways hide a killer's trail — chase it through fog, stairwells, and dead ends.",
       'game10.meta': '75 min · 2-4 players',
+      'game11.badge': 'Historical · Puzzle',
+      'game11.city': 'Beijing · Chaoyang',
+      'game11.name': 'The Imperial Academy Riddle',
+      'game11.desc': "A former imperial academy's archive holds a centuries-old riddle that only a true scholar can solve.",
+      'game11.meta': '75 min · 3-5 players',
+      'game12.badge': 'Sci-Fi · Cyberpunk',
+      'game12.city': 'Shanghai · Pudong',
+      'game12.name': 'Neon Shanghai 2088',
+      'game12.desc': 'In a neon-drenched near-future Shanghai, a rogue AI has locked down a skyscraper — you have one hour before it purges everything.',
+      'game12.meta': '60 min · 2-4 players',
       'game.viewMore': 'View Details →',
       'game.modal.about': 'About This Room',
       'game.modal.highlights': 'Highlights',
@@ -1379,6 +1572,14 @@
       'game10.h1': 'Multi-level stepped-alley set',
       'game10.h2': 'Navigation and nerve, not just puzzles',
       'game10.h3': "Chongqing's toughest maze layout",
+      'game11.long': "Housed in a real archive wing of a former imperial academy, this room pairs elegant calligraphy-based puzzles with a genuinely scholarly atmosphere.",
+      'game11.h1': 'Set inside a real archive wing',
+      'game11.h2': 'Calligraphy and text-based puzzles',
+      'game11.h3': 'A quieter, cerebral alternative to horror rooms',
+      'game12.long': "A fully synced lighting and sound rig turns this room into a living cyberpunk skyline, with touch-panel and projection-based puzzles throughout.",
+      'game12.h1': 'Full synced lighting and sound design',
+      'game12.h2': 'Touch-panel and projection puzzles',
+      'game12.h3': "Shanghai's most visually striking room",
       'games.more': 'View All Rooms →',
       'booking.title': 'How to Book an Escape Room in China',
       'booking.desc': "Most rooms take bookings through local platforms rather than their own website — here's the standard process.",
@@ -1432,8 +1633,20 @@
       'footer.disclaimer': 'For reference only — please confirm details with each venue',
       'city.beijing': 'Beijing',
       'city.shanghai': 'Shanghai',
+      'city.hangzhou': 'Hangzhou',
       'city.chengdu': 'Chengdu',
       'city.guangzhou': 'Guangzhou',
+      'city.xian': "Xi'an",
+      'city.shenzhen': 'Shenzhen',
+      'city.nanjing': 'Nanjing',
+      'city.wuhan': 'Wuhan',
+      'city.chongqing': 'Chongqing',
+      'city.more': '& More',
+      'nav.cities': 'Cities',
+      'cities.title': 'Explore by City',
+      'cities.desc': 'Pick a city to see our top-recommended rooms there.',
+      'cities.room': 'recommended room',
+      'cities.rooms': 'recommended rooms',
       'toast.label': 'Achievement',
       'toast.games': 'Unlocked: Top Games',
       'toast.booking': 'Unlocked: How to Book',
@@ -1451,7 +1664,7 @@
       'nav.cta': '立即预定',
       'hero.eyebrow': '中国密室导览 · 面向国际玩家',
       'hero.title': '解锁真实的<br>中国密室体验',
-      'hero.sub': '从北京胡同里的百年谜案，到上海外滩的悬疑剧场 —— 我们为你精选全国最值得一试的密室逃脱，并提供清晰的中文预定指南。',
+      'hero.sub': '来中国玩密室，正在成为越来越多外国玩家的新潮流——这并非偶然。这里有大型机械装置、沉浸式真人互动演绎，以及电影级别的场景制作，都是别处难以复制的体验。诚挚欢迎你来亲身感受。不知道怎么预定？这个网站就是为你准备的。',
       'console.label': 'SYSTEM · 挑战倒计时',
       'console.status': '状态：待解锁',
       'hero.cta1': '浏览精选密室 →',
@@ -1461,6 +1674,7 @@
       'stat.rating': '玩家平均评分',
       'stat.assist': '中文预定协助',
       'games.title': '全部精选密室',
+      'games.note': '全部密室信息均提供英文介绍',
       'games.desc': '以下为示例展示，实际上线内容可替换为你的真实密室数据（名称 / 城市 / 图片 / 难度 / 时长 / 人数）。',
       'game1.badge': '恐怖 · 沉浸式',
       'game1.city': '北京 · 东城区',
@@ -1512,6 +1726,16 @@
       'game10.name': '雾都迷巷',
       'game10.desc': '重庆错落的山城巷道里藏着凶手的踪迹——在雾气、天梯与死路间追踪真相。',
       'game10.meta': '75分钟 · 2-4人',
+      'game11.badge': '历史 · 解谜',
+      'game11.city': '北京 · 朝阳区',
+      'game11.name': '国子监之谜',
+      'game11.desc': '一座旧日国子监的藏书阁里，藏着一道只有真正的学者才能破解的百年谜题。',
+      'game11.meta': '75分钟 · 3-5人',
+      'game12.badge': '科幻 · 赛博朋克',
+      'game12.city': '上海 · 浦东新区',
+      'game12.name': '霓虹上海2088',
+      'game12.desc': '在霓虹闪烁的近未来上海，一个失控的AI锁死了整栋大楼——你只有一小时时间阻止它清除一切。',
+      'game12.meta': '60分钟 · 2-4人',
       'game.viewMore': '查看详情 →',
       'game.modal.about': '关于这间密室',
       'game.modal.highlights': '亮点',
@@ -1556,6 +1780,14 @@
       'game10.h1': '多层级阶梯巷道实景',
       'game10.h2': '方向感与心理素质考验不亚于解谜',
       'game10.h3': '重庆最复杂的迷宫布局',
+      'game11.long': '场景设在一座旧日国子监的真实藏书阁内，以书法与文字类谜题为主，氛围沉静而富有书卷气。',
+      'game11.h1': '真实藏书阁实景',
+      'game11.h2': '书法与文字类谜题',
+      'game11.h3': '比恐怖类更安静、更烧脑的选择',
+      'game12.long': '灯光与音效全程联动，将整个空间打造成一座"活着"的赛博朋克天际线，谜题以触控面板与投影互动为主。',
+      'game12.h1': '灯光音效全程联动',
+      'game12.h2': '触控面板与投影类谜题',
+      'game12.h3': '上海视觉效果最震撼的主题',
       'games.more': '查看全部密室 →',
       'booking.title': '如何预定中国密室',
       'booking.desc': '大多数中国密室店铺主要通过本地平台接受预定，以下是标准流程与建议。',
@@ -1609,8 +1841,20 @@
       'footer.disclaimer': '内容仅供参考，具体以门店信息为准',
       'city.beijing': '北京',
       'city.shanghai': '上海',
+      'city.hangzhou': '杭州',
       'city.chengdu': '成都',
       'city.guangzhou': '广州',
+      'city.xian': '西安',
+      'city.shenzhen': '深圳',
+      'city.nanjing': '南京',
+      'city.wuhan': '武汉',
+      'city.chongqing': '重庆',
+      'city.more': '及更多城市',
+      'nav.cities': '城市',
+      'cities.title': '按城市探索',
+      'cities.desc': '选择一座城市，查看我们在当地推荐的密室主题。',
+      'cities.room': '个推荐主题',
+      'cities.rooms': '个推荐主题',
       'toast.label': '成就达成',
       'toast.games': '解锁成就：精选密室',
       'toast.booking': '解锁成就：预定方式',
@@ -1622,6 +1866,7 @@
 
   let currentLang = 'en';
   let openRoomKey = null;
+  let openCityKey = null;
   function applyLang(lang){
     currentLang = lang;
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
@@ -1640,6 +1885,8 @@
     });
     try{ localStorage.setItem('escapeGuideLang', lang); }catch(e){}
     if(openRoomKey) renderRoomModal(openRoomKey);
+    if(openCityKey) renderCityModal(openCityKey);
+    updateCityCounts();
   }
 
   document.querySelectorAll('.lang-btn').forEach(b => {
@@ -1868,6 +2115,117 @@
 
   const hashRoomMatch = location.hash.match(/^#room-(game\d+)$/);
   if(hashRoomMatch) openRoomModal(hashRoomMatch[1]);
+
+  // ---------- city detail modal ----------
+  const cityOverlay = document.getElementById('cityModalOverlay');
+  const cityModalClose = document.getElementById('cityModalClose');
+
+  function updateCityCounts(){
+    document.querySelectorAll('.city-card').forEach(cardEl => {
+      const cityKey = cardEl.dataset.city;
+      const count = document.querySelectorAll('.game-card[data-city="' + cityKey + '"]').length;
+      const dict = translations[currentLang] || translations.en;
+      const label = currentLang === 'zh'
+        ? count + (dict['cities.room'] || '个推荐主题')
+        : count + ' ' + (count === 1 ? (dict['cities.room'] || 'room') : (dict['cities.rooms'] || 'rooms'));
+      cardEl.querySelector('[data-count]').textContent = label;
+    });
+  }
+
+  function renderCityModal(cityKey){
+    const dict = translations[currentLang] || translations.en;
+    document.getElementById('cityModalName').textContent = dict['city.' + cityKey] || cityKey;
+
+    const cards = [...document.querySelectorAll('.game-card[data-city="' + cityKey + '"]')];
+    const countLabel = currentLang === 'zh'
+      ? cards.length + (dict['cities.room'] || '个推荐主题')
+      : cards.length + ' ' + (cards.length === 1 ? (dict['cities.room'] || 'room') : (dict['cities.rooms'] || 'rooms'));
+    document.getElementById('cityModalCount').textContent = countLabel;
+
+    const list = document.getElementById('cityModalList');
+    list.innerHTML = '';
+    cards.forEach(card => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'city-room-row';
+
+      const iconWrap = document.createElement('span');
+      iconWrap.className = 'city-room-icon';
+      const iconSvg = card.querySelector('.game-media svg');
+      if(iconSvg) iconWrap.appendChild(iconSvg.cloneNode(true));
+
+      const info = document.createElement('span');
+      info.className = 'city-room-info';
+
+      const nameEl = document.createElement('span');
+      nameEl.className = 'city-room-name';
+      nameEl.textContent = card.querySelector('.game-name').textContent;
+
+      const badgeEl = document.createElement('span');
+      badgeEl.className = 'city-room-badge';
+      badgeEl.textContent = card.querySelector('.game-badge').textContent;
+
+      const descEl = document.createElement('span');
+      descEl.className = 'city-room-desc';
+      descEl.textContent = card.querySelector('.game-desc').textContent;
+
+      info.appendChild(nameEl);
+      info.appendChild(badgeEl);
+      info.appendChild(descEl);
+
+      const arrow = document.createElement('span');
+      arrow.className = 'city-room-arrow';
+      arrow.textContent = '→';
+
+      row.appendChild(iconWrap);
+      row.appendChild(info);
+      row.appendChild(arrow);
+      row.addEventListener('click', () => {
+        const roomKey = card.dataset.room;
+        closeCityModal();
+        setTimeout(() => openRoomModal(roomKey), 260);
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function openCityModal(cityKey){
+    openCityKey = cityKey;
+    renderCityModal(cityKey);
+    cityOverlay.hidden = false;
+    requestAnimationFrame(() => cityOverlay.classList.add('open'));
+    document.body.style.overflow = 'hidden';
+    try{ history.replaceState(null, '', '#city-' + cityKey); }catch(e){}
+    playTone(700, 0.07, 'blip');
+  }
+
+  function closeCityModal(){
+    openCityKey = null;
+    cityOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+    setTimeout(() => { cityOverlay.hidden = true; }, 250);
+  }
+
+  document.querySelectorAll('.city-card').forEach(cardEl => {
+    cardEl.addEventListener('click', () => openCityModal(cardEl.dataset.city));
+  });
+  document.querySelectorAll('.footer-city-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      openCityModal(link.dataset.city);
+    });
+  });
+  cityModalClose.addEventListener('click', closeCityModal);
+  cityOverlay.addEventListener('click', (e) => { if(e.target === cityOverlay) closeCityModal(); });
+  window.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && !cityOverlay.hidden) closeCityModal();
+  });
+
+  updateCityCounts();
+
+  const hashCityMatch = location.hash.match(/^#city-([a-z]+)$/);
+  if(hashCityMatch) openCityModal(hashCityMatch[1]);
 </script>
 </body>
 </html>
