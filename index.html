@@ -342,7 +342,7 @@
     const cityEl = document.createElement('div');
     cityEl.className = 'game-city';
     cityEl.dataset.cities = cities.join(',');
-    cityEl.textContent = cityLabel(cities);
+    cityEl.textContent = cityLabelFirst(cities);
 
     const nameEl = document.createElement('div');
     nameEl.className = 'game-name';
@@ -445,7 +445,7 @@
   function refreshRoomCityLabels(){
     document.querySelectorAll('.game-city[data-cities]').forEach(el => {
       const cities = el.dataset.cities ? el.dataset.cities.split(',').filter(Boolean) : [];
-      el.textContent = cityLabel(cities);
+      el.textContent = cityLabelFirst(cities);
     });
   }
 
@@ -456,6 +456,24 @@
       const monoEl = card.querySelector('.game-monogram');
       if(nameEl) nameEl.textContent = displayName(name);
       if(monoEl) monoEl.textContent = displayName(name).trim().charAt(0);
+    });
+  }
+
+  function swapBlock(card, selector, buildFn, info){
+    const body = card.querySelector('.game-body');
+    const old = card.querySelector(selector);
+    const fresh = buildFn(info);
+    if(old && fresh) old.replaceWith(fresh);
+    else if(old && !fresh) old.remove();
+    else if(!old && fresh) body.insertBefore(fresh, card.querySelector('.game-desc'));
+  }
+
+  function refreshRoomInfoBlocks(){
+    document.querySelectorAll('.game-card[data-name]').forEach(card => {
+      const info = roomInfo(card.dataset.name);
+      swapBlock(card, '.game-tags', buildRoomTags, info);
+      swapBlock(card, '.game-facts', buildRoomFacts, info);
+      swapBlock(card, '.game-company', buildRoomCompany, info);
     });
   }
 
@@ -558,6 +576,7 @@
     });
     refreshRoomCityLabels();
     refreshRoomNames();
+    refreshRoomInfoBlocks();
     updateCityCounts();
     if(openCity) renderCityModal(openCity);
     try{ localStorage.setItem('escapeGuideLang', lang); }catch(e){}
