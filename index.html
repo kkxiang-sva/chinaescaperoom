@@ -1008,7 +1008,7 @@
   // ---------- room & city data ----------
   const CITY_ROOMS = {
     guangzhou: ['不可名状','溃烂缪斯','Dream','暂放的绽放','污秽','幻觉游戏','这没有游戏','纸人回魂'],
-    shanghai: ['HAVEN','INSANE II','GATEMAN','REVIVER','WHITE NIGHT','Cindy死了九次','WUKONG','SOUL HOUSE','Undeveloped Memory','昆仑寒宫2','找到你了2','Strike it! Rich!','溃烂缪斯','INSANE','AFTERLIFE'],
+    shanghai: ['HAVEN','INSANE II','GATEMAN','REVIVER','白夜','Cindy死了九次','WUKONG','SOUL HOUSE','Undeveloped Memory','昆仑寒宫2','找到你了2','Strike it! Rich!','溃烂缪斯','INSANE','AFTERLIFE'],
     hangzhou: ['坏机器','镇灵村','不可名状','溃烂缪斯','萨乌达德'],
     chongqing: ['太岁','活神仙','逢魔时'],
     chengdu: ['朝圣','神佑','安乐','Lily','Dollshouse','再见黛安娜','玛雅','观落阴'],
@@ -1017,9 +1017,35 @@
   const CITY_ORDER = ['beijing','shanghai','guangzhou','hangzhou','chengdu','chongqing'];
   const TOP30 = [
     '不可名状','溃烂缪斯','HAVEN','INSANE II','诺亚','女屋','朝圣','坏机器','Dream','Cindy死了九次',
-    '太岁','Dollshouse','Lily','GATEMAN','SOUL HOUSE','REVIVER','安乐','ENOLA','WHITE NIGHT','玛雅',
+    '太岁','Dollshouse','Lily','GATEMAN','SOUL HOUSE','REVIVER','安乐','ENOLA','白夜','玛雅',
     '昆仑寒宫2','污秽','纸人回魂','艾洛拉','神佑','逢魔时','观落阴','神话','WUKONG','INSANE'
   ];
+  const NAME_EN = {
+    '不可名状': 'Unnameable',
+    '溃烂缪斯': 'Corrupt Muse',
+    '诺亚': 'Noah',
+    '女屋': 'Witch House',
+    '朝圣': 'Pilgrimage',
+    '坏机器': 'Bad Machine',
+    'Cindy死了九次': 'Cindy Died 9 Times',
+    '太岁': 'Tai Sui',
+    '安乐': 'Cosy Nest',
+    '白夜': 'White Night',
+    '玛雅': 'Maya',
+    '昆仑寒宫2': 'Frozen Palace 2',
+    '污秽': 'Filthy',
+    '纸人回魂': "The Paper Spirit's Return",
+    '艾洛拉': 'Aurora',
+    '神佑': 'Divine Blessing',
+    '逢魔时': 'Witching Hour',
+    '观落阴': 'Descent to the Netherworld',
+    '神话': 'Myth',
+    'WUKONG': 'WuKong'
+  };
+  function displayName(name){
+    if(currentLang === 'en' && NAME_EN[name]) return NAME_EN[name];
+    return name;
+  }
 
   // ---------- i18n ----------
   const translations = {
@@ -1238,6 +1264,7 @@
     const card = document.createElement('div');
     card.className = 'game-card';
     card.dataset.room = slugify(name) + (rank ? ('-' + rank) : '');
+    card.dataset.name = name;
     card.tabIndex = 0;
     card.setAttribute('role', 'button');
 
@@ -1251,7 +1278,7 @@
     }
     const mono = document.createElement('span');
     mono.className = 'game-monogram';
-    mono.textContent = name.trim().charAt(0);
+    mono.textContent = displayName(name).trim().charAt(0);
     media.appendChild(mono);
 
     const body = document.createElement('div');
@@ -1264,7 +1291,7 @@
 
     const nameEl = document.createElement('div');
     nameEl.className = 'game-name';
-    nameEl.textContent = name;
+    nameEl.textContent = displayName(name);
 
     const descEl = document.createElement('p');
     descEl.className = 'game-desc coming-soon';
@@ -1353,6 +1380,16 @@
     document.querySelectorAll('.game-city[data-cities]').forEach(el => {
       const cities = el.dataset.cities ? el.dataset.cities.split(',').filter(Boolean) : [];
       el.textContent = cityLabel(cities);
+    });
+  }
+
+  function refreshRoomNames(){
+    document.querySelectorAll('.game-card[data-name]').forEach(card => {
+      const name = card.dataset.name;
+      const nameEl = card.querySelector('.game-name');
+      const monoEl = card.querySelector('.game-monogram');
+      if(nameEl) nameEl.textContent = displayName(name);
+      if(monoEl) monoEl.textContent = displayName(name).trim().charAt(0);
     });
   }
 
@@ -1454,6 +1491,7 @@
       a.style.maxHeight = a.scrollHeight + 'px';
     });
     refreshRoomCityLabels();
+    refreshRoomNames();
     updateCityCounts();
     if(openRoom) renderRoomModal(openRoom.name, openRoom.cities, openRoom.rank);
     if(openCity) renderCityModal(openCity);
@@ -1606,11 +1644,11 @@
     document.getElementById('roomModalMedia').innerHTML = '';
     const mono = document.createElement('span');
     mono.className = 'game-monogram';
-    mono.textContent = name.trim().charAt(0);
+    mono.textContent = displayName(name).trim().charAt(0);
     document.getElementById('roomModalMedia').appendChild(mono);
 
     document.getElementById('roomModalCity').textContent = cityLabel(cities);
-    document.getElementById('roomModalName').textContent = name;
+    document.getElementById('roomModalName').textContent = displayName(name);
 
     const rankEl = document.getElementById('roomModalRank');
     if(rank){
@@ -1689,7 +1727,7 @@
       const mono = document.createElement('span');
       mono.className = 'game-monogram';
       mono.style.fontSize = '18px';
-      mono.textContent = name.trim().charAt(0);
+      mono.textContent = displayName(name).trim().charAt(0);
       iconWrap.appendChild(mono);
 
       const info = document.createElement('span');
@@ -1697,7 +1735,7 @@
 
       const nameEl = document.createElement('span');
       nameEl.className = 'city-room-name';
-      nameEl.textContent = name;
+      nameEl.textContent = displayName(name);
 
       const badgeEl = document.createElement('span');
       badgeEl.className = 'city-room-badge';
