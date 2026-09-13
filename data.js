@@ -4,12 +4,12 @@
     shanghai: ['HAVEN','INSANE II','GATEMAN','REVIVER','白夜','Cindy死了九次','WUKONG','SOUL HOUSE','Undeveloped Memory','昆仑寒宫2','找到你了2','Strike it! Rich!','溃烂缪斯','INSANE','AFTERLIFE','复原'],
     hangzhou: ['坏机器','镇灵村','不可名状','溃烂缪斯','萨乌达德'],
     chongqing: ['太岁','活神仙','逢魔时'],
-    chengdu: ['朝圣','神佑','安乐','Lily','Dollshouse','再见黛安娜','玛雅','观落阴'],
+    chengdu: ['朝圣','神佑','安乐','Lily',"Dolls' House",'再见黛安娜','玛雅','观落阴'],
     beijing: ['诺亚','女屋','艾洛拉','神话','VISAGE','ENOLA','SINNER','楼兰古墓2']
   };
   const CITY_ORDER = ['beijing','shanghai','guangzhou','hangzhou','chengdu','chongqing'];
   const TOP30 = [
-    '不可名状','溃烂缪斯','太岁','INSANE II','Dollshouse','SOUL HOUSE','Dream','REVIVER','Cindy死了九次','HAVEN',
+    '不可名状','溃烂缪斯','太岁','INSANE II',"Dolls' House",'SOUL HOUSE','Dream','REVIVER','Cindy死了九次','HAVEN',
     '坏机器','Lily','女屋','安乐','INSANE','GATEMAN','诺亚','ENOLA','朝圣','复原',
     '污秽','神佑','玛雅','白夜','纸人回魂','逢魔时','观落阴','神话','WUKONG','艾洛拉'
   ];
@@ -319,14 +319,14 @@
     '女屋': { hasEnglish: true, duration: 100, company: 'The Second World', type: '美式恐怖酒店', typeEn: 'American Horror, Hotel', priceRMB: 328 },
     '艾洛拉': { priceRMB: 288, hasEnglish: true, duration: 100, company: 'MRX' },
     '神话': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World' },
-    'VISAGE': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
-    'ENOLA': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
-    'SINNER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
+    'VISAGE': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' },
+    'ENOLA': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' },
+    'SINNER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' },
     '楼兰古墓2': { priceRMB: 328, hasEnglish: false, duration: 90, company: '301 Immersive', type: '中国古墓盗墓，机关，解谜', typeEn: 'Tomb Raiding, Mechanisms, Puzzle' },
-    'HAVEN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '末日废土，大型机关', typeEn: 'Post-Apocalyptic, Large-Scale Mechanisms' },
-    'INSANE II': { hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '悬疑探案，美式恐怖', typeEn: 'Mystery/Detective, American Horror' },
-    'GATEMAN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '战争', typeEn: 'War' },
-    'REVIVER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '废弃医院，探灵纪实', typeEn: 'Abandoned Hospital, Paranormal Investigation' },
+    'HAVEN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '末日废土，大型机关', typeEn: 'Post-Apocalyptic, Large-Scale Mechanisms', players: '4-6' },
+    'INSANE II': { hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '悬疑探案，美式恐怖', typeEn: 'Mystery/Detective, American Horror', players: '4-6' },
+    'GATEMAN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '战争', typeEn: 'War', players: '4-6' },
+    'REVIVER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '废弃医院，探灵纪实', typeEn: 'Abandoned Hospital, Paranormal Investigation', players: '4-6' },
     '白夜': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World', type: '日式校园怪谈', typeEn: 'Japanese School Horror' },
     'Cindy死了九次': { priceRMB: 360, hasEnglish: true, duration: 120, company: 'Cubic Escape - 6min' },
     'WUKONG': { priceRMB: 328, hasEnglish: false, duration: 90, company: 'MRX', type: '中国神话', typeEn: 'Chinese Mythology' },
@@ -336,8 +336,8 @@
     '找到你了2': { priceRMB: 298, hasEnglish: false, duration: 90, company: 'MRX', type: '哥特惊悚', typeEn: 'Gothic Horror' },
     'Strike it! Rich!': { priceRMB: 179, hasEnglish: true, duration: 60, company: 'WOW!BOXX', type: '港风欢乐，团队对抗', typeEn: 'Hong Kong-Style Comedy, Team Competition' },
     '溃烂缪斯': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Dreamland Traveller', type: '美式恐怖酒店，大型机关', typeEn: 'American Horror, Hotel, Large-Scale Mechanisms' },
-    'INSANE': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' },
-    'AFTERLIFE': { hasEnglish: true, duration: 75, company: 'UMEPLAY', priceRMB: 298 },
+    'INSANE': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' },
+    'AFTERLIFE': { hasEnglish: true, duration: 75, company: 'UMEPLAY', priceRMB: 298, players: '4-6' },
     '不可名状': { priceRMB: 278, hasEnglish: true, duration: 90, company: 'Dreamland Traveller', type: '泰式惊悚，民俗仪式，大型机关', typeEn: 'Thai Horror, Folk Ritual, Large-Scale Mechanisms' },
     'Dream': { priceRMB: 298, hasEnglish: false, duration: 90, company: 'V Factory' },
     '暂放的绽放': { hasEnglish: true, duration: 15, company: 'KK x Dreamland Traveller', type: '微型体验装置，情感', typeEn: 'Micro Experience, Emotional', priceRMB: 19.9 },
@@ -352,14 +352,14 @@
     '神佑': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Witch Travel Agency', type: '东方赛博朋克', typeEn: 'Eastern Cyberpunk' },
     '安乐': { priceRMB: 268, hasEnglish: true, duration: 80, company: 'Witch Travel Agency', type: '日式怪谈', typeEn: 'Japanese Horror' },
     'Lily': { priceRMB: 268, hasEnglish: true, duration: 80, company: 'Witch Travel Agency' },
-    'Dollshouse': { priceRMB: 258, hasEnglish: false, duration: 80, company: 'Lostland', type: '惊悚玩偶', typeEn: 'Horror Dolls' },
+    "Dolls' House": { priceRMB: 258, hasEnglish: false, duration: 80, company: 'Lostland', type: '惊悚玩偶', typeEn: 'Horror Dolls' },
     '再见黛安娜': { priceRMB: 258, hasEnglish: false, duration: 80, company: 'Grey Raven', type: '情感交互，剧情感人', typeEn: 'Emotional Interaction, Touching Story' },
     '玛雅': { priceRMB: 348, hasEnglish: false, duration: 140, company: 'Brain Storm Lab', type: '大型机关，盗墓，机械解密', typeEn: 'Large-Scale Mechanisms, Tomb Raiding, Mechanical Puzzles' },
     '观落阴': { priceRMB: 268, hasEnglish: false, duration: 100, company: 'Spiritual Investigation Bureau', type: '大型机关，中式奇幻', typeEn: 'Large-Scale Mechanisms, Chinese Fantasy' },
     '太岁': { priceRMB: 238, hasEnglish: false, duration: 90, company: 'RE.Creature', type: '中式民俗，大型', typeEn: 'Chinese Folklore, Large-Scale' },
     '活神仙': { priceRMB: 238, hasEnglish: false, duration: 105, company: 'Dragon Gallery', type: '独栋密室，中式民俗', typeEn: 'Standalone Building, Chinese Folklore' },
     '逢魔时': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'City of Fantasy', type: '日式汤泉，大型机关', typeEn: 'Japanese Hot Spring, Large-Scale Mechanisms' },
-    '复原': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY' }
+    '复原': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' }
   };
   // ---------- local (per-device) edits ----------
   // Lets KK add a poster / tweak fields right on the room page without a backend.
@@ -411,8 +411,8 @@
   function buildMediaCaption(info){
     const label = primaryType(info);
     if(!label) return null;
-    const el = document.createElement('span');
-    el.className = 'game-media-caption';
+    const el = document.createElement('div');
+    el.className = 'game-type-label';
     el.textContent = label;
     return el;
   }

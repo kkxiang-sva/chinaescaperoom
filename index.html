@@ -335,8 +335,12 @@
       mono.textContent = displayName(name).trim().charAt(0);
       media.appendChild(mono);
     }
+
+    const mediaCol = document.createElement('div');
+    mediaCol.className = 'game-media-col';
+    mediaCol.appendChild(media);
     const caption = buildMediaCaption(info);
-    if(caption) media.appendChild(caption);
+    if(caption) mediaCol.appendChild(caption);
 
     const body = document.createElement('div');
     body.className = 'game-body';
@@ -374,7 +378,7 @@
     hint.textContent = 'View Details →';
     body.appendChild(hint);
 
-    card.appendChild(media);
+    card.appendChild(mediaCol);
     card.appendChild(body);
 
     const goToRoom = () => { location.href = 'room.html?room=' + encodeURIComponent(slugify(name)); };
@@ -477,12 +481,12 @@
       swapBlock(card, '.game-facts', buildRoomFacts, info);
       swapBlock(card, '.game-company', buildRoomCompany, info);
 
-      const media = card.querySelector('.game-media');
-      const oldCaption = card.querySelector('.game-media-caption');
+      const mediaCol = card.querySelector('.game-media-col');
+      const oldCaption = card.querySelector('.game-type-label');
       const newCaption = buildMediaCaption(info);
       if(oldCaption && newCaption) oldCaption.replaceWith(newCaption);
       else if(oldCaption && !newCaption) oldCaption.remove();
-      else if(!oldCaption && newCaption) media.appendChild(newCaption);
+      else if(!oldCaption && newCaption) mediaCol.appendChild(newCaption);
     });
   }
 

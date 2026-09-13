@@ -66,11 +66,14 @@
       </div>
 
       <div class="room-hero">
-        <div class="room-hero-media" id="roomHeroMedia">
-          <label class="media-add-btn" id="mediaAddBtn" hidden>
-            <input type="file" accept="image/*" id="posterInput" hidden>
-            <span data-i18n="edit.addImage">+ Add Photo</span>
-          </label>
+        <div class="room-hero-media-col">
+          <div class="room-hero-media" id="roomHeroMedia">
+            <label class="media-add-btn" id="mediaAddBtn" hidden>
+              <input type="file" accept="image/*" id="posterInput" hidden>
+              <span data-i18n="edit.addImage">+ Add Photo</span>
+            </label>
+          </div>
+          <div id="roomHeroTypeLabel" class="game-type-label" hidden></div>
         </div>
         <div class="room-hero-body">
           <div class="room-hero-city" id="roomHeroCity"></div>
@@ -337,9 +340,17 @@
       mono.textContent = displayName(name).trim().charAt(0);
       media.appendChild(mono);
     }
-    const heroCaption = buildMediaCaption(info);
-    if(heroCaption) media.appendChild(heroCaption);
     if(addBtnEl) media.appendChild(addBtnEl);
+
+    const typeLabelEl = document.getElementById('roomHeroTypeLabel');
+    const heroCaption = buildMediaCaption(info);
+    if(heroCaption){
+      typeLabelEl.textContent = heroCaption.textContent;
+      typeLabelEl.hidden = false;
+    } else {
+      typeLabelEl.textContent = '';
+      typeLabelEl.hidden = true;
+    }
 
     document.getElementById('roomHeroCity').textContent = cityLabel(cities);
     document.getElementById('roomHeroName').textContent = displayName(name);
