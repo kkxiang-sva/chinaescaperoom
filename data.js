@@ -511,7 +511,7 @@
   function typeLabels(info){
     const typeStr = currentLang === 'zh' ? info.type : (info.typeEn || info.type);
     if(!typeStr) return [];
-    return typeStr.split(/[,，]/).map(s => s.trim()).filter(Boolean).slice(0, 2);
+    return typeStr.split(/[,，]/).map(s => s.trim()).filter(Boolean);
   }
 
   function buildMediaCaption(info){

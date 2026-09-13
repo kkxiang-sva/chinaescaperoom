@@ -496,7 +496,10 @@
 
   renderRooms();
   renderCities();
-  postersReady.then(refreshRoomInfoBlocks); // pick up any saved local posters once IndexedDB finishes loading
+  postersReady.then(() => {
+    refreshRoomInfoBlocks(); // pick up any saved local posters once IndexedDB finishes loading
+    if(openCity) renderCityModal(openCity);
+  });
 
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -768,17 +771,22 @@
     names.forEach(name => {
       const cities = citiesForName(name);
       const rank = TOP30.indexOf(name) + 1;
+      const roomData = roomInfo(name);
       const row = document.createElement('button');
       row.type = 'button';
       row.className = 'city-room-row';
 
-      const iconWrap = document.createElement('span');
-      iconWrap.className = 'city-room-icon';
-      const mono = document.createElement('span');
-      mono.className = 'game-monogram';
-      mono.style.fontSize = '18px';
-      mono.textContent = displayName(name).trim().charAt(0);
-      iconWrap.appendChild(mono);
+      const poster = document.createElement('span');
+      poster.className = 'city-room-poster';
+      if(roomData.poster){
+        poster.classList.add('has-poster');
+        poster.style.backgroundImage = `url("${roomData.poster}")`;
+      } else {
+        const mono = document.createElement('span');
+        mono.className = 'game-monogram';
+        mono.textContent = displayName(name).trim().charAt(0);
+        poster.appendChild(mono);
+      }
 
       const info = document.createElement('span');
       info.className = 'city-room-info';
@@ -794,11 +802,23 @@
       info.appendChild(nameEl);
       info.appendChild(badgeEl);
 
+      const factsBits = [];
+      if(roomData.priceRMB) factsBits.push('¥' + roomData.priceRMB);
+      if(roomData.duration) factsBits.push(roomData.duration + (dict['room.min'] || ' min'));
+      const primary = typeLabels(roomData)[0];
+      if(primary) factsBits.push(primary);
+      if(factsBits.length){
+        const factsEl = document.createElement('span');
+        factsEl.className = 'city-room-facts';
+        factsEl.textContent = factsBits.join(' · ');
+        info.appendChild(factsEl);
+      }
+
       const arrow = document.createElement('span');
       arrow.className = 'city-room-arrow';
       arrow.textContent = '→';
 
-      row.appendChild(iconWrap);
+      row.appendChild(poster);
       row.appendChild(info);
       row.appendChild(arrow);
       row.addEventListener('click', () => {

@@ -293,19 +293,25 @@
   .city-room-row{
     display:flex; align-items:center; gap:14px; width:100%; text-align:left;
     background:var(--panel-2); border:1px solid var(--line); border-radius:6px;
-    padding:13px 16px; cursor:pointer; transition:border-color .2s, transform .2s;
+    padding:10px 16px 10px 10px; cursor:pointer; transition:border-color .2s, transform .2s;
     font-family:var(--sans); color:var(--text);
   }
   .city-room-row:hover{border-color:var(--line-strong); transform:translateX(3px);}
-  .city-room-icon{
-    flex:none; width:40px; height:40px; border-radius:50%; background:var(--panel);
-    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+  .city-room-poster{
+    flex:none; width:52px; aspect-ratio:2 / 3; border-radius:4px; overflow:hidden;
+    position:relative; border:1px solid var(--line);
+    background:
+      radial-gradient(circle at 30% 20%, rgba(199,164,98,0.16), transparent 55%),
+      radial-gradient(circle at 80% 80%, rgba(165,55,42,0.22), transparent 55%),
+      var(--panel);
+    display:flex; align-items:center; justify-content:center;
   }
-  .city-room-icon svg{width:20px; height:20px; color:var(--gold-bright);}
+  .city-room-poster.has-poster{background-size:cover; background-position:center;}
+  .city-room-poster .game-monogram{font-size:20px;}
   .city-room-info{flex:1; display:flex; flex-direction:column; gap:3px; min-width:0;}
   .city-room-name{font-family:var(--serif); font-weight:700; font-size:14.5px;}
   .city-room-badge{font-size:10px; color:var(--gold-bright); letter-spacing:.05em; text-transform:uppercase;}
-  .city-room-desc{font-size:12px; color:var(--text-dim); font-weight:300; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .city-room-facts{font-size:11px; color:var(--text-dim); font-weight:300; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .city-room-arrow{flex:none; color:var(--gold); font-size:16px;}
 
   /* ---------- BOOKING ---------- */
