@@ -90,8 +90,8 @@
               <input type="text" id="editType">
             </div>
             <div class="edit-row">
-              <label data-i18n="edit.horror">Fear Level (1-5)</label>
-              <input type="number" id="editHorror" min="1" max="5">
+              <label data-i18n="edit.horror">Fear Level (0-5)</label>
+              <input type="number" id="editHorror" min="0" max="5">
             </div>
             <div class="edit-row">
               <label data-i18n="edit.hasEnglish">English Version?</label>
@@ -454,7 +454,7 @@
     if(!currentRoomName) return;
     const info = roomInfo(currentRoomName);
     document.getElementById('editType').value = (currentLang === 'zh' ? info.type : (info.typeEn || info.type)) || '';
-    document.getElementById('editHorror').value = info.horror || '';
+    document.getElementById('editHorror').value = info.horror !== undefined ? info.horror : '';
     document.getElementById('editHasEnglish').value = info.hasEnglish === undefined ? '' : String(info.hasEnglish);
     document.getElementById('editPrice').value = info.priceRMB || '';
     document.getElementById('editDuration').value = info.duration || '';
@@ -479,7 +479,7 @@
       if(currentLang === 'zh') patch.type = typeVal;
       else patch.typeEn = typeVal;
     }
-    if(horrorVal) patch.horror = Math.max(1, Math.min(5, parseInt(horrorVal, 10)));
+    if(horrorVal !== '') patch.horror = Math.max(0, Math.min(5, parseInt(horrorVal, 10)));
     if(hasEnglishVal !== '') patch.hasEnglish = hasEnglishVal === 'true';
     if(priceVal) patch.priceRMB = parseFloat(priceVal);
     if(durationVal) patch.duration = parseInt(durationVal, 10);

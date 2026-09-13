@@ -79,7 +79,7 @@
       'edit.button': 'Edit',
       'edit.addImage': '+ Add Photo',
       'edit.type': 'Type / Genre',
-      'edit.horror': 'Fear Level (1-5)',
+      'edit.horror': 'Fear Level (0-5)',
       'edit.hasEnglish': 'English Version?',
       'edit.hasEnglishUnset': '— Leave as is —',
       'edit.yes': 'Yes',
@@ -204,7 +204,7 @@
       'edit.button': '编辑',
       'edit.addImage': '+ 添加图片',
       'edit.type': '类型 / 题材',
-      'edit.horror': '恐怖程度 (1-5)',
+      'edit.horror': '恐怖程度 (0-5)',
       'edit.hasEnglish': '是否有英文版？',
       'edit.hasEnglishUnset': '— 保持不变 —',
       'edit.yes': '有',
@@ -531,7 +531,7 @@
   function buildRoomTags(info){
     const bits = [];
     const dict = translations[currentLang] || translations.en;
-    if(info.horror){
+    if(info.horror !== undefined){
       const h = document.createElement('span');
       h.className = 'game-tag game-tag-horror';
       const label = document.createElement('span');
