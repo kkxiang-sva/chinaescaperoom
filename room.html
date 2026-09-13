@@ -113,6 +113,18 @@
               <label data-i18n="edit.players">Players (e.g. 4-6)</label>
               <input type="text" id="editPlayers">
             </div>
+            <div class="edit-row">
+              <label data-i18n="edit.address">Address</label>
+              <input type="text" id="editAddress">
+            </div>
+            <div class="edit-row">
+              <label data-i18n="edit.bookingInfo">Booking Info</label>
+              <input type="text" id="editBookingInfo">
+            </div>
+            <div class="edit-row">
+              <label data-i18n="edit.videoUrl">Trailer Video URL</label>
+              <input type="text" id="editVideoUrl">
+            </div>
             <div class="edit-actions">
               <button type="button" class="btn btn-primary" id="editSaveBtn" data-i18n="edit.save">Save</button>
               <button type="button" class="btn btn-ghost" id="editCancelBtn" data-i18n="edit.cancel">Cancel</button>
@@ -128,6 +140,31 @@
           <a href="index.html#booking" class="btn btn-primary" data-i18n="game.modal.cta" id="bookingCta">Ask About Booking →</a>
         </div>
       </div>
+
+      <section class="room-extra" id="roomGallerySection" hidden>
+        <h2 class="room-extra-title" data-i18n="room.gallery">More Photos</h2>
+        <div class="room-gallery-grid" id="roomGalleryGrid"></div>
+      </section>
+
+      <section class="room-extra" id="roomVideoSection" hidden>
+        <h2 class="room-extra-title" data-i18n="room.video">Trailer</h2>
+        <div id="roomVideoWrap"></div>
+      </section>
+
+      <section class="room-extra" id="roomReviewsSection" hidden>
+        <h2 class="room-extra-title" data-i18n="room.reviews">Player Comments</h2>
+        <div class="room-reviews-list" id="roomReviewsList"></div>
+        <div class="room-review-form" id="reviewForm" hidden>
+          <textarea id="reviewText" data-i18n-placeholder="edit.reviewText" placeholder="Quote from a player..."></textarea>
+          <input type="text" id="reviewAuthor" data-i18n-placeholder="edit.reviewAuthor" placeholder="Name / handle (optional)">
+          <button type="button" class="btn btn-ghost" id="reviewAddBtn" data-i18n="edit.addReview">+ Add Comment</button>
+        </div>
+      </section>
+
+      <section class="room-extra" id="roomBookingSection" hidden>
+        <h2 class="room-extra-title" data-i18n="room.bookingInfo">Booking &amp; Address</h2>
+        <div id="roomBookingContent"></div>
+      </section>
 
       <div class="room-more-cities" id="roomMoreWrap" hidden>
         <h3 id="roomMoreTitle"></h3>
@@ -319,6 +356,7 @@
   }
 
   let currentRoomName = null;
+  let editModeOn = false; // declared early: render functions below read it before edit-mode wiring runs
 
   function renderRoomPage(){
     const params = new URLSearchParams(location.search);
@@ -401,6 +439,11 @@
     const draftBadge = document.getElementById('localDraftBadge');
     draftBadge.hidden = !hasLocalEdit(name);
 
+    renderGallery(info);
+    renderVideo(info);
+    renderReviews(info);
+    renderBooking(info);
+
     // more rooms in the same city
     const moreWrap = document.getElementById('roomMoreWrap');
     const moreList = document.getElementById('roomMoreList');
@@ -424,6 +467,195 @@
     }
   }
 
+  // ---------- extra sections: gallery / trailer / reviews / booking ----------
+  function resizeImageFile(file, maxDim){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.naturalWidth, h = img.naturalHeight;
+          if(w > maxDim || h > maxDim){
+            if(w >= h){ h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = () => reject(new Error('decode failed'));
+        img.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error('read failed'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderGallery(info){
+    const section = document.getElementById('roomGallerySection');
+    const grid = document.getElementById('roomGalleryGrid');
+    grid.innerHTML = '';
+    const gallery = info.gallery || [];
+    gallery.forEach((src, i) => {
+      const thumb = document.createElement('div');
+      thumb.className = 'room-gallery-thumb';
+      thumb.style.backgroundImage = `url("${src}")`;
+      if(editModeOn){
+        const rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'room-gallery-remove';
+        rm.textContent = '×';
+        rm.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await removeGalleryImage(currentRoomName, i);
+          renderGallery(roomInfo(currentRoomName));
+        });
+        thumb.appendChild(rm);
+      } else {
+        thumb.addEventListener('click', () => window.open(src, '_blank', 'noopener'));
+      }
+      grid.appendChild(thumb);
+    });
+    if(editModeOn){
+      const addTile = document.createElement('label');
+      addTile.className = 'room-gallery-add';
+      addTile.textContent = '+';
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.multiple = true;
+      input.hidden = true;
+      input.addEventListener('change', async () => {
+        const files = Array.from(input.files || []);
+        for(const file of files){
+          try{
+            const dataUrl = await resizeImageFile(file, 1400);
+            await addGalleryImage(currentRoomName, dataUrl);
+          }catch(err){ /* skip files that fail to decode */ }
+        }
+        renderGallery(roomInfo(currentRoomName));
+      });
+      addTile.appendChild(input);
+      grid.appendChild(addTile);
+    }
+    section.hidden = gallery.length === 0 && !editModeOn;
+  }
+
+  function renderVideo(info){
+    const dict = translations[currentLang] || translations.en;
+    const section = document.getElementById('roomVideoSection');
+    const wrap = document.getElementById('roomVideoWrap');
+    wrap.innerHTML = '';
+    if(info.videoUrl){
+      if(/\.(mp4|webm|ogg|mov)(\?|$)/i.test(info.videoUrl)){
+        const video = document.createElement('video');
+        video.src = info.videoUrl;
+        video.controls = true;
+        video.className = 'room-video-player';
+        wrap.appendChild(video);
+      } else {
+        const link = document.createElement('a');
+        link.href = info.videoUrl;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.className = 'btn btn-primary';
+        link.textContent = dict['room.watchTrailer'] || '▶ Watch Trailer';
+        wrap.appendChild(link);
+      }
+    } else if(editModeOn){
+      const hint = document.createElement('p');
+      hint.className = 'room-extra-hint';
+      hint.textContent = dict['edit.videoHint'] || 'Add a trailer URL above in the edit form.';
+      wrap.appendChild(hint);
+    }
+    section.hidden = !info.videoUrl && !editModeOn;
+  }
+
+  function renderReviews(info){
+    const section = document.getElementById('roomReviewsSection');
+    const list = document.getElementById('roomReviewsList');
+    const form = document.getElementById('reviewForm');
+    list.innerHTML = '';
+    const reviews = info.reviews || [];
+    reviews.forEach((r, i) => {
+      const card = document.createElement('div');
+      card.className = 'room-review-card';
+      const q = document.createElement('p');
+      q.className = 'room-review-text';
+      q.textContent = '“' + r.text + '”';
+      card.appendChild(q);
+      if(r.author){
+        const a = document.createElement('p');
+        a.className = 'room-review-author';
+        a.textContent = '— ' + r.author;
+        card.appendChild(a);
+      }
+      if(editModeOn){
+        const rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'room-review-remove';
+        rm.textContent = '×';
+        rm.addEventListener('click', async () => {
+          await removeReview(currentRoomName, i);
+          renderReviews(roomInfo(currentRoomName));
+        });
+        card.appendChild(rm);
+      }
+      list.appendChild(card);
+    });
+    form.hidden = !editModeOn;
+    section.hidden = reviews.length === 0 && !editModeOn;
+  }
+
+  function renderBooking(info){
+    const dict = translations[currentLang] || translations.en;
+    const section = document.getElementById('roomBookingSection');
+    const content = document.getElementById('roomBookingContent');
+    content.innerHTML = '';
+    if(info.address){
+      const p = document.createElement('p');
+      p.className = 'room-booking-line';
+      const label = document.createElement('strong');
+      label.textContent = (dict['edit.address'] || 'Address') + ': ';
+      p.appendChild(label);
+      p.appendChild(document.createTextNode(info.address));
+      content.appendChild(p);
+    }
+    if(info.bookingInfo){
+      const p = document.createElement('p');
+      p.className = 'room-booking-line';
+      const label = document.createElement('strong');
+      label.textContent = (dict['edit.bookingInfo'] || 'Booking') + ': ';
+      p.appendChild(label);
+      if(/^https?:\/\//i.test(info.bookingInfo)){
+        const a = document.createElement('a');
+        a.href = info.bookingInfo;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = info.bookingInfo;
+        p.appendChild(a);
+      } else {
+        p.appendChild(document.createTextNode(info.bookingInfo));
+      }
+      content.appendChild(p);
+    }
+    section.hidden = !info.address && !info.bookingInfo && !editModeOn;
+  }
+
+  document.getElementById('reviewAddBtn').addEventListener('click', async () => {
+    if(!currentRoomName) return;
+    const textEl = document.getElementById('reviewText');
+    const authorEl = document.getElementById('reviewAuthor');
+    const text = textEl.value.trim();
+    const author = authorEl.value.trim();
+    if(!text) return;
+    await addReview(currentRoomName, { text, author });
+    textEl.value = '';
+    authorEl.value = '';
+    renderReviews(roomInfo(currentRoomName));
+  });
+
   function applyLang(lang){
     currentLang = lang;
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
@@ -434,6 +666,11 @@
       if(val === undefined) return;
       if(el.hasAttribute('data-i18n-html')) el.innerHTML = val;
       else el.textContent = val;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      const val = dict[key];
+      if(val !== undefined) el.placeholder = val;
     });
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
     try{ localStorage.setItem('escapeGuideLang', lang); }catch(e){}
@@ -452,7 +689,6 @@
   const editForm = document.getElementById('editForm');
   const mediaAddBtn = document.getElementById('mediaAddBtn');
   const posterInput = document.getElementById('posterInput');
-  let editModeOn = false;
 
   function storageFailureMessage(){
     return currentLang === 'zh'
@@ -465,6 +701,13 @@
     editForm.hidden = !on;
     mediaAddBtn.hidden = !on;
     if(on) populateEditForm();
+    if(currentRoomName){
+      const info = roomInfo(currentRoomName);
+      renderGallery(info);
+      renderVideo(info);
+      renderReviews(info);
+      renderBooking(info);
+    }
   }
 
   function populateEditForm(){
@@ -476,6 +719,9 @@
     document.getElementById('editPrice').value = info.priceRMB || '';
     document.getElementById('editDuration').value = info.duration || '';
     document.getElementById('editPlayers').value = info.players || '';
+    document.getElementById('editAddress').value = info.address || '';
+    document.getElementById('editBookingInfo').value = info.bookingInfo || '';
+    document.getElementById('editVideoUrl').value = info.videoUrl || '';
   }
 
   editToggleBtn.addEventListener('click', () => setEditMode(!editModeOn));
@@ -490,6 +736,9 @@
     const priceVal = document.getElementById('editPrice').value;
     const durationVal = document.getElementById('editDuration').value;
     const playersVal = document.getElementById('editPlayers').value.trim();
+    const addressVal = document.getElementById('editAddress').value.trim();
+    const bookingInfoVal = document.getElementById('editBookingInfo').value.trim();
+    const videoUrlVal = document.getElementById('editVideoUrl').value.trim();
 
     const patch = {};
     if(typeVal){
@@ -501,6 +750,9 @@
     if(priceVal) patch.priceRMB = parseFloat(priceVal);
     if(durationVal) patch.duration = parseInt(durationVal, 10);
     if(playersVal) patch.players = playersVal;
+    if(addressVal) patch.address = addressVal;
+    if(bookingInfoVal) patch.bookingInfo = bookingInfoVal;
+    if(videoUrlVal) patch.videoUrl = videoUrlVal;
 
     const ok = await setLocalEdit(currentRoomName, patch);
     if(!ok){ alert(storageFailureMessage()); return; }

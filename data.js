@@ -87,6 +87,13 @@
       'edit.price': 'Price (RMB)',
       'edit.duration': 'Duration (min)',
       'edit.players': 'Players (e.g. 4-6)',
+      'edit.address': 'Address',
+      'edit.bookingInfo': 'Booking Info',
+      'edit.videoUrl': 'Trailer Video URL',
+      'edit.videoHint': 'Add a trailer URL above in the edit form.',
+      'edit.addReview': '+ Add Comment',
+      'edit.reviewText': 'Quote from a player...',
+      'edit.reviewAuthor': 'Name / handle (optional)',
       'edit.save': 'Save',
       'edit.cancel': 'Cancel',
       'edit.reset': 'Reset to Original',
@@ -98,6 +105,11 @@
       'crop.hint': 'Drag to reposition, use the slider to zoom',
       'crop.confirm': 'Use This Photo',
       'room.back': '← All Rooms',
+      'room.gallery': 'More Photos',
+      'room.video': 'Trailer',
+      'room.watchTrailer': '▶ Watch Trailer',
+      'room.reviews': 'Player Comments',
+      'room.bookingInfo': 'Booking & Address',
       'room.moreInCity': 'More rooms in ',
       'games.more': 'Browse More by City →',
       'booking.title': 'How to Book an Escape Room in China',
@@ -212,6 +224,13 @@
       'edit.price': '价格 (RMB)',
       'edit.duration': '时长 (分钟)',
       'edit.players': '人数（例如 4-6）',
+      'edit.address': '地址',
+      'edit.bookingInfo': '预定方式',
+      'edit.videoUrl': '宣传片视频链接',
+      'edit.videoHint': '在上方编辑框中填写宣传片链接。',
+      'edit.addReview': '+ 添加评论',
+      'edit.reviewText': '玩家的评价内容...',
+      'edit.reviewAuthor': '姓名 / 网名（可选）',
       'edit.save': '保存',
       'edit.cancel': '取消',
       'edit.reset': '恢复原始数据',
@@ -223,6 +242,11 @@
       'crop.hint': '拖动调整位置，滑动条可缩放',
       'crop.confirm': '使用这张照片',
       'room.back': '← 返回全部密室',
+      'room.gallery': '更多图片',
+      'room.video': '宣传片',
+      'room.watchTrailer': '▶ 观看宣传片',
+      'room.reviews': '玩家评价',
+      'room.bookingInfo': '预定方式与地址',
       'room.moreInCity': '更多推荐 · ',
       'games.more': '按城市探索更多 →',
       'booking.title': '如何预定中国密室',
@@ -379,21 +403,33 @@
   }
 
   let posterCache = {}; // name -> poster data URL, loaded from IndexedDB
+  let galleryCache = {}; // name -> array of extra-photo data URLs, loaded from IndexedDB
   let postersReadyResolve;
   const postersReady = new Promise(res => { postersReadyResolve = res; });
 
   function openPosterDB(){
     return new Promise((resolve, reject) => {
       if(!window.indexedDB){ reject(new Error('no indexedDB')); return; }
-      const req = indexedDB.open('escapeGuidePosters', 1);
-      req.onupgradeneeded = () => { req.result.createObjectStore('posters'); };
-      req.onsuccess = () => resolve(req.result);
+      const req = indexedDB.open('escapeGuidePosters', 2);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if(!db.objectStoreNames.contains('posters')) db.createObjectStore('posters');
+        if(!db.objectStoreNames.contains('gallery')) db.createObjectStore('gallery');
+      };
+      // Another tab has this DB open on an older version — it should close itself
+      // (see onversionchange below); if it doesn't, don't hang forever.
+      req.onblocked = () => reject(new Error('blocked by another open tab'));
+      req.onsuccess = () => {
+        const db = req.result;
+        db.onversionchange = () => db.close(); // let a newer tab's upgrade proceed
+        resolve(db);
+      };
       req.onerror = () => reject(req.error);
     });
   }
-  function idbGetAllPosters(db){
+  function idbGetAll(db, storeName){
     return new Promise((resolve, reject) => {
-      const store = db.transaction('posters', 'readonly').objectStore('posters');
+      const store = db.transaction(storeName, 'readonly').objectStore(storeName);
       const out = {};
       const req = store.openCursor();
       req.onsuccess = () => {
@@ -404,22 +440,28 @@
       req.onerror = () => reject(req.error);
     });
   }
-  function idbSetPoster(db, name, dataUrl){
+  function idbPut(db, storeName, name, value){
     return new Promise((resolve, reject) => {
-      const tx = db.transaction('posters', 'readwrite');
-      tx.objectStore('posters').put(dataUrl, name);
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).put(value, name);
       tx.oncomplete = () => resolve(true);
       tx.onerror = () => reject(tx.error);
     });
   }
-  function idbDeletePoster(db, name){
+  function idbDelete(db, storeName, name){
     return new Promise((resolve, reject) => {
-      const tx = db.transaction('posters', 'readwrite');
-      tx.objectStore('posters').delete(name);
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).delete(name);
       tx.oncomplete = () => resolve(true);
       tx.onerror = () => reject(tx.error);
     });
   }
+  const idbGetAllPosters = db => idbGetAll(db, 'posters');
+  const idbSetPoster = (db, name, dataUrl) => idbPut(db, 'posters', name, dataUrl);
+  const idbDeletePoster = (db, name) => idbDelete(db, 'posters', name);
+  const idbGetAllGallery = db => idbGetAll(db, 'gallery');
+  const idbSetGallery = (db, name, arr) => idbPut(db, 'gallery', name, arr);
+  const idbDeleteGallery = (db, name) => idbDelete(db, 'gallery', name);
 
   let posterDBPromise = null;
   function getPosterDB(){
@@ -427,11 +469,12 @@
     return posterDBPromise;
   }
 
-  // Load existing posters into the in-memory cache on startup, migrating any
-  // posters saved directly in localStorage by an older version of this code.
+  // Load existing posters/gallery photos into the in-memory caches on startup,
+  // migrating any poster saved directly in localStorage by an older version of this code.
   (function initPosters(){
     getPosterDB().then(async (db) => {
       posterCache = await idbGetAllPosters(db);
+      galleryCache = await idbGetAllGallery(db);
       const edits = getLocalEdits();
       let migrated = false;
       for(const name of Object.keys(edits)){
@@ -480,13 +523,44 @@
     delete edits[name];
     const textOk = saveLocalEditsText(edits);
     return getPosterDB()
-      .then(db => idbDeletePoster(db, name))
-      .then(() => { delete posterCache[name]; return textOk; })
+      .then(db => Promise.all([idbDeletePoster(db, name), idbDeleteGallery(db, name)]))
+      .then(() => { delete posterCache[name]; delete galleryCache[name]; return textOk; })
       .catch(() => textOk);
   }
 
   function hasLocalEdit(name){
-    return !!getLocalEdits()[name] || !!posterCache[name];
+    return !!getLocalEdits()[name] || !!posterCache[name] || !!(galleryCache[name] && galleryCache[name].length);
+  }
+
+  // ---------- extra photo gallery (device-local, IndexedDB) ----------
+  function addGalleryImage(name, dataUrl){
+    return getPosterDB().then(db => {
+      const arr = (galleryCache[name] || []).concat([dataUrl]);
+      return idbSetGallery(db, name, arr).then(() => { galleryCache[name] = arr; return true; });
+    }).catch(() => false);
+  }
+  function removeGalleryImage(name, index){
+    return getPosterDB().then(db => {
+      const arr = (galleryCache[name] || []).filter((_, i) => i !== index);
+      return idbSetGallery(db, name, arr).then(() => { galleryCache[name] = arr; return true; });
+    }).catch(() => false);
+  }
+
+  // ---------- player review quotes (device-local, localStorage — text only) ----------
+  function addReview(name, review){
+    const edits = getLocalEdits();
+    const rec = Object.assign({}, edits[name] || {});
+    rec.reviews = (rec.reviews || []).concat([review]);
+    edits[name] = rec;
+    return Promise.resolve(saveLocalEditsText(edits));
+  }
+  function removeReview(name, index){
+    const edits = getLocalEdits();
+    const rec = edits[name];
+    if(!rec || !rec.reviews) return Promise.resolve(true);
+    rec.reviews = rec.reviews.filter((_, i) => i !== index);
+    edits[name] = rec;
+    return Promise.resolve(saveLocalEditsText(edits));
   }
 
   function roomInfo(name){
@@ -494,6 +568,7 @@
     const local = getLocalEdits()[name];
     const merged = local ? Object.assign({}, base, local) : Object.assign({}, base);
     if(posterCache[name]) merged.poster = posterCache[name];
+    if(galleryCache[name] && galleryCache[name].length) merged.gallery = galleryCache[name];
     return merged;
   }
 
