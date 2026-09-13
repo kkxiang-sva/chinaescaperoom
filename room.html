@@ -134,6 +134,25 @@
   </div>
 </main>
 
+<div id="cropModal" class="crop-modal-overlay" hidden>
+  <div class="crop-modal">
+    <div class="crop-title" data-i18n="crop.title">Adjust Photo</div>
+    <div class="crop-viewport" id="cropViewport">
+      <img id="cropImage" draggable="false" alt="">
+    </div>
+    <div class="crop-zoom-row">
+      <span class="crop-zoom-icon">−</span>
+      <input type="range" id="cropZoom" min="0" max="100" value="0">
+      <span class="crop-zoom-icon">+</span>
+    </div>
+    <p class="crop-hint" data-i18n="crop.hint">Drag to reposition, use the slider to zoom</p>
+    <div class="crop-actions">
+      <button type="button" class="btn btn-ghost" id="cropCancelBtn" data-i18n="edit.cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="cropConfirmBtn" data-i18n="crop.confirm">Use This Photo</button>
+    </div>
+  </div>
+</div>
+
 <footer>
   <div class="wrap">
     <div class="footer-grid">
@@ -477,41 +496,128 @@
     }
   });
 
-  function compressImage(file){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          const maxW = 700;
-          const scale = Math.min(1, maxW / img.width);
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.round(img.width * scale);
-          canvas.height = Math.round(img.height * scale);
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', 0.82));
-        };
-        img.onerror = reject;
-        img.src = reader.result;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+  // ---------- crop / resize modal ----------
+  const cropModal = document.getElementById('cropModal');
+  const cropViewport = document.getElementById('cropViewport');
+  const cropImageEl = document.getElementById('cropImage');
+  const cropZoomInput = document.getElementById('cropZoom');
+  let cropState = null; // {naturalW, naturalH, scale, minScale, maxScale, x, y, viewportW, viewportH}
+  let cropDragStart = null;
+
+  function applyCropTransform(){
+    cropImageEl.style.width = cropState.naturalW + 'px';
+    cropImageEl.style.height = cropState.naturalH + 'px';
+    cropImageEl.style.transform = `translate(${cropState.x}px, ${cropState.y}px) scale(${cropState.scale})`;
   }
 
-  posterInput.addEventListener('change', async () => {
+  function clampCropPosition(){
+    const dispW = cropState.naturalW * cropState.scale;
+    const dispH = cropState.naturalH * cropState.scale;
+    const minX = cropState.viewportW - dispW;
+    const minY = cropState.viewportH - dispH;
+    cropState.x = Math.min(0, Math.max(minX, cropState.x));
+    cropState.y = Math.min(0, Math.max(minY, cropState.y));
+  }
+
+  function openCropModal(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const rect = cropViewport.getBoundingClientRect();
+        const viewportW = rect.width || 220;
+        const viewportH = rect.height || 330;
+        const minScale = Math.max(viewportW / img.naturalWidth, viewportH / img.naturalHeight);
+        cropState = {
+          naturalW: img.naturalWidth, naturalH: img.naturalHeight,
+          scale: minScale, minScale, maxScale: minScale * 3,
+          x: (viewportW - img.naturalWidth * minScale) / 2,
+          y: (viewportH - img.naturalHeight * minScale) / 2,
+          viewportW, viewportH
+        };
+        cropImageEl.src = reader.result;
+        clampCropPosition();
+        applyCropTransform();
+        cropZoomInput.value = 0;
+        cropModal.hidden = false;
+      };
+      img.onerror = () => { /* unsupported file — quietly do nothing */ };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function closeCropModal(){
+    cropModal.hidden = true;
+    cropState = null;
+    cropImageEl.src = '';
+  }
+
+  cropViewport.addEventListener('pointerdown', (e) => {
+    if(!cropState) return;
+    cropViewport.classList.add('dragging');
+    try{ cropViewport.setPointerCapture(e.pointerId); }catch(err){}
+    cropDragStart = { px: e.clientX, py: e.clientY, x: cropState.x, y: cropState.y };
+  });
+  cropViewport.addEventListener('pointermove', (e) => {
+    if(!cropDragStart || !cropState) return;
+    cropState.x = cropDragStart.x + (e.clientX - cropDragStart.px);
+    cropState.y = cropDragStart.y + (e.clientY - cropDragStart.py);
+    clampCropPosition();
+    applyCropTransform();
+  });
+  function endCropDrag(){
+    cropDragStart = null;
+    cropViewport.classList.remove('dragging');
+  }
+  cropViewport.addEventListener('pointerup', endCropDrag);
+  cropViewport.addEventListener('pointercancel', endCropDrag);
+  cropViewport.addEventListener('pointerleave', endCropDrag);
+
+  cropZoomInput.addEventListener('input', (e) => {
+    if(!cropState) return;
+    const t = parseFloat(e.target.value) / 100;
+    const oldScale = cropState.scale;
+    const newScale = cropState.minScale + t * (cropState.maxScale - cropState.minScale);
+    // keep the viewport's center point stable while zooming
+    const cx = cropState.viewportW / 2, cy = cropState.viewportH / 2;
+    const imgCx = (cx - cropState.x) / oldScale;
+    const imgCy = (cy - cropState.y) / oldScale;
+    cropState.scale = newScale;
+    cropState.x = cx - imgCx * newScale;
+    cropState.y = cy - imgCy * newScale;
+    clampCropPosition();
+    applyCropTransform();
+  });
+
+  document.getElementById('cropCancelBtn').addEventListener('click', () => {
+    closeCropModal();
+    posterInput.value = '';
+  });
+
+  document.getElementById('cropConfirmBtn').addEventListener('click', () => {
+    if(!cropState || !currentRoomName) return;
+    const outW = 480, outH = 720;
+    const canvas = document.createElement('canvas');
+    canvas.width = outW; canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    const sx = (0 - cropState.x) / cropState.scale;
+    const sy = (0 - cropState.y) / cropState.scale;
+    const sW = cropState.viewportW / cropState.scale;
+    const sH = cropState.viewportH / cropState.scale;
+    ctx.drawImage(cropImageEl, sx, sy, sW, sH, 0, 0, outW, outH);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    setLocalEdit(currentRoomName, { poster: dataUrl });
+    closeCropModal();
+    renderRoomPage();
+    setEditMode(true);
+    posterInput.value = '';
+  });
+
+  posterInput.addEventListener('change', () => {
     const file = posterInput.files && posterInput.files[0];
     if(!file || !currentRoomName) return;
-    try{
-      const dataUrl = await compressImage(file);
-      setLocalEdit(currentRoomName, { poster: dataUrl });
-      renderRoomPage();
-      setEditMode(true);
-    }catch(e){
-      // ignore — unsupported file, leave state unchanged
-    }
-    posterInput.value = '';
+    openCropModal(file);
   });
 </script>
 </body>
