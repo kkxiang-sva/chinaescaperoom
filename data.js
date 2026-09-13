@@ -373,7 +373,12 @@
     const clean = {};
     Object.keys(patch).forEach(k => { if(patch[k] !== undefined) clean[k] = patch[k]; });
     edits[name] = Object.assign({}, edits[name] || {}, clean);
-    try{ localStorage.setItem('escapeGuideLocalEdits', JSON.stringify(edits)); }catch(e){}
+    try{
+      localStorage.setItem('escapeGuideLocalEdits', JSON.stringify(edits));
+      return true;
+    }catch(e){
+      return false; // e.g. storage quota exceeded — caller should tell the user
+    }
   }
   function clearLocalEdit(name){
     const edits = getLocalEdits();

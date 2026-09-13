@@ -366,12 +366,6 @@
     const company = buildRoomCompany(info);
     if(company) body.appendChild(company);
 
-    const descEl = document.createElement('p');
-    descEl.className = 'game-desc coming-soon';
-    descEl.setAttribute('data-i18n', 'game.comingSoon');
-    descEl.textContent = 'Full details coming soon';
-    body.appendChild(descEl);
-
     const hint = document.createElement('div');
     hint.className = 'game-view-hint';
     hint.setAttribute('data-i18n', 'game.viewMore');
@@ -471,7 +465,7 @@
     const fresh = buildFn(info);
     if(old && fresh) old.replaceWith(fresh);
     else if(old && !fresh) old.remove();
-    else if(!old && fresh) body.insertBefore(fresh, card.querySelector('.game-desc'));
+    else if(!old && fresh) body.insertBefore(fresh, card.querySelector('.game-view-hint'));
   }
 
   function refreshRoomInfoBlocks(){
