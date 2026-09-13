@@ -344,11 +344,11 @@
 
     const typeLabelEl = document.getElementById('roomHeroTypeLabel');
     const heroCaption = buildMediaCaption(info);
+    typeLabelEl.innerHTML = '';
     if(heroCaption){
-      typeLabelEl.textContent = heroCaption.textContent;
+      Array.from(heroCaption.children).forEach(child => typeLabelEl.appendChild(child));
       typeLabelEl.hidden = false;
     } else {
-      typeLabelEl.textContent = '';
       typeLabelEl.hidden = true;
     }
 
@@ -428,6 +428,7 @@
   });
 
   applyLang(currentLang);
+  postersReady.then(renderRoomPage); // repaint once any saved local posters finish loading
 
   // ---------- local edit mode ----------
   const editToggleBtn = document.getElementById('editToggleBtn');
@@ -438,8 +439,8 @@
 
   function storageFailureMessage(){
     return currentLang === 'zh'
-      ? '保存失败：本设备的本地存储空间已满。请清除一些主题的本地草稿（点开该主题 → Edit → Reset to Original），或换一张更小的图片再试。'
-      : "Couldn't save: this device's local storage is full. Clear some local drafts (open a room → Edit → Reset to Original) or try a smaller photo.";
+      ? '保存失败：这台设备的浏览器拒绝了本地存储（可能是隐私/无痕模式，或存储空间确实已满）。请换成正常模式的浏览器窗口再试，或清除一些主题的本地草稿后重试。'
+      : "Couldn't save: this browser blocked local storage on this device (private/incognito mode, or storage is genuinely full). Try a normal browser window, or clear some local drafts and try again.";
   }
 
   function setEditMode(on){
@@ -464,7 +465,7 @@
 
   document.getElementById('editCancelBtn').addEventListener('click', () => setEditMode(false));
 
-  document.getElementById('editSaveBtn').addEventListener('click', () => {
+  document.getElementById('editSaveBtn').addEventListener('click', async () => {
     if(!currentRoomName) return;
     const typeVal = document.getElementById('editType').value.trim();
     const horrorVal = document.getElementById('editHorror').value;
@@ -484,21 +485,24 @@
     if(durationVal) patch.duration = parseInt(durationVal, 10);
     if(playersVal) patch.players = playersVal;
 
-    const ok = setLocalEdit(currentRoomName, patch);
+    const ok = await setLocalEdit(currentRoomName, patch);
     if(!ok){ alert(storageFailureMessage()); return; }
     setEditMode(false);
     renderRoomPage();
   });
 
-  document.getElementById('editClearBtn').addEventListener('click', () => {
+  document.getElementById('editClearBtn').addEventListener('click', async () => {
     if(!currentRoomName) return;
-    clearLocalEdit(currentRoomName);
+    await clearLocalEdit(currentRoomName);
     setEditMode(false);
     renderRoomPage();
   });
 
   document.getElementById('exportBtn').addEventListener('click', async () => {
     const edits = getLocalEdits();
+    Object.keys(posterCache).forEach(name => {
+      edits[name] = Object.assign({}, edits[name] || {}, { poster: posterCache[name] });
+    });
     const json = JSON.stringify(edits, null, 2);
     const note = document.getElementById('exportNote');
     try{
@@ -622,7 +626,7 @@
     posterInput.value = '';
   });
 
-  document.getElementById('cropConfirmBtn').addEventListener('click', () => {
+  document.getElementById('cropConfirmBtn').addEventListener('click', async () => {
     if(!cropState || !currentRoomName) return;
     const outW = 480, outH = 720;
     let dataUrl;
@@ -644,7 +648,7 @@
       posterInput.value = '';
       return;
     }
-    const ok = setLocalEdit(currentRoomName, { poster: dataUrl });
+    const ok = await setLocalEdit(currentRoomName, { poster: dataUrl });
     closeCropModal();
     posterInput.value = '';
     if(!ok){ alert(storageFailureMessage()); return; }

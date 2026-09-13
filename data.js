@@ -363,36 +363,138 @@
   };
   // ---------- local (per-device) edits ----------
   // Lets KK add a poster / tweak fields right on the room page without a backend.
-  // Saved only in this browser's localStorage — not visible to other visitors.
+  // Saved only on this device — not visible to other visitors.
   // Use the "Copy Edits as JSON" button on the room page to send changes back for publishing.
+  //
+  // Text fields (type, price, duration...) are tiny and live in localStorage. Poster
+  // photos are much bigger, so they live in IndexedDB instead: localStorage caps out
+  // around 5-10MB total (only ~30-50 photos before it silently starts failing), while
+  // IndexedDB can comfortably hold hundreds of them.
   function getLocalEdits(){
     try{ return JSON.parse(localStorage.getItem('escapeGuideLocalEdits') || '{}'); }catch(e){ return {}; }
   }
-  function setLocalEdit(name, patch){
-    const edits = getLocalEdits();
-    const clean = {};
-    Object.keys(patch).forEach(k => { if(patch[k] !== undefined) clean[k] = patch[k]; });
-    edits[name] = Object.assign({}, edits[name] || {}, clean);
-    try{
-      localStorage.setItem('escapeGuideLocalEdits', JSON.stringify(edits));
-      return true;
-    }catch(e){
-      return false; // e.g. storage quota exceeded — caller should tell the user
-    }
+  function saveLocalEditsText(edits){
+    try{ localStorage.setItem('escapeGuideLocalEdits', JSON.stringify(edits)); return true; }
+    catch(e){ return false; }
   }
+
+  let posterCache = {}; // name -> poster data URL, loaded from IndexedDB
+  let postersReadyResolve;
+  const postersReady = new Promise(res => { postersReadyResolve = res; });
+
+  function openPosterDB(){
+    return new Promise((resolve, reject) => {
+      if(!window.indexedDB){ reject(new Error('no indexedDB')); return; }
+      const req = indexedDB.open('escapeGuidePosters', 1);
+      req.onupgradeneeded = () => { req.result.createObjectStore('posters'); };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  function idbGetAllPosters(db){
+    return new Promise((resolve, reject) => {
+      const store = db.transaction('posters', 'readonly').objectStore('posters');
+      const out = {};
+      const req = store.openCursor();
+      req.onsuccess = () => {
+        const cur = req.result;
+        if(cur){ out[cur.key] = cur.value; cur.continue(); }
+        else resolve(out);
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+  function idbSetPoster(db, name, dataUrl){
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('posters', 'readwrite');
+      tx.objectStore('posters').put(dataUrl, name);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  function idbDeletePoster(db, name){
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('posters', 'readwrite');
+      tx.objectStore('posters').delete(name);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  let posterDBPromise = null;
+  function getPosterDB(){
+    if(!posterDBPromise) posterDBPromise = openPosterDB();
+    return posterDBPromise;
+  }
+
+  // Load existing posters into the in-memory cache on startup, migrating any
+  // posters saved directly in localStorage by an older version of this code.
+  (function initPosters(){
+    getPosterDB().then(async (db) => {
+      posterCache = await idbGetAllPosters(db);
+      const edits = getLocalEdits();
+      let migrated = false;
+      for(const name of Object.keys(edits)){
+        const rec = edits[name];
+        if(rec && rec.poster){
+          if(!posterCache[name]){
+            await idbSetPoster(db, name, rec.poster);
+            posterCache[name] = rec.poster;
+          }
+          delete rec.poster;
+          if(Object.keys(rec).length === 0) delete edits[name];
+          migrated = true;
+        }
+      }
+      if(migrated) saveLocalEditsText(edits);
+      postersReadyResolve();
+    }).catch(() => { postersReadyResolve(); }); // no IndexedDB support — local posters just won't persist
+  })();
+
+  // Returns a Promise<boolean> — true once the write (text fields + poster, if any)
+  // has actually been saved. Callers should check this instead of assuming success.
+  function setLocalEdit(name, patch){
+    const poster = patch.poster;
+    const rest = Object.assign({}, patch);
+    delete rest.poster;
+
+    let textOk = true;
+    if(Object.keys(rest).length){
+      const edits = getLocalEdits();
+      const clean = {};
+      Object.keys(rest).forEach(k => { if(rest[k] !== undefined) clean[k] = rest[k]; });
+      edits[name] = Object.assign({}, edits[name] || {}, clean);
+      textOk = saveLocalEditsText(edits);
+    }
+
+    if(poster === undefined) return Promise.resolve(textOk);
+
+    return getPosterDB()
+      .then(db => idbSetPoster(db, name, poster))
+      .then(() => { posterCache[name] = poster; return textOk; })
+      .catch(() => false);
+  }
+
   function clearLocalEdit(name){
     const edits = getLocalEdits();
     delete edits[name];
-    try{ localStorage.setItem('escapeGuideLocalEdits', JSON.stringify(edits)); }catch(e){}
+    const textOk = saveLocalEditsText(edits);
+    return getPosterDB()
+      .then(db => idbDeletePoster(db, name))
+      .then(() => { delete posterCache[name]; return textOk; })
+      .catch(() => textOk);
   }
+
   function hasLocalEdit(name){
-    return !!getLocalEdits()[name];
+    return !!getLocalEdits()[name] || !!posterCache[name];
   }
 
   function roomInfo(name){
     const base = ROOM_INFO[name] || {};
     const local = getLocalEdits()[name];
-    return local ? Object.assign({}, base, local) : base;
+    const merged = local ? Object.assign({}, base, local) : Object.assign({}, base);
+    if(posterCache[name]) merged.poster = posterCache[name];
+    return merged;
   }
 
   function buildHorrorPips(level){
@@ -406,19 +508,23 @@
     return wrap;
   }
 
-  function primaryType(info){
+  function typeLabels(info){
     const typeStr = currentLang === 'zh' ? info.type : (info.typeEn || info.type);
-    if(!typeStr) return null;
-    const first = typeStr.split(/[,，]/).map(s => s.trim()).filter(Boolean)[0];
-    return first || null;
+    if(!typeStr) return [];
+    return typeStr.split(/[,，]/).map(s => s.trim()).filter(Boolean).slice(0, 2);
   }
 
   function buildMediaCaption(info){
-    const label = primaryType(info);
-    if(!label) return null;
+    const labels = typeLabels(info);
+    if(!labels.length) return null;
     const el = document.createElement('div');
     el.className = 'game-type-label';
-    el.textContent = label;
+    labels.forEach(label => {
+      const tag = document.createElement('span');
+      tag.className = 'game-type-tag';
+      tag.textContent = label;
+      el.appendChild(tag);
+    });
     return el;
   }
 

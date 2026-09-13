@@ -481,11 +481,22 @@
       if(oldCaption && newCaption) oldCaption.replaceWith(newCaption);
       else if(oldCaption && !newCaption) oldCaption.remove();
       else if(!oldCaption && newCaption) mediaCol.appendChild(newCaption);
+
+      // picks up any poster that finished loading from IndexedDB after the
+      // first paint (see postersReady.then(...) below)
+      const media = card.querySelector('.game-media');
+      if(info.poster && !media.classList.contains('has-poster')){
+        media.classList.add('has-poster');
+        media.style.backgroundImage = `url("${info.poster}")`;
+        const mono = media.querySelector('.game-monogram');
+        if(mono) mono.remove();
+      }
     });
   }
 
   renderRooms();
   renderCities();
+  postersReady.then(refreshRoomInfoBlocks); // pick up any saved local posters once IndexedDB finishes loading
 
   // nav scroll state
   const nav = document.getElementById('nav');
