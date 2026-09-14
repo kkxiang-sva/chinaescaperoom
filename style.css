@@ -709,7 +709,7 @@
     .game-media-col{width:100%; border-right:none; border-bottom:1px solid var(--line);}
     .game-badge{font-size:8px; padding:2px 5px; top:6px; left:6px;}
     .game-media .game-monogram{font-size:22px;}
-    .game-type-label{padding:4px; gap:3px;}
+    .game-type-label{flex:none; height:46px; padding:4px; gap:3px; overflow:hidden;}
     .game-type-tag{font-size:7.5px; padding:1px 5px;}
     .game-body{padding:9px 10px 10px;}
     .game-city{font-size:8.5px; margin-bottom:3px;}

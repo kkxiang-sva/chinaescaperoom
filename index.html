@@ -342,8 +342,11 @@
     const mediaCol = document.createElement('div');
     mediaCol.className = 'game-media-col';
     mediaCol.appendChild(media);
-    const caption = buildMediaCaption(info);
-    if(caption) mediaCol.appendChild(caption);
+    // always present (even with zero tags) so the label strip is the same height on
+    // every card and room names line up row to row — see buildMediaCaption in data.js
+    const caption = buildMediaCaption(info) || document.createElement('div');
+    caption.className = 'game-type-label';
+    mediaCol.appendChild(caption);
 
     const body = document.createElement('div');
     body.className = 'game-body';
@@ -480,10 +483,10 @@
 
       const mediaCol = card.querySelector('.game-media-col');
       const oldCaption = card.querySelector('.game-type-label');
-      const newCaption = buildMediaCaption(info);
-      if(oldCaption && newCaption) oldCaption.replaceWith(newCaption);
-      else if(oldCaption && !newCaption) oldCaption.remove();
-      else if(!oldCaption && newCaption) mediaCol.appendChild(newCaption);
+      const newCaption = buildMediaCaption(info) || document.createElement('div');
+      newCaption.className = 'game-type-label';
+      if(oldCaption) oldCaption.replaceWith(newCaption);
+      else mediaCol.appendChild(newCaption);
 
       // picks up any poster that finished loading from IndexedDB after the
       // first paint (see postersReady.then(...) below)
