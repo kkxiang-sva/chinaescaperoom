@@ -857,6 +857,7 @@
   .room-booking-line{font-size:14.5px; color:var(--text-dim); margin-bottom:8px;}
   .room-booking-line strong{color:var(--text); font-weight:600;}
   .room-booking-line a{color:var(--gold-bright);}
+  .room-booking-cta{margin-top:6px; font-size:13.5px; padding:12px 22px;}
 
   .room-rules-thumb{
     display:block; width:auto; height:auto; max-width:100%; max-height:640px;

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -270,7 +270,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=5"></script>
+<script src="data.js?v=6"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -693,22 +693,23 @@
       content.appendChild(p);
     }
     if(info.bookingInfo){
-      const p = document.createElement('p');
-      p.className = 'room-booking-line';
-      const label = document.createElement('strong');
-      label.textContent = (dict['edit.bookingInfo'] || 'Booking') + ': ';
-      p.appendChild(label);
       if(/^https?:\/\//i.test(info.bookingInfo)){
         const a = document.createElement('a');
         a.href = info.bookingInfo;
         a.target = '_blank';
         a.rel = 'noopener';
-        a.textContent = info.bookingInfo;
-        p.appendChild(a);
+        a.className = 'btn btn-primary room-booking-cta';
+        a.textContent = dict['room.bookingCta'] || 'Click Here to Go to Booking App →';
+        content.appendChild(a);
       } else {
+        const p = document.createElement('p');
+        p.className = 'room-booking-line';
+        const label = document.createElement('strong');
+        label.textContent = (dict['edit.bookingInfo'] || 'Booking') + ': ';
+        p.appendChild(label);
         p.appendChild(document.createTextNode(info.bookingInfo));
+        content.appendChild(p);
       }
-      content.appendChild(p);
     }
     section.hidden = !info.address && !info.bookingInfo && !info.storeName && !info.hours && !editModeOn;
   }
