@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -130,6 +130,10 @@
               <input type="text" id="editHours">
             </div>
             <div class="edit-row">
+              <label data-i18n="edit.phone">Phone</label>
+              <input type="text" id="editPhone">
+            </div>
+            <div class="edit-row">
               <label data-i18n="edit.bookingInfo">Booking Info</label>
               <input type="text" id="editBookingInfo">
             </div>
@@ -179,6 +183,11 @@
         <div class="room-rules-text-form" id="rulesTextForm" hidden>
           <textarea id="rulesTextInput" data-i18n-placeholder="edit.bookingRulesTextPlaceholder" placeholder="Type the booking rules in English..."></textarea>
           <button type="button" class="btn btn-ghost" id="rulesTextSaveBtn" data-i18n="edit.save">Save</button>
+        </div>
+        <div class="room-rules-text-form" id="rulesLinkForm" hidden>
+          <label data-i18n="edit.bookingRulesLink">Translation Service Booking Link</label>
+          <input type="text" id="rulesLinkInput">
+          <button type="button" class="btn btn-ghost" id="rulesLinkSaveBtn" data-i18n="edit.save">Save</button>
         </div>
       </section>
 
@@ -270,7 +279,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=6"></script>
+<script src="data.js?v=7"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -692,6 +701,18 @@
       p.appendChild(document.createTextNode(hoursText));
       content.appendChild(p);
     }
+    if(info.phone){
+      const p = document.createElement('p');
+      p.className = 'room-booking-line';
+      const label = document.createElement('strong');
+      label.textContent = (dict['edit.phone'] || 'Phone') + ': ';
+      p.appendChild(label);
+      const tel = document.createElement('a');
+      tel.href = 'tel:' + info.phone.replace(/\s+/g, '');
+      tel.textContent = info.phone;
+      p.appendChild(tel);
+      content.appendChild(p);
+    }
     if(info.bookingInfo){
       if(/^https?:\/\//i.test(info.bookingInfo)){
         const a = document.createElement('a');
@@ -711,7 +732,7 @@
         content.appendChild(p);
       }
     }
-    section.hidden = !info.address && !info.bookingInfo && !info.storeName && !info.hours && !editModeOn;
+    section.hidden = !info.address && !info.bookingInfo && !info.storeName && !info.hours && !info.phone && !editModeOn;
   }
 
   // Only for rooms with an English version — a photo of the venue's own booking
@@ -776,13 +797,40 @@
       textForm.hidden = true;
     }
 
-    section.hidden = !isEnglishRoom || (!info.bookingRulesImage && !info.bookingRulesText && !editModeOn);
+    // link option — e.g. a Dianping page for booking the translation/interpreter service
+    if(info.bookingRulesLink){
+      const a = document.createElement('a');
+      a.href = info.bookingRulesLink;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'btn btn-primary room-rules-link-cta';
+      a.textContent = dict['room.bookingRulesLinkCta'] || 'Click Here to Book on Dianping →';
+      wrap.appendChild(a);
+    }
+    const linkForm = document.getElementById('rulesLinkForm');
+    const linkInput = document.getElementById('rulesLinkInput');
+    if(editModeOn && isEnglishRoom){
+      linkForm.hidden = false;
+      linkInput.value = info.bookingRulesLink || '';
+    } else {
+      linkForm.hidden = true;
+    }
+
+    section.hidden = !isEnglishRoom || (!info.bookingRulesImage && !info.bookingRulesText && !info.bookingRulesLink && !editModeOn);
   }
 
   document.getElementById('rulesTextSaveBtn').addEventListener('click', async () => {
     if(!currentRoomName) return;
     const text = document.getElementById('rulesTextInput').value.trim();
     const ok = await setLocalEdit(currentRoomName, { bookingRulesText: text });
+    if(!ok){ alert(storageFailureMessage()); return; }
+    renderBookingRules(roomInfo(currentRoomName));
+  });
+
+  document.getElementById('rulesLinkSaveBtn').addEventListener('click', async () => {
+    if(!currentRoomName) return;
+    const link = document.getElementById('rulesLinkInput').value.trim();
+    const ok = await setLocalEdit(currentRoomName, { bookingRulesLink: link });
     if(!ok){ alert(storageFailureMessage()); return; }
     renderBookingRules(roomInfo(currentRoomName));
   });
@@ -916,6 +964,7 @@
     document.getElementById('editStoreName').value = info.storeName || '';
     document.getElementById('editAddress').value = (currentLang === 'zh' ? info.address : (info.addressEn || info.address)) || '';
     document.getElementById('editHours').value = (currentLang === 'zh' ? info.hours : (info.hoursEn || info.hours)) || '';
+    document.getElementById('editPhone').value = info.phone || '';
     document.getElementById('editBookingInfo').value = info.bookingInfo || '';
     document.getElementById('editVideoUrl').value = info.videoUrl || '';
   }
@@ -938,6 +987,7 @@
     const storeNameVal = document.getElementById('editStoreName').value.trim();
     const addressVal = document.getElementById('editAddress').value.trim();
     const hoursVal = document.getElementById('editHours').value.trim();
+    const phoneVal = document.getElementById('editPhone').value.trim();
     const bookingInfoVal = document.getElementById('editBookingInfo').value.trim();
     const videoUrlVal = document.getElementById('editVideoUrl').value.trim();
 
@@ -960,6 +1010,7 @@
       if(currentLang === 'zh') patch.hours = hoursVal;
       else patch.hoursEn = hoursVal;
     }
+    if(phoneVal) patch.phone = phoneVal;
     if(bookingInfoVal) patch.bookingInfo = bookingInfoVal;
     if(videoUrlVal) patch.videoUrl = videoUrlVal;
 
