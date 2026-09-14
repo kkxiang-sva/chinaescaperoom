@@ -11,7 +11,7 @@
   const TOP30 = [
     '不可名状','溃烂缪斯','太岁','INSANE II',"Dolls' House",'SOUL HOUSE','Dream','REVIVER','Cindy死了九次','HAVEN',
     '坏机器','Lily','女屋','安乐','INSANE','GATEMAN','诺亚','ENOLA','朝圣','复原',
-    '污秽','神佑','玛雅','白夜','纸人回魂','逢魔时','观落阴','神话','WUKONG','艾洛拉'
+    '污秽','神佑','玛雅','白夜','艾洛拉','逢魔时','观落阴','神话','WUKONG','纸人回魂'
   ];
   const NAME_EN = {
     '不可名状': 'Unnameable',
