@@ -353,7 +353,7 @@
   // Per-room extra details, keyed by the canonical name used in TOP30 / CITY_ROOMS.
   // priceRMB/hasEnglish collected from KK directly; other fields fill in as they're provided.
   const ROOM_INFO = {
-    '诺亚': { priceRMB: 338, hasEnglish: true, duration: 100, company: 'MRX', type: '科幻，精神病院', typeEn: 'Sci-Fi, Mental Asylum', players: '4-8' },
+    '诺亚': { priceRMB: 338, hasEnglish: true, duration: 100, company: 'MRX', type: '科幻，精神病院，大型机关', typeEn: 'Sci-Fi, Mental Asylum, Large-Scale Mechanisms', players: '4-8' },
     '女屋': { hasEnglish: true, duration: 100, company: 'The Second World', type: '美式恐怖酒店', typeEn: 'American Horror, Hotel', priceRMB: 328, players: '4-6', reviews: [{ url: 'https://www.instagram.com/p/DcdDLYilwkg/?stkn=d2x5ZHo3c3R5ejI1' }] },
     '艾洛拉': { priceRMB: 288, hasEnglish: true, duration: 100, company: 'MRX', type: '中世纪童趣，非恐解密', typeEn: 'Medieval Whimsy, Non-Horror Puzzle', players: '4-7' },
     '神话': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World', type: '海底盗墓，中式神话，非恐解密', typeEn: 'Underwater Tomb Raiding, Chinese Mythology, Non-Horror Puzzle', players: '4-6' },
@@ -367,7 +367,7 @@
     'REVIVER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '废弃医院，探灵纪实', typeEn: 'Abandoned Hospital, Paranormal Investigation', players: '4-6', bookingRulesImage: 'images/umeplay-booking-rules.jpg' },
     '白夜': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World', type: '日式校园怪谈', typeEn: 'Japanese School Horror', players: '4-8' },
     'Cindy死了九次': { priceRMB: 360, hasEnglish: true, duration: 120, company: 'Cubic Escape - 6min', type: '温情感人，非恐抉择互动', typeEn: 'Heartwarming, Non-Horror Choice-Driven Interaction', players: '4-12', reviews: [{ url: 'https://www.instagram.com/reel/Dc_FN7wAB1T/?stkn=dzA5NmJiMjJybjJh' }] },
-    'WUKONG': { priceRMB: 328, hasEnglish: false, duration: 90, company: 'MRX', type: '中国神话', typeEn: 'Chinese Mythology', players: '5-8' },
+    'WUKONG': { priceRMB: 328, hasEnglish: false, duration: 90, company: 'MRX', type: '中国神话，非恐解密', typeEn: 'Chinese Mythology, Non-Horror Puzzle', players: '5-8' },
     'SOUL HOUSE': { priceRMB: 288, hasEnglish: true, duration: 65, company: 'UMEPLAY x INS', type: '沉浸式演绎酒吧体验', typeEn: 'Immersive Live-Actor Bar Experience', players: '4-8', reviews: [{ url: 'https://www.instagram.com/reel/Dc5jOLcAO2D/?stkn=NXRiejYwdHh2Mmxu' }] },
     'Undeveloped Memory': { hasEnglish: true, duration: 5, company: 'KK x UMEPLAY x INS', type: '微型体验装置，情感', typeEn: 'Micro Experience, Emotional' },
     '昆仑寒宫2': { priceRMB: 328, hasEnglish: false, duration: 90, company: 'E+', type: '冰窟解密，零下13度盗墓体验', typeEn: 'Ice Cave Puzzle, -13°C Tomb Raiding', reviews: [{ url: 'https://www.instagram.com/reel/DcVEPIhoCVq/?stkn=NGZncngweTh2eWoy' }] },
@@ -379,15 +379,15 @@
     '不可名状': { priceRMB: 278, hasEnglish: true, duration: 90, company: 'Dreamland Traveller', type: '泰式惊悚，民俗仪式，大型机关', typeEn: 'Thai Horror, Folk Ritual, Large-Scale Mechanisms', players: '4-7', reviews: [{ url: 'https://www.instagram.com/p/Dcff20Al29s/?stkn=ejlvd2s5bDVpbmMx' }] },
     'Dream': { priceRMB: 298, hasEnglish: false, duration: 90, company: 'V Factory', type: '盗梦空间，大型机关，催眠', typeEn: 'Inception-Style Dream Heist, Large-Scale Mechanisms, Hypnosis', players: '4-6', reviews: [{ url: 'https://www.instagram.com/p/DcnZm6dlx7Z/?stkn=MWRmczE1d2czM3V6ag==' }] },
     '暂放的绽放': { hasEnglish: true, duration: 15, company: 'KK x Dreamland Traveller', type: '微型体验装置，情感', typeEn: 'Micro Experience, Emotional', priceRMB: 19.9 },
-    '污秽': { priceRMB: 278, hasEnglish: false, duration: 90, company: 'Dreamland Traveller', type: '新中式恐怖', typeEn: 'Modern Chinese Horror', players: '4-7' },
+    '污秽': { priceRMB: 278, hasEnglish: false, duration: 90, company: 'Dreamland Traveller', type: '新中式恐怖，邪教，大型机关', typeEn: 'Chinese Horror, Cult, Large-Scale Mechanisms', players: '4-7' },
     '幻觉游戏': { priceRMB: 178, hasEnglish: false, duration: 135, company: 'The Lost Planet', type: '探案解密', typeEn: 'Detective, Puzzle' },
     '这没有游戏': { priceRMB: 138, hasEnglish: false, duration: 90, company: 'The Lost Planet' },
-    '纸人回魂': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'Dreamland Traveller', type: '中式民俗', typeEn: 'Chinese Folklore', players: '4-6' },
+    '纸人回魂': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'Dreamland Traveller', type: '中式民俗，肢体表演，中式祭祀', typeEn: 'Chinese Folklore, Physical Performance, Chinese Ritual', players: '4-6' },
     '坏机器': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Free City', type: '玩具工厂，怪诞角色，强互动', typeEn: 'Toy Factory, Bizarre Characters, High Interaction', players: '6-7', reviews: [{ url: 'https://www.instagram.com/reel/DcxmsAnglrV/?stkn=MXJkMGducmFoZW41eg==' }] },
     '镇灵村': { priceRMB: 268, hasEnglish: false, duration: 90, company: 'MRX' },
     '萨乌达德': { priceRMB: 238, hasEnglish: true, duration: 90, company: 'Free City', type: '情感演绎互动，家庭', typeEn: 'Emotional Live-Actor Interaction, Family' },
     '朝圣': { priceRMB: 288, hasEnglish: true, duration: 80, company: 'Witch Travel Agency', type: '赛博朋克，游戏感', typeEn: 'Cyberpunk, Game-like', players: '5-8', reviews: [{ url: 'https://www.instagram.com/reel/DdL14L8gnsd/?stkn=MWg3OWVpc3h1ZnN0MQ==' }], bookingRulesImage: 'images/witch-travel-agency-booking-rules.jpg' },
-    '神佑': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Witch Travel Agency', type: '东方赛博朋克', typeEn: 'Eastern Cyberpunk', players: '6-8', reviews: [{ url: 'https://www.instagram.com/p/Dc21NvdlyfG/?stkn=MXZ0eHQxdm16OXpweQ==' }], bookingRulesImage: 'images/witch-travel-agency-booking-rules.jpg' },
+    '神佑': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Witch Travel Agency', type: '东方赛博朋克，奇幻神话', typeEn: 'Eastern Cyberpunk, Fantasy Mythology', players: '6-8', reviews: [{ url: 'https://www.instagram.com/p/Dc21NvdlyfG/?stkn=MXZ0eHQxdm16OXpweQ==' }], bookingRulesImage: 'images/witch-travel-agency-booking-rules.jpg' },
     '安乐': { priceRMB: 268, hasEnglish: true, duration: 80, company: 'Witch Travel Agency', type: '日式规则怪谈，奇幻世界', typeEn: 'Japanese Rule-Horror, Fantasy World', players: '5-6', bookingRulesImage: 'images/witch-travel-agency-booking-rules.jpg' },
     'Lily': { priceRMB: 268, hasEnglish: true, duration: 80, company: 'Witch Travel Agency', type: '哥特恐怖，暗黑美学', typeEn: 'Gothic Horror, Dark Aesthetics', players: '5-6', reviews: [{ url: 'https://www.instagram.com/reel/DdQfXP8Aiob/?stkn=aXJoYzlhNmFwMzVn' }], bookingRulesImage: 'images/witch-travel-agency-booking-rules.jpg' },
     "Dolls' House": { priceRMB: 258, hasEnglish: false, duration: 80, company: 'Lostland', type: '惊悚玩偶，梦想与现实', typeEn: 'Horror Dolls, Dreams vs Reality', players: '5-6', reviews: [{ url: 'https://www.instagram.com/p/Dcp0U0Pl4DE/?stkn=b3J3Mjc4cng0bG9h' }] },
@@ -396,8 +396,8 @@
     '观落阴': { priceRMB: 268, hasEnglish: false, duration: 100, company: 'Spiritual Investigation Bureau', type: '大型机关，中式奇幻', typeEn: 'Large-Scale Mechanisms, Chinese Fantasy', players: '5-7' },
     '太岁': { priceRMB: 238, hasEnglish: true, duration: 90, company: 'RE.Creature', type: '中式民俗，大型', typeEn: 'Chinese Folklore, Large-Scale', players: '6-10', reviews: [{ url: 'https://www.instagram.com/reel/Dc751kpA-6m/?stkn=dWZjd2g1MGp3anp1' }] },
     '活神仙': { priceRMB: 238, hasEnglish: false, duration: 105, company: 'Dragon Gallery', type: '独栋密室，中式民俗', typeEn: 'Standalone Building, Chinese Folklore' },
-    '逢魔时': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'City of Fantasy', type: '日式汤泉，大型机关', typeEn: 'Japanese Hot Spring, Large-Scale Mechanisms', players: '4-7' },
-    '复原': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6', bookingRulesImage: 'images/umeplay-booking-rules.jpg' }
+    '逢魔时': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'City of Fantasy', type: '日式汤泉，大型机关，日式怪物', typeEn: 'Japanese Hot Spring, Large-Scale Mechanisms, Japanese Monsters', players: '4-7' },
+    '复原': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6', type: '情感演绎，视觉特效', typeEn: 'Emotional Performance, Visual Effects', bookingRulesImage: 'images/umeplay-booking-rules.jpg' }
   };
   // ---------- cloud edits (Firebase + Cloudinary) ----------
   // Lets KK add a poster / tweak fields right on the room page. Text fields save to
