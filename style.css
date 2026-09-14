@@ -898,7 +898,8 @@
     border:1px solid var(--line-strong); border-radius:4px; padding:9px 12px;
   }
   .room-rules-text-form .btn{align-self:flex-start; font-size:12.5px; padding:9px 16px;}
-  .room-rules-link-cta{margin-top:4px; margin-bottom:14px; font-size:13.5px; padding:12px 22px;}
+  .room-rules-link-cta{margin-top:4px; margin-bottom:6px; font-size:13.5px; padding:12px 22px;}
+  .room-rules-link-note{display:block; margin-bottom:14px;}
 
   /* ---------- LOCAL EDIT MODE ---------- */
   .room-edit-bar{

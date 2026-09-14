@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -279,7 +279,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=7"></script>
+<script src="data.js?v=8"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -804,8 +804,13 @@
       a.target = '_blank';
       a.rel = 'noopener';
       a.className = 'btn btn-primary room-rules-link-cta';
-      a.textContent = dict['room.bookingRulesLinkCta'] || 'Click Here to Book on Dianping →';
+      a.textContent = dict['room.bookingRulesLinkCta'] || 'Click here for translation service →';
       wrap.appendChild(a);
+      const priceNote = document.createElement('p');
+      priceNote.className = 'room-extra-hint room-rules-link-note';
+      priceNote.textContent = dict['room.bookingRulesLinkNote']
+        || "Note: the price shown on that page isn't real — don't worry, the translation service is actually free.";
+      wrap.appendChild(priceNote);
     }
     const linkForm = document.getElementById('rulesLinkForm');
     const linkInput = document.getElementById('rulesLinkInput');
