@@ -14,6 +14,7 @@
   };
   firebase.initializeApp(firebaseConfig);
   window.fsDB = firebase.firestore();
-  window.fsStorage = firebase.storage();
   window.fsAuth = firebase.auth();
+  // Note: no firebase.storage() here — photo uploads go to Cloudinary instead
+  // (Firebase Storage now requires the paid Blaze plan; see data.js).
 })();

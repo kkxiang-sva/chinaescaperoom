@@ -389,11 +389,27 @@
     '逢魔时': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'City of Fantasy', type: '日式汤泉，大型机关', typeEn: 'Japanese Hot Spring, Large-Scale Mechanisms', players: '4-7' },
     '复原': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' }
   };
-  // ---------- cloud edits (Firebase) ----------
-  // Lets KK add a poster / tweak fields right on the room page. Saved to Firestore
-  // (text fields) and Storage (photos), so it's live for every visitor within
-  // seconds — not just on her own device. Reading is open to everyone; writing
-  // requires being signed in (see the sign-in modal wired up in room.html).
+  // ---------- cloud edits (Firebase + Cloudinary) ----------
+  // Lets KK add a poster / tweak fields right on the room page. Text fields save to
+  // Firestore; photos upload to Cloudinary (Firebase Storage needs a paid Blaze plan,
+  // Cloudinary's free tier doesn't) and the resulting URL is what's saved in Firestore.
+  // Either way it's live for every visitor within seconds — not just on her own device.
+  // Reading is open to everyone; writing requires being signed in (see the sign-in
+  // modal wired up in room.html).
+  const CLOUDINARY_CLOUD_NAME = 'zmzqssuw';
+  const CLOUDINARY_UPLOAD_PRESET = 'chinaescaperoom';
+  function uploadToCloudinary(dataUrl){
+    const formData = new FormData();
+    formData.append('file', dataUrl);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    return fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/image/upload', {
+      method: 'POST', body: formData
+    }).then(res => {
+      if(!res.ok) return res.text().then(t => { throw new Error('Cloudinary upload failed (' + res.status + '): ' + t); });
+      return res.json();
+    }).then(data => data.secure_url);
+  }
+
   let cloudEdits = {}; // slug -> Firestore doc data, cached in memory after the initial load
   let postersReadyResolve;
   const postersReady = new Promise(res => { postersReadyResolve = res; });
@@ -419,13 +435,12 @@
     }).catch(err => { console.error('setLocalEdit failed:', err); return false; });
   }
 
-  // Poster goes through Storage (it's a photo, not a small text field) — upload it,
-  // then point the Firestore doc's `poster` field at the resulting download URL.
+  // Poster is a photo, not a small text field — upload it to Cloudinary, then point
+  // the Firestore doc's `poster` field at the resulting URL.
   function setPoster(name, dataUrl){
     if(!fsAuth.currentUser) return Promise.resolve(false);
     const slug = slugify(name);
-    return fsStorage.ref('rooms/' + slug + '/poster.jpg').putString(dataUrl, 'data_url')
-      .then(snap => snap.ref.getDownloadURL())
+    return uploadToCloudinary(dataUrl)
       .then(url => fsDB.collection('rooms').doc(slug).set({ poster: url }, { merge: true }).then(() => {
         cloudEdits[slug] = Object.assign({}, cloudEdits[slug] || {}, { poster: url });
         return true;
@@ -433,33 +448,26 @@
       .catch(err => { console.error('setPoster failed:', err); return false; });
   }
 
+  // Note: this only removes the Firestore record — it doesn't delete the image files
+  // from Cloudinary (that needs a signed request, which means a server; not worth it
+  // for how rarely "Reset to Original" gets used, and Cloudinary's free tier is generous).
   function clearLocalEdit(name){
     if(!fsAuth.currentUser) return Promise.resolve(false);
     const slug = slugify(name);
-    const deleteFolder = (path) => fsStorage.ref(path).listAll().then(res =>
-      Promise.all(res.items.map(item => item.delete().catch(() => {})))
-    ).catch(() => {});
-    return Promise.all([
-      fsDB.collection('rooms').doc(slug).delete(),
-      fsStorage.ref('rooms/' + slug + '/poster.jpg').delete().catch(() => {}),
-      deleteFolder('rooms/' + slug + '/gallery')
-    ]).then(() => { delete cloudEdits[slug]; return true; }).catch(err => {
-      console.error('clearLocalEdit failed:', err);
-      return false;
-    });
+    return fsDB.collection('rooms').doc(slug).delete()
+      .then(() => { delete cloudEdits[slug]; return true; })
+      .catch(err => { console.error('clearLocalEdit failed:', err); return false; });
   }
 
   function hasLocalEdit(name){
     return !!cloudEdits[slugify(name)];
   }
 
-  // ---------- extra photo gallery (Storage) ----------
+  // ---------- extra photo gallery (Cloudinary) ----------
   function addGalleryImage(name, dataUrl){
     if(!fsAuth.currentUser) return Promise.resolve(false);
     const slug = slugify(name);
-    const path = 'rooms/' + slug + '/gallery/' + Date.now() + '-' + Math.random().toString(36).slice(2) + '.jpg';
-    return fsStorage.ref(path).putString(dataUrl, 'data_url')
-      .then(snap => snap.ref.getDownloadURL())
+    return uploadToCloudinary(dataUrl)
       .then(url => fsDB.collection('rooms').doc(slug).set(
         { gallery: firebase.firestore.FieldValue.arrayUnion(url) }, { merge: true }
       ).then(() => {
@@ -475,14 +483,10 @@
     const slug = slugify(name);
     const rec = cloudEdits[slug];
     if(!rec || !rec.gallery) return Promise.resolve(true);
-    const url = rec.gallery[index];
     const newGallery = rec.gallery.filter((_, i) => i !== index);
     return fsDB.collection('rooms').doc(slug).set({ gallery: newGallery }, { merge: true })
-      .then(() => {
-        rec.gallery = newGallery;
-        if(url){ try{ fsStorage.refFromURL(url).delete().catch(() => {}); }catch(e){} }
-        return true;
-      }).catch(err => { console.error('removeGalleryImage failed:', err); return false; });
+      .then(() => { rec.gallery = newGallery; return true; })
+      .catch(err => { console.error('removeGalleryImage failed:', err); return false; });
   }
 
   // ---------- player review quotes (Firestore) ----------
