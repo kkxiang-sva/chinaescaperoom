@@ -61,7 +61,11 @@
 
     <div id="roomContent">
       <div class="room-edit-bar">
-        <span class="local-draft-badge" id="localDraftBadge" hidden data-i18n="edit.localDraft">LOCAL DRAFT · this device only</span>
+        <span class="local-draft-badge" id="localDraftBadge" hidden data-i18n="edit.hasCustomInfo">✓ Custom info added</span>
+        <span class="auth-status" id="authStatus" hidden>
+          <span id="authStatusEmail"></span>
+          <button type="button" class="auth-signout-btn" id="signOutBtn" data-i18n="auth.signOut">Sign Out</button>
+        </span>
         <button type="button" class="edit-btn" id="editToggleBtn" data-i18n="edit.button">Edit</button>
       </div>
 
@@ -130,11 +134,6 @@
               <button type="button" class="btn btn-ghost" id="editCancelBtn" data-i18n="edit.cancel">Cancel</button>
               <button type="button" class="btn btn-ghost" id="editClearBtn" data-i18n="edit.reset">Reset to Original</button>
             </div>
-            <div class="edit-export">
-              <button type="button" class="btn btn-ghost" id="exportBtn" data-i18n="edit.export">Copy Edits as JSON</button>
-              <span class="edit-export-note" id="exportNote" hidden data-i18n="edit.exportDone">Copied — paste into chat to send to KK</span>
-            </div>
-            <textarea class="edit-export-fallback" id="exportFallback" hidden readonly></textarea>
           </div>
 
           <a href="index.html#booking" class="btn btn-primary" data-i18n="game.modal.cta" id="bookingCta">Ask About Booking →</a>
@@ -193,6 +192,21 @@
   </div>
 </div>
 
+<div id="signInModal" class="crop-modal-overlay" hidden>
+  <div class="crop-modal auth-modal">
+    <div class="crop-title" data-i18n="auth.title">Sign In to Edit</div>
+    <div class="auth-form">
+      <input type="email" id="signInEmail" autocomplete="username" data-i18n-placeholder="auth.email" placeholder="Email">
+      <input type="password" id="signInPassword" autocomplete="current-password" data-i18n-placeholder="auth.password" placeholder="Password">
+      <p class="auth-error" id="signInError" hidden></p>
+    </div>
+    <div class="crop-actions">
+      <button type="button" class="btn btn-ghost" id="signInCancelBtn" data-i18n="edit.cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="signInSubmitBtn" data-i18n="auth.submit">Sign In</button>
+    </div>
+  </div>
+</div>
+
 <footer>
   <div class="wrap">
     <div class="footer-grid">
@@ -236,6 +250,11 @@
   </div>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="firebase-init.js"></script>
 <script src="data.js"></script>
 <script>
   // nav scroll state
@@ -691,10 +710,59 @@
   const posterInput = document.getElementById('posterInput');
 
   function storageFailureMessage(){
+    if(!fsAuth.currentUser){
+      return currentLang === 'zh'
+        ? '保存失败：你还没有登录。请点击 Edit 按钮重新登录后再试。'
+        : "Couldn't save: you're not signed in. Click Edit again to sign in and retry.";
+    }
     return currentLang === 'zh'
-      ? '保存失败：这台设备的浏览器拒绝了本地存储（可能是隐私/无痕模式，或存储空间确实已满）。请换成正常模式的浏览器窗口再试，或清除一些主题的本地草稿后重试。'
-      : "Couldn't save: this browser blocked local storage on this device (private/incognito mode, or storage is genuinely full). Try a normal browser window, or clear some local drafts and try again.";
+      ? '保存失败：网络或服务器出错，请稍后重试。'
+      : "Couldn't save — a network or server error occurred. Please try again in a moment.";
   }
+
+  // ---------- auth (sign in required to edit) ----------
+  let isSignedIn = false;
+  const signInModal = document.getElementById('signInModal');
+  const authStatus = document.getElementById('authStatus');
+  const authStatusEmail = document.getElementById('authStatusEmail');
+
+  fsAuth.onAuthStateChanged(user => {
+    isSignedIn = !!user;
+    authStatus.hidden = !isSignedIn;
+    if(isSignedIn) authStatusEmail.textContent = user.email;
+    if(!isSignedIn) setEditMode(false);
+  });
+
+  function openSignInModal(){
+    document.getElementById('signInEmail').value = '';
+    document.getElementById('signInPassword').value = '';
+    document.getElementById('signInError').hidden = true;
+    signInModal.hidden = false;
+  }
+  function closeSignInModal(){ signInModal.hidden = true; }
+
+  document.getElementById('signInCancelBtn').addEventListener('click', closeSignInModal);
+
+  document.getElementById('signInSubmitBtn').addEventListener('click', async () => {
+    const email = document.getElementById('signInEmail').value.trim();
+    const password = document.getElementById('signInPassword').value;
+    const errEl = document.getElementById('signInError');
+    errEl.hidden = true;
+    if(!email || !password) return;
+    try{
+      await fsAuth.signInWithEmailAndPassword(email, password);
+      closeSignInModal();
+      setEditMode(true);
+    }catch(err){
+      errEl.textContent = currentLang === 'zh' ? '登录失败：邮箱或密码不对。' : 'Sign in failed: wrong email or password.';
+      errEl.hidden = false;
+    }
+  });
+
+  document.getElementById('signOutBtn').addEventListener('click', () => {
+    fsAuth.signOut();
+    setEditMode(false);
+  });
 
   function setEditMode(on){
     editModeOn = on;
@@ -724,7 +792,10 @@
     document.getElementById('editVideoUrl').value = info.videoUrl || '';
   }
 
-  editToggleBtn.addEventListener('click', () => setEditMode(!editModeOn));
+  editToggleBtn.addEventListener('click', () => {
+    if(!editModeOn && !isSignedIn){ openSignInModal(); return; }
+    setEditMode(!editModeOn);
+  });
 
   document.getElementById('editCancelBtn').addEventListener('click', () => setEditMode(false));
 
@@ -762,29 +833,10 @@
 
   document.getElementById('editClearBtn').addEventListener('click', async () => {
     if(!currentRoomName) return;
-    await clearLocalEdit(currentRoomName);
+    const ok = await clearLocalEdit(currentRoomName);
+    if(!ok){ alert(storageFailureMessage()); return; }
     setEditMode(false);
     renderRoomPage();
-  });
-
-  document.getElementById('exportBtn').addEventListener('click', async () => {
-    const edits = getLocalEdits();
-    Object.keys(posterCache).forEach(name => {
-      edits[name] = Object.assign({}, edits[name] || {}, { poster: posterCache[name] });
-    });
-    const json = JSON.stringify(edits, null, 2);
-    const note = document.getElementById('exportNote');
-    try{
-      await navigator.clipboard.writeText(json);
-      note.hidden = false;
-      setTimeout(() => { note.hidden = true; }, 4000);
-    }catch(e){
-      const fallback = document.getElementById('exportFallback');
-      fallback.value = json;
-      fallback.hidden = false;
-      fallback.focus();
-      fallback.select();
-    }
   });
 
   // ---------- crop / resize modal ----------
@@ -917,7 +969,7 @@
       posterInput.value = '';
       return;
     }
-    const ok = await setLocalEdit(currentRoomName, { poster: dataUrl });
+    const ok = await setPoster(currentRoomName, dataUrl);
     closeCropModal();
     posterInput.value = '';
     if(!ok){ alert(storageFailureMessage()); return; }

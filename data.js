@@ -97,10 +97,12 @@
       'edit.save': 'Save',
       'edit.cancel': 'Cancel',
       'edit.reset': 'Reset to Original',
-      'edit.export': 'Copy Edits as JSON',
-      'edit.exportDone': 'Copied — paste into chat to send to KK',
-      'edit.localDraft': 'LOCAL DRAFT · this device only',
-      'edit.saved': 'Saved on this device',
+      'edit.hasCustomInfo': '✓ Custom info added',
+      'auth.title': 'Sign In to Edit',
+      'auth.email': 'Email',
+      'auth.password': 'Password',
+      'auth.submit': 'Sign In',
+      'auth.signOut': 'Sign Out',
       'crop.title': 'Adjust Photo',
       'crop.hint': 'Drag to reposition, use the slider to zoom',
       'crop.confirm': 'Use This Photo',
@@ -234,10 +236,12 @@
       'edit.save': '保存',
       'edit.cancel': '取消',
       'edit.reset': '恢复原始数据',
-      'edit.export': '复制编辑内容 (JSON)',
-      'edit.exportDone': '已复制——粘贴发给 KK 即可',
-      'edit.localDraft': '本地草稿 · 仅本设备可见',
-      'edit.saved': '已保存到本设备',
+      'edit.hasCustomInfo': '✓ 已添加自定义信息',
+      'auth.title': '登录后才能编辑',
+      'auth.email': '邮箱',
+      'auth.password': '密码',
+      'auth.submit': '登录',
+      'auth.signOut': '退出登录',
       'crop.title': '调整图片',
       'crop.hint': '拖动调整位置，滑动条可缩放',
       'crop.confirm': '使用这张照片',
@@ -385,191 +389,130 @@
     '逢魔时': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'City of Fantasy', type: '日式汤泉，大型机关', typeEn: 'Japanese Hot Spring, Large-Scale Mechanisms' },
     '复原': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' }
   };
-  // ---------- local (per-device) edits ----------
-  // Lets KK add a poster / tweak fields right on the room page without a backend.
-  // Saved only on this device — not visible to other visitors.
-  // Use the "Copy Edits as JSON" button on the room page to send changes back for publishing.
-  //
-  // Text fields (type, price, duration...) are tiny and live in localStorage. Poster
-  // photos are much bigger, so they live in IndexedDB instead: localStorage caps out
-  // around 5-10MB total (only ~30-50 photos before it silently starts failing), while
-  // IndexedDB can comfortably hold hundreds of them.
-  function getLocalEdits(){
-    try{ return JSON.parse(localStorage.getItem('escapeGuideLocalEdits') || '{}'); }catch(e){ return {}; }
-  }
-  function saveLocalEditsText(edits){
-    try{ localStorage.setItem('escapeGuideLocalEdits', JSON.stringify(edits)); return true; }
-    catch(e){ return false; }
-  }
-
-  let posterCache = {}; // name -> poster data URL, loaded from IndexedDB
-  let galleryCache = {}; // name -> array of extra-photo data URLs, loaded from IndexedDB
+  // ---------- cloud edits (Firebase) ----------
+  // Lets KK add a poster / tweak fields right on the room page. Saved to Firestore
+  // (text fields) and Storage (photos), so it's live for every visitor within
+  // seconds — not just on her own device. Reading is open to everyone; writing
+  // requires being signed in (see the sign-in modal wired up in room.html).
+  let cloudEdits = {}; // slug -> Firestore doc data, cached in memory after the initial load
   let postersReadyResolve;
   const postersReady = new Promise(res => { postersReadyResolve = res; });
 
-  function openPosterDB(){
-    return new Promise((resolve, reject) => {
-      if(!window.indexedDB){ reject(new Error('no indexedDB')); return; }
-      const req = indexedDB.open('escapeGuidePosters', 2);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if(!db.objectStoreNames.contains('posters')) db.createObjectStore('posters');
-        if(!db.objectStoreNames.contains('gallery')) db.createObjectStore('gallery');
-      };
-      // Another tab has this DB open on an older version — it should close itself
-      // (see onversionchange below); if it doesn't, don't hang forever.
-      req.onblocked = () => reject(new Error('blocked by another open tab'));
-      req.onsuccess = () => {
-        const db = req.result;
-        db.onversionchange = () => db.close(); // let a newer tab's upgrade proceed
-        resolve(db);
-      };
-      req.onerror = () => reject(req.error);
-    });
-  }
-  function idbGetAll(db, storeName){
-    return new Promise((resolve, reject) => {
-      const store = db.transaction(storeName, 'readonly').objectStore(storeName);
-      const out = {};
-      const req = store.openCursor();
-      req.onsuccess = () => {
-        const cur = req.result;
-        if(cur){ out[cur.key] = cur.value; cur.continue(); }
-        else resolve(out);
-      };
-      req.onerror = () => reject(req.error);
-    });
-  }
-  function idbPut(db, storeName, name, value){
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(storeName, 'readwrite');
-      tx.objectStore(storeName).put(value, name);
-      tx.oncomplete = () => resolve(true);
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-  function idbDelete(db, storeName, name){
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(storeName, 'readwrite');
-      tx.objectStore(storeName).delete(name);
-      tx.oncomplete = () => resolve(true);
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-  const idbGetAllPosters = db => idbGetAll(db, 'posters');
-  const idbSetPoster = (db, name, dataUrl) => idbPut(db, 'posters', name, dataUrl);
-  const idbDeletePoster = (db, name) => idbDelete(db, 'posters', name);
-  const idbGetAllGallery = db => idbGetAll(db, 'gallery');
-  const idbSetGallery = (db, name, arr) => idbPut(db, 'gallery', name, arr);
-  const idbDeleteGallery = (db, name) => idbDelete(db, 'gallery', name);
+  fsDB.collection('rooms').get().then(snapshot => {
+    snapshot.forEach(doc => { cloudEdits[doc.id] = doc.data(); });
+    postersReadyResolve();
+  }).catch(err => {
+    console.error('Failed to load room edits from Firestore:', err);
+    postersReadyResolve(); // still let the page render with just the static ROOM_INFO
+  });
 
-  let posterDBPromise = null;
-  function getPosterDB(){
-    if(!posterDBPromise) posterDBPromise = openPosterDB();
-    return posterDBPromise;
-  }
-
-  // Load existing posters/gallery photos into the in-memory caches on startup,
-  // migrating any poster saved directly in localStorage by an older version of this code.
-  (function initPosters(){
-    getPosterDB().then(async (db) => {
-      posterCache = await idbGetAllPosters(db);
-      galleryCache = await idbGetAllGallery(db);
-      const edits = getLocalEdits();
-      let migrated = false;
-      for(const name of Object.keys(edits)){
-        const rec = edits[name];
-        if(rec && rec.poster){
-          if(!posterCache[name]){
-            await idbSetPoster(db, name, rec.poster);
-            posterCache[name] = rec.poster;
-          }
-          delete rec.poster;
-          if(Object.keys(rec).length === 0) delete edits[name];
-          migrated = true;
-        }
-      }
-      if(migrated) saveLocalEditsText(edits);
-      postersReadyResolve();
-    }).catch(() => { postersReadyResolve(); }); // no IndexedDB support — local posters just won't persist
-  })();
-
-  // Returns a Promise<boolean> — true once the write (text fields + poster, if any)
-  // has actually been saved. Callers should check this instead of assuming success.
+  // Returns a Promise<boolean> — true once the write has actually been saved.
   function setLocalEdit(name, patch){
-    const poster = patch.poster;
-    const rest = Object.assign({}, patch);
-    delete rest.poster;
+    if(!fsAuth.currentUser) return Promise.resolve(false);
+    const slug = slugify(name);
+    const clean = {};
+    Object.keys(patch).forEach(k => { if(patch[k] !== undefined) clean[k] = patch[k]; });
+    if(!Object.keys(clean).length) return Promise.resolve(true);
+    return fsDB.collection('rooms').doc(slug).set(clean, { merge: true }).then(() => {
+      cloudEdits[slug] = Object.assign({}, cloudEdits[slug] || {}, clean);
+      return true;
+    }).catch(err => { console.error('setLocalEdit failed:', err); return false; });
+  }
 
-    let textOk = true;
-    if(Object.keys(rest).length){
-      const edits = getLocalEdits();
-      const clean = {};
-      Object.keys(rest).forEach(k => { if(rest[k] !== undefined) clean[k] = rest[k]; });
-      edits[name] = Object.assign({}, edits[name] || {}, clean);
-      textOk = saveLocalEditsText(edits);
-    }
-
-    if(poster === undefined) return Promise.resolve(textOk);
-
-    return getPosterDB()
-      .then(db => idbSetPoster(db, name, poster))
-      .then(() => { posterCache[name] = poster; return textOk; })
-      .catch(() => false);
+  // Poster goes through Storage (it's a photo, not a small text field) — upload it,
+  // then point the Firestore doc's `poster` field at the resulting download URL.
+  function setPoster(name, dataUrl){
+    if(!fsAuth.currentUser) return Promise.resolve(false);
+    const slug = slugify(name);
+    return fsStorage.ref('rooms/' + slug + '/poster.jpg').putString(dataUrl, 'data_url')
+      .then(snap => snap.ref.getDownloadURL())
+      .then(url => fsDB.collection('rooms').doc(slug).set({ poster: url }, { merge: true }).then(() => {
+        cloudEdits[slug] = Object.assign({}, cloudEdits[slug] || {}, { poster: url });
+        return true;
+      }))
+      .catch(err => { console.error('setPoster failed:', err); return false; });
   }
 
   function clearLocalEdit(name){
-    const edits = getLocalEdits();
-    delete edits[name];
-    const textOk = saveLocalEditsText(edits);
-    return getPosterDB()
-      .then(db => Promise.all([idbDeletePoster(db, name), idbDeleteGallery(db, name)]))
-      .then(() => { delete posterCache[name]; delete galleryCache[name]; return textOk; })
-      .catch(() => textOk);
+    if(!fsAuth.currentUser) return Promise.resolve(false);
+    const slug = slugify(name);
+    const deleteFolder = (path) => fsStorage.ref(path).listAll().then(res =>
+      Promise.all(res.items.map(item => item.delete().catch(() => {})))
+    ).catch(() => {});
+    return Promise.all([
+      fsDB.collection('rooms').doc(slug).delete(),
+      fsStorage.ref('rooms/' + slug + '/poster.jpg').delete().catch(() => {}),
+      deleteFolder('rooms/' + slug + '/gallery')
+    ]).then(() => { delete cloudEdits[slug]; return true; }).catch(err => {
+      console.error('clearLocalEdit failed:', err);
+      return false;
+    });
   }
 
   function hasLocalEdit(name){
-    return !!getLocalEdits()[name] || !!posterCache[name] || !!(galleryCache[name] && galleryCache[name].length);
+    return !!cloudEdits[slugify(name)];
   }
 
-  // ---------- extra photo gallery (device-local, IndexedDB) ----------
+  // ---------- extra photo gallery (Storage) ----------
   function addGalleryImage(name, dataUrl){
-    return getPosterDB().then(db => {
-      const arr = (galleryCache[name] || []).concat([dataUrl]);
-      return idbSetGallery(db, name, arr).then(() => { galleryCache[name] = arr; return true; });
-    }).catch(() => false);
+    if(!fsAuth.currentUser) return Promise.resolve(false);
+    const slug = slugify(name);
+    const path = 'rooms/' + slug + '/gallery/' + Date.now() + '-' + Math.random().toString(36).slice(2) + '.jpg';
+    return fsStorage.ref(path).putString(dataUrl, 'data_url')
+      .then(snap => snap.ref.getDownloadURL())
+      .then(url => fsDB.collection('rooms').doc(slug).set(
+        { gallery: firebase.firestore.FieldValue.arrayUnion(url) }, { merge: true }
+      ).then(() => {
+        const rec = cloudEdits[slug] || {};
+        rec.gallery = (rec.gallery || []).concat([url]);
+        cloudEdits[slug] = rec;
+        return true;
+      }))
+      .catch(err => { console.error('addGalleryImage failed:', err); return false; });
   }
   function removeGalleryImage(name, index){
-    return getPosterDB().then(db => {
-      const arr = (galleryCache[name] || []).filter((_, i) => i !== index);
-      return idbSetGallery(db, name, arr).then(() => { galleryCache[name] = arr; return true; });
-    }).catch(() => false);
+    if(!fsAuth.currentUser) return Promise.resolve(false);
+    const slug = slugify(name);
+    const rec = cloudEdits[slug];
+    if(!rec || !rec.gallery) return Promise.resolve(true);
+    const url = rec.gallery[index];
+    const newGallery = rec.gallery.filter((_, i) => i !== index);
+    return fsDB.collection('rooms').doc(slug).set({ gallery: newGallery }, { merge: true })
+      .then(() => {
+        rec.gallery = newGallery;
+        if(url){ try{ fsStorage.refFromURL(url).delete().catch(() => {}); }catch(e){} }
+        return true;
+      }).catch(err => { console.error('removeGalleryImage failed:', err); return false; });
   }
 
-  // ---------- player review quotes (device-local, localStorage — text only) ----------
+  // ---------- player review quotes (Firestore) ----------
   function addReview(name, review){
-    const edits = getLocalEdits();
-    const rec = Object.assign({}, edits[name] || {});
-    rec.reviews = (rec.reviews || []).concat([review]);
-    edits[name] = rec;
-    return Promise.resolve(saveLocalEditsText(edits));
+    if(!fsAuth.currentUser) return Promise.resolve(false);
+    const slug = slugify(name);
+    return fsDB.collection('rooms').doc(slug).set(
+      { reviews: firebase.firestore.FieldValue.arrayUnion(review) }, { merge: true }
+    ).then(() => {
+      const rec = cloudEdits[slug] || {};
+      rec.reviews = (rec.reviews || []).concat([review]);
+      cloudEdits[slug] = rec;
+      return true;
+    }).catch(err => { console.error('addReview failed:', err); return false; });
   }
   function removeReview(name, index){
-    const edits = getLocalEdits();
-    const rec = edits[name];
+    if(!fsAuth.currentUser) return Promise.resolve(false);
+    const slug = slugify(name);
+    const rec = cloudEdits[slug];
     if(!rec || !rec.reviews) return Promise.resolve(true);
-    rec.reviews = rec.reviews.filter((_, i) => i !== index);
-    edits[name] = rec;
-    return Promise.resolve(saveLocalEditsText(edits));
+    const newReviews = rec.reviews.filter((_, i) => i !== index);
+    return fsDB.collection('rooms').doc(slug).set({ reviews: newReviews }, { merge: true })
+      .then(() => { rec.reviews = newReviews; return true; })
+      .catch(err => { console.error('removeReview failed:', err); return false; });
   }
 
   function roomInfo(name){
     const base = ROOM_INFO[name] || {};
-    const local = getLocalEdits()[name];
-    const merged = local ? Object.assign({}, base, local) : Object.assign({}, base);
-    if(posterCache[name]) merged.poster = posterCache[name];
-    if(galleryCache[name] && galleryCache[name].length) merged.gallery = galleryCache[name];
-    return merged;
+    const cloud = cloudEdits[slugify(name)];
+    return cloud ? Object.assign({}, base, cloud) : Object.assign({}, base);
   }
 
   function buildHorrorPips(level){
