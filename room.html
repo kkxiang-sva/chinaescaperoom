@@ -166,8 +166,12 @@
       </section>
 
       <section class="room-extra" id="roomBookingRulesSection" hidden>
-        <h2 class="room-extra-title" data-i18n="room.bookingRules">Booking Rules (Translated)</h2>
+        <h2 class="room-extra-title" data-i18n="room.bookingRules">Booking Rules</h2>
         <div id="roomBookingRulesWrap"></div>
+        <div class="room-rules-text-form" id="rulesTextForm" hidden>
+          <textarea id="rulesTextInput" data-i18n-placeholder="edit.bookingRulesTextPlaceholder" placeholder="Type the booking rules in English..."></textarea>
+          <button type="button" class="btn btn-ghost" id="rulesTextSaveBtn" data-i18n="edit.save">Save</button>
+        </div>
       </section>
 
       <div class="room-more-cities" id="roomMoreWrap" hidden>
@@ -686,12 +690,17 @@
     const dict = translations[currentLang] || translations.en;
     const section = document.getElementById('roomBookingRulesSection');
     const wrap = document.getElementById('roomBookingRulesWrap');
+    const textForm = document.getElementById('rulesTextForm');
+    const textInput = document.getElementById('rulesTextInput');
     wrap.innerHTML = '';
     const isEnglishRoom = info.hasEnglish === true;
+
+    // image option
     if(info.bookingRulesImage){
-      const thumb = document.createElement('div');
+      const thumb = document.createElement('img');
       thumb.className = 'room-rules-thumb';
-      thumb.style.backgroundImage = `url("${info.bookingRulesImage}")`;
+      thumb.src = info.bookingRulesImage;
+      thumb.alt = '';
       thumb.addEventListener('click', () => window.open(info.bookingRulesImage, '_blank', 'noopener'));
       wrap.appendChild(thumb);
     }
@@ -722,8 +731,31 @@
       tile.appendChild(input);
       wrap.appendChild(tile);
     }
-    section.hidden = !isEnglishRoom || (!info.bookingRulesImage && !editModeOn);
+
+    // text option
+    if(info.bookingRulesText){
+      const p = document.createElement('p');
+      p.className = 'room-rules-text';
+      p.textContent = info.bookingRulesText;
+      wrap.appendChild(p);
+    }
+    if(editModeOn && isEnglishRoom){
+      textForm.hidden = false;
+      textInput.value = info.bookingRulesText || '';
+    } else {
+      textForm.hidden = true;
+    }
+
+    section.hidden = !isEnglishRoom || (!info.bookingRulesImage && !info.bookingRulesText && !editModeOn);
   }
+
+  document.getElementById('rulesTextSaveBtn').addEventListener('click', async () => {
+    if(!currentRoomName) return;
+    const text = document.getElementById('rulesTextInput').value.trim();
+    const ok = await setLocalEdit(currentRoomName, { bookingRulesText: text });
+    if(!ok){ alert(storageFailureMessage()); return; }
+    renderBookingRules(roomInfo(currentRoomName));
+  });
 
   document.getElementById('reviewAddBtn').addEventListener('click', async () => {
     if(!currentRoomName) return;
