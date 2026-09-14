@@ -353,10 +353,10 @@
   // Per-room extra details, keyed by the canonical name used in TOP30 / CITY_ROOMS.
   // priceRMB/hasEnglish collected from KK directly; other fields fill in as they're provided.
   const ROOM_INFO = {
-    '诺亚': { priceRMB: 338, hasEnglish: true, duration: 100, company: 'MRX', type: '科幻，精神病院，大型机关', typeEn: 'Sci-Fi, Mental Asylum, Large-Scale Mechanisms', players: '4-8' },
-    '女屋': { hasEnglish: true, duration: 100, company: 'The Second World', type: '美式恐怖酒店', typeEn: 'American Horror, Hotel', priceRMB: 328, players: '4-6', reviews: [{ url: 'https://www.instagram.com/p/DcdDLYilwkg/?stkn=d2x5ZHo3c3R5ejI1' }] },
-    '艾洛拉': { priceRMB: 288, hasEnglish: true, duration: 100, company: 'MRX', type: '中世纪童趣，非恐解密', typeEn: 'Medieval Whimsy, Non-Horror Puzzle', players: '4-7' },
-    '神话': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World', type: '海底盗墓，中式神话，非恐解密', typeEn: 'Underwater Tomb Raiding, Chinese Mythology, Non-Horror Puzzle', players: '4-6' },
+    '诺亚': { priceRMB: 338, hasEnglish: true, duration: 100, company: 'MRX', type: '科幻，精神病院，大型机关', typeEn: 'Sci-Fi, Mental Asylum, Large-Scale Mechanisms', players: '4-8', bookingRulesImage: 'images/mrx-booking-rules.jpg' },
+    '女屋': { hasEnglish: true, duration: 100, company: 'The Second World', type: '美式恐怖酒店', typeEn: 'American Horror, Hotel', priceRMB: 328, players: '4-6', reviews: [{ url: 'https://www.instagram.com/p/DcdDLYilwkg/?stkn=d2x5ZHo3c3R5ejI1' }], bookingRulesImage: 'images/mrx-booking-rules.jpg' },
+    '艾洛拉': { priceRMB: 288, hasEnglish: true, duration: 100, company: 'MRX', type: '中世纪童趣，非恐解密', typeEn: 'Medieval Whimsy, Non-Horror Puzzle', players: '4-7', bookingRulesImage: 'images/mrx-booking-rules.jpg' },
+    '神话': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World', type: '海底盗墓，中式神话，非恐解密', typeEn: 'Underwater Tomb Raiding, Chinese Mythology, Non-Horror Puzzle', players: '4-6', bookingRulesImage: 'images/mrx-booking-rules.jpg' },
     'VISAGE': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6', bookingRulesImage: 'images/umeplay-booking-rules.jpg' },
     'ENOLA': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6', type: '苏联背景，惊悚玩偶', typeEn: 'Soviet Setting, Horror Dolls', bookingRulesImage: 'images/umeplay-booking-rules.jpg' },
     'SINNER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6', bookingRulesImage: 'images/umeplay-booking-rules.jpg' },
