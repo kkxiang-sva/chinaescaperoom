@@ -695,7 +695,6 @@
     .nav-cta{display:none;}
     .lang-switch-desktop{display:none;}
     .lang-switch-mobile{display:flex;}
-    .game-grid{grid-template-columns:1fr;}
     .city-grid{grid-template-columns:repeat(2,1fr);}
     .hero-stats{flex-direction:column; gap:20px;}
     .stat:not(:last-child)::after{display:none;}
@@ -703,10 +702,27 @@
     .stat:last-child{border-bottom:none;}
     .footer-grid{grid-template-columns:1fr;}
     .footer-bottom{flex-direction:column; align-items:flex-start;}
+
+    /* two compact cards per row instead of one full-width one */
+    .game-grid{grid-template-columns:repeat(2,1fr); gap:10px;}
+    .game-card{flex-direction:column;}
+    .game-media-col{width:100%; border-right:none; border-bottom:1px solid var(--line);}
+    .game-badge{font-size:8px; padding:2px 5px; top:6px; left:6px;}
+    .game-media .game-monogram{font-size:22px;}
+    .game-type-label{padding:4px; gap:3px;}
+    .game-type-tag{font-size:7.5px; padding:1px 5px;}
+    .game-body{padding:9px 10px 10px;}
+    .game-city{font-size:8.5px; margin-bottom:3px;}
+    .game-name{font-size:12.5px; margin-bottom:4px; line-height:1.2;}
+    .game-tags{gap:4px; margin-bottom:6px;}
+    .game-tag{font-size:8px; padding:2px 5px; gap:3px;}
+    .horror-pips .pip{width:4px; height:4px;}
+    .game-facts{font-size:10px; margin-bottom:5px;}
+    .game-company{font-size:9px; margin-bottom:5px;}
+    .game-view-hint{font-size:10px; margin-top:6px;}
   }
   @media (max-width:420px){
     .city-grid{grid-template-columns:1fr;}
-    .game-media-col{width:88px;}
   }
 
   /* ---------- ROOM INFO TAGS / FACTS (cards, room page) ---------- */
