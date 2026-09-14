@@ -118,8 +118,16 @@
               <input type="text" id="editPlayers">
             </div>
             <div class="edit-row">
+              <label><span data-i18n="edit.storeName">Store Name</span> (Chinese page only)</label>
+              <input type="text" id="editStoreName">
+            </div>
+            <div class="edit-row">
               <label data-i18n="edit.address">Address</label>
               <input type="text" id="editAddress">
+            </div>
+            <div class="edit-row">
+              <label data-i18n="edit.hours">Business Hours</label>
+              <input type="text" id="editHours">
             </div>
             <div class="edit-row">
               <label data-i18n="edit.bookingInfo">Booking Info</label>
@@ -654,13 +662,34 @@
     const section = document.getElementById('roomBookingSection');
     const content = document.getElementById('roomBookingContent');
     content.innerHTML = '';
-    if(info.address){
+    // store name is Chinese-only content — never shown on the English page
+    if(info.storeName && currentLang === 'zh'){
+      const p = document.createElement('p');
+      p.className = 'room-booking-line';
+      const label = document.createElement('strong');
+      label.textContent = (dict['edit.storeName'] || 'Store') + ': ';
+      p.appendChild(label);
+      p.appendChild(document.createTextNode(info.storeName));
+      content.appendChild(p);
+    }
+    const addressText = currentLang === 'zh' ? info.address : (info.addressEn || info.address);
+    if(addressText){
       const p = document.createElement('p');
       p.className = 'room-booking-line';
       const label = document.createElement('strong');
       label.textContent = (dict['edit.address'] || 'Address') + ': ';
       p.appendChild(label);
-      p.appendChild(document.createTextNode(info.address));
+      p.appendChild(document.createTextNode(addressText));
+      content.appendChild(p);
+    }
+    const hoursText = currentLang === 'zh' ? info.hours : (info.hoursEn || info.hours);
+    if(hoursText){
+      const p = document.createElement('p');
+      p.className = 'room-booking-line';
+      const label = document.createElement('strong');
+      label.textContent = (dict['edit.hours'] || 'Hours') + ': ';
+      p.appendChild(label);
+      p.appendChild(document.createTextNode(hoursText));
       content.appendChild(p);
     }
     if(info.bookingInfo){
@@ -681,7 +710,7 @@
       }
       content.appendChild(p);
     }
-    section.hidden = !info.address && !info.bookingInfo && !editModeOn;
+    section.hidden = !info.address && !info.bookingInfo && !info.storeName && !info.hours && !editModeOn;
   }
 
   // Only for rooms with an English version — a photo of the venue's own booking
@@ -883,7 +912,9 @@
     document.getElementById('editPrice').value = info.priceRMB || '';
     document.getElementById('editDuration').value = info.duration || '';
     document.getElementById('editPlayers').value = info.players || '';
-    document.getElementById('editAddress').value = info.address || '';
+    document.getElementById('editStoreName').value = info.storeName || '';
+    document.getElementById('editAddress').value = (currentLang === 'zh' ? info.address : (info.addressEn || info.address)) || '';
+    document.getElementById('editHours').value = (currentLang === 'zh' ? info.hours : (info.hoursEn || info.hours)) || '';
     document.getElementById('editBookingInfo').value = info.bookingInfo || '';
     document.getElementById('editVideoUrl').value = info.videoUrl || '';
   }
@@ -903,7 +934,9 @@
     const priceVal = document.getElementById('editPrice').value;
     const durationVal = document.getElementById('editDuration').value;
     const playersVal = document.getElementById('editPlayers').value.trim();
+    const storeNameVal = document.getElementById('editStoreName').value.trim();
     const addressVal = document.getElementById('editAddress').value.trim();
+    const hoursVal = document.getElementById('editHours').value.trim();
     const bookingInfoVal = document.getElementById('editBookingInfo').value.trim();
     const videoUrlVal = document.getElementById('editVideoUrl').value.trim();
 
@@ -917,7 +950,15 @@
     if(priceVal) patch.priceRMB = parseFloat(priceVal);
     if(durationVal) patch.duration = parseInt(durationVal, 10);
     if(playersVal) patch.players = playersVal;
-    if(addressVal) patch.address = addressVal;
+    if(storeNameVal) patch.storeName = storeNameVal;
+    if(addressVal){
+      if(currentLang === 'zh') patch.address = addressVal;
+      else patch.addressEn = addressVal;
+    }
+    if(hoursVal){
+      if(currentLang === 'zh') patch.hours = hoursVal;
+      else patch.hoursEn = hoursVal;
+    }
     if(bookingInfoVal) patch.bookingInfo = bookingInfoVal;
     if(videoUrlVal) patch.videoUrl = videoUrlVal;
 
