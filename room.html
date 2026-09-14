@@ -165,6 +165,11 @@
         <div id="roomBookingContent"></div>
       </section>
 
+      <section class="room-extra" id="roomBookingRulesSection" hidden>
+        <h2 class="room-extra-title" data-i18n="room.bookingRules">Booking Rules (Translated)</h2>
+        <div id="roomBookingRulesWrap"></div>
+      </section>
+
       <div class="room-more-cities" id="roomMoreWrap" hidden>
         <h3 id="roomMoreTitle"></h3>
         <div class="city-modal-list" id="roomMoreList"></div>
@@ -460,6 +465,7 @@
     renderVideo(info);
     renderReviews(info);
     renderBooking(info);
+    renderBookingRules(info);
 
     // more rooms in the same city
     const moreWrap = document.getElementById('roomMoreWrap');
@@ -674,6 +680,51 @@
     section.hidden = !info.address && !info.bookingInfo && !editModeOn;
   }
 
+  // Only for rooms with an English version — a photo of the venue's own booking
+  // rules, translated, so international players can read it themselves.
+  function renderBookingRules(info){
+    const dict = translations[currentLang] || translations.en;
+    const section = document.getElementById('roomBookingRulesSection');
+    const wrap = document.getElementById('roomBookingRulesWrap');
+    wrap.innerHTML = '';
+    const isEnglishRoom = info.hasEnglish === true;
+    if(info.bookingRulesImage){
+      const thumb = document.createElement('div');
+      thumb.className = 'room-rules-thumb';
+      thumb.style.backgroundImage = `url("${info.bookingRulesImage}")`;
+      thumb.addEventListener('click', () => window.open(info.bookingRulesImage, '_blank', 'noopener'));
+      wrap.appendChild(thumb);
+    }
+    if(editModeOn && isEnglishRoom){
+      const tile = document.createElement('label');
+      tile.className = info.bookingRulesImage ? 'room-rules-change' : 'room-rules-add';
+      tile.textContent = info.bookingRulesImage
+        ? (dict['edit.changeBookingRules'] || 'Change Photo')
+        : (dict['edit.addBookingRules'] || '+ Add Photo');
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.hidden = true;
+      input.addEventListener('change', async () => {
+        const file = input.files && input.files[0];
+        if(!file || !currentRoomName) return;
+        try{
+          const dataUrl = await resizeImageFile(file, 1600);
+          const ok = await setBookingRulesImage(currentRoomName, dataUrl);
+          if(!ok){ alert(storageFailureMessage()); return; }
+          renderBookingRules(roomInfo(currentRoomName));
+        }catch(err){
+          alert(currentLang === 'zh'
+            ? '这张图片无法打开，请换一张再试。'
+            : "Couldn't open this photo — please try a different one.");
+        }
+      });
+      tile.appendChild(input);
+      wrap.appendChild(tile);
+    }
+    section.hidden = !isEnglishRoom || (!info.bookingRulesImage && !editModeOn);
+  }
+
   document.getElementById('reviewAddBtn').addEventListener('click', async () => {
     if(!currentRoomName) return;
     const textEl = document.getElementById('reviewText');
@@ -787,6 +838,7 @@
       renderVideo(info);
       renderReviews(info);
       renderBooking(info);
+      renderBookingRules(info);
     }
   }
 

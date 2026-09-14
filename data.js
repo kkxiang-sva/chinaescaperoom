@@ -113,6 +113,9 @@
       'room.viewReview': '▶ View Player Review',
       'room.reviews': 'Player Comments',
       'room.bookingInfo': 'Booking & Address',
+      'room.bookingRules': 'Booking Rules (Translated)',
+      'edit.addBookingRules': '+ Add Photo',
+      'edit.changeBookingRules': 'Change Photo',
       'room.moreInCity': 'More rooms in ',
       'games.more': 'Browse More by City →',
       'booking.title': 'How to Book an Escape Room in China',
@@ -253,6 +256,9 @@
       'room.viewReview': '▶ 查看玩家评价',
       'room.reviews': '玩家评价',
       'room.bookingInfo': '预定方式与地址',
+      'room.bookingRules': '预订规则（翻译版）',
+      'edit.addBookingRules': '+ 添加图片',
+      'edit.changeBookingRules': '更换图片',
       'room.moreInCity': '更多推荐 · ',
       'games.more': '按城市探索更多 →',
       'booking.title': '如何预定中国密室',
@@ -489,6 +495,20 @@
     return fsDB.collection('rooms').doc(slug).set({ gallery: newGallery }, { merge: true })
       .then(() => { rec.gallery = newGallery; return true; })
       .catch(err => { console.error('removeGalleryImage failed:', err); return false; });
+  }
+
+  // ---------- translated booking-rules photo (Cloudinary) ----------
+  // A photo of the venue's own booking-rules sheet, translated to English — shown
+  // only on rooms marked hasEnglish, since that's who it's for.
+  function setBookingRulesImage(name, dataUrl){
+    if(!fsAuth.currentUser) return Promise.resolve(false);
+    const slug = slugify(name);
+    return uploadToCloudinary(dataUrl)
+      .then(url => fsDB.collection('rooms').doc(slug).set({ bookingRulesImage: url }, { merge: true }).then(() => {
+        cloudEdits[slug] = Object.assign({}, cloudEdits[slug] || {}, { bookingRulesImage: url });
+        return true;
+      }))
+      .catch(err => { console.error('setBookingRulesImage failed:', err); return false; });
   }
 
   // ---------- player review quotes (Firestore) ----------

@@ -372,6 +372,7 @@
     font-family:var(--serif); font-weight:700; font-size:26px;
     border:1px solid var(--line-strong);
   }
+  .founder-avatar.has-photo{background-size:cover; background-position:60% 22%;}
   .founder-body{flex:1; min-width:0;}
   .founder-name{font-family:var(--serif); font-weight:700; font-size:22px; color:var(--text);}
   .founder-role{
@@ -856,6 +857,26 @@
   .room-booking-line{font-size:14.5px; color:var(--text-dim); margin-bottom:8px;}
   .room-booking-line strong{color:var(--text); font-weight:600;}
   .room-booking-line a{color:var(--gold-bright);}
+
+  .room-rules-thumb{
+    width:100%; max-width:360px; aspect-ratio:3 / 4; border-radius:8px; overflow:hidden;
+    background-size:cover; background-position:top center; background-color:var(--panel-2);
+    border:1px solid var(--line); cursor:pointer; margin-bottom:14px;
+  }
+  .room-rules-add{
+    display:flex; align-items:center; justify-content:center; width:100%; max-width:360px;
+    aspect-ratio:3 / 4; border-radius:8px; border:1px dashed var(--line-strong);
+    font-family:var(--sans); font-size:13px; font-weight:600; color:var(--text-dimmer);
+    cursor:pointer; transition:color .2s, border-color .2s;
+  }
+  .room-rules-add:hover{color:var(--gold-bright); border-color:var(--gold-bright);}
+  .room-rules-change{
+    display:inline-flex; align-items:center; justify-content:center; padding:9px 16px;
+    border:1px solid var(--line-strong); border-radius:4px; font-family:var(--sans);
+    font-size:12.5px; font-weight:600; color:var(--text-dim); cursor:pointer;
+    transition:color .2s, border-color .2s;
+  }
+  .room-rules-change:hover{color:var(--gold-bright); border-color:var(--gold-bright);}
 
   /* ---------- LOCAL EDIT MODE ---------- */
   .room-edit-bar{
