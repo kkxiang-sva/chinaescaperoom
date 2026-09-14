@@ -590,31 +590,45 @@
   }
 
   function renderReviews(info){
+    const dict = translations[currentLang] || translations.en;
     const section = document.getElementById('roomReviewsSection');
     const list = document.getElementById('roomReviewsList');
     const form = document.getElementById('reviewForm');
     list.innerHTML = '';
     const reviews = info.reviews || [];
+    // reviews[0..staticCount) are hardcoded in ROOM_INFO (not removable from here);
+    // anything after that was added live via the edit form and lives in Firestore.
+    const staticCount = ((ROOM_INFO[currentRoomName] || {}).reviews || []).length;
     reviews.forEach((r, i) => {
       const card = document.createElement('div');
       card.className = 'room-review-card';
-      const q = document.createElement('p');
-      q.className = 'room-review-text';
-      q.textContent = '“' + r.text + '”';
-      card.appendChild(q);
-      if(r.author){
-        const a = document.createElement('p');
-        a.className = 'room-review-author';
-        a.textContent = '— ' + r.author;
-        card.appendChild(a);
+      if(r.url){
+        const link = document.createElement('a');
+        link.href = r.url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.className = 'room-review-link';
+        link.textContent = dict['room.viewReview'] || '▶ View Player Review';
+        card.appendChild(link);
+      } else {
+        const q = document.createElement('p');
+        q.className = 'room-review-text';
+        q.textContent = '“' + r.text + '”';
+        card.appendChild(q);
+        if(r.author){
+          const a = document.createElement('p');
+          a.className = 'room-review-author';
+          a.textContent = '— ' + r.author;
+          card.appendChild(a);
+        }
       }
-      if(editModeOn){
+      if(editModeOn && i >= staticCount){
         const rm = document.createElement('button');
         rm.type = 'button';
         rm.className = 'room-review-remove';
         rm.textContent = '×';
         rm.addEventListener('click', async () => {
-          await removeReview(currentRoomName, i);
+          await removeReview(currentRoomName, i - staticCount);
           renderReviews(roomInfo(currentRoomName));
         });
         card.appendChild(rm);

@@ -110,6 +110,7 @@
       'room.gallery': 'More Photos',
       'room.video': 'Trailer',
       'room.watchTrailer': '▶ Watch Trailer',
+      'room.viewReview': '▶ View Player Review',
       'room.reviews': 'Player Comments',
       'room.bookingInfo': 'Booking & Address',
       'room.moreInCity': 'More rooms in ',
@@ -249,6 +250,7 @@
       'room.gallery': '更多图片',
       'room.video': '宣传片',
       'room.watchTrailer': '▶ 观看宣传片',
+      'room.viewReview': '▶ 查看玩家评价',
       'room.reviews': '玩家评价',
       'room.bookingInfo': '预定方式与地址',
       'room.moreInCity': '更多推荐 · ',
@@ -344,47 +346,47 @@
   // priceRMB/hasEnglish collected from KK directly; other fields fill in as they're provided.
   const ROOM_INFO = {
     '诺亚': { priceRMB: 338, hasEnglish: true, duration: 100, company: 'MRX', type: '科幻，精神病院', typeEn: 'Sci-Fi, Mental Asylum', players: '4-8' },
-    '女屋': { hasEnglish: true, duration: 100, company: 'The Second World', type: '美式恐怖酒店', typeEn: 'American Horror, Hotel', priceRMB: 328, players: '4-6' },
+    '女屋': { hasEnglish: true, duration: 100, company: 'The Second World', type: '美式恐怖酒店', typeEn: 'American Horror, Hotel', priceRMB: 328, players: '4-6', reviews: [{ url: 'https://www.instagram.com/p/DcdDLYilwkg/?stkn=d2x5ZHo3c3R5ejI1' }] },
     '艾洛拉': { priceRMB: 288, hasEnglish: true, duration: 100, company: 'MRX', type: '中世纪童趣，非恐解密', typeEn: 'Medieval Whimsy, Non-Horror Puzzle', players: '4-7' },
     '神话': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World', type: '海底盗墓，中式神话，非恐解密', typeEn: 'Underwater Tomb Raiding, Chinese Mythology, Non-Horror Puzzle', players: '4-6' },
     'VISAGE': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' },
     'ENOLA': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6', type: '苏联背景，惊悚玩偶', typeEn: 'Soviet Setting, Horror Dolls' },
     'SINNER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' },
     '楼兰古墓2': { priceRMB: 328, hasEnglish: false, duration: 90, company: '301 Immersive', type: '中国古墓盗墓，机关，解谜', typeEn: 'Tomb Raiding, Mechanisms, Puzzle' },
-    'HAVEN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '末日废土，大型机关', typeEn: 'Post-Apocalyptic, Large-Scale Mechanisms', players: '4-6' },
-    'INSANE II': { hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '悬疑探案，美式恐怖', typeEn: 'Mystery/Detective, American Horror', players: '4-6' },
-    'GATEMAN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '战争和历史，死亡与遗忘', typeEn: 'War & History, Death and Forgetting', players: '4-6' },
+    'HAVEN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '末日废土，大型机关', typeEn: 'Post-Apocalyptic, Large-Scale Mechanisms', players: '4-6', reviews: [{ url: 'https://www.instagram.com/p/DclZwqnF_xR/?stkn=MTBrbDlubnR2Y2N3NQ==' }] },
+    'INSANE II': { hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '悬疑探案，美式恐怖', typeEn: 'Mystery/Detective, American Horror', players: '4-6', reviews: [{ url: 'https://www.instagram.com/p/Dca5n4Zl5Tr/?stkn=a3dhdmd4bHBqNmd3' }] },
+    'GATEMAN': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '战争和历史，死亡与遗忘', typeEn: 'War & History, Death and Forgetting', players: '4-6', reviews: [{ url: 'https://www.instagram.com/reel/DdGV5nAApPK/?stkn=MWY2azVycW5ocDN1dw==' }] },
     'REVIVER': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', type: '废弃医院，探灵纪实', typeEn: 'Abandoned Hospital, Paranormal Investigation', players: '4-6' },
     '白夜': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'The Second World', type: '日式校园怪谈', typeEn: 'Japanese School Horror', players: '4-8' },
-    'Cindy死了九次': { priceRMB: 360, hasEnglish: true, duration: 120, company: 'Cubic Escape - 6min', type: '温情感人，非恐抉择互动', typeEn: 'Heartwarming, Non-Horror Choice-Driven Interaction', players: '4-12' },
+    'Cindy死了九次': { priceRMB: 360, hasEnglish: true, duration: 120, company: 'Cubic Escape - 6min', type: '温情感人，非恐抉择互动', typeEn: 'Heartwarming, Non-Horror Choice-Driven Interaction', players: '4-12', reviews: [{ url: 'https://www.instagram.com/reel/Dc_FN7wAB1T/?stkn=dzA5NmJiMjJybjJh' }] },
     'WUKONG': { priceRMB: 328, hasEnglish: false, duration: 90, company: 'MRX', type: '中国神话', typeEn: 'Chinese Mythology', players: '5-8' },
-    'SOUL HOUSE': { priceRMB: 288, hasEnglish: true, duration: 65, company: 'UMEPLAY x INS', type: '沉浸式演绎酒吧体验', typeEn: 'Immersive Live-Actor Bar Experience', players: '4-8' },
+    'SOUL HOUSE': { priceRMB: 288, hasEnglish: true, duration: 65, company: 'UMEPLAY x INS', type: '沉浸式演绎酒吧体验', typeEn: 'Immersive Live-Actor Bar Experience', players: '4-8', reviews: [{ url: 'https://www.instagram.com/reel/Dc5jOLcAO2D/?stkn=NXRiejYwdHh2Mmxu' }] },
     'Undeveloped Memory': { hasEnglish: true, duration: 5, company: 'KK x UMEPLAY x INS', type: '微型体验装置，情感', typeEn: 'Micro Experience, Emotional' },
-    '昆仑寒宫2': { priceRMB: 328, hasEnglish: false, duration: 90, company: 'E+', type: '冰窟解密，零下13度盗墓体验', typeEn: 'Ice Cave Puzzle, -13°C Tomb Raiding' },
+    '昆仑寒宫2': { priceRMB: 328, hasEnglish: false, duration: 90, company: 'E+', type: '冰窟解密，零下13度盗墓体验', typeEn: 'Ice Cave Puzzle, -13°C Tomb Raiding', reviews: [{ url: 'https://www.instagram.com/reel/DcVEPIhoCVq/?stkn=NGZncngweTh2eWoy' }] },
     '找到你了2': { priceRMB: 298, hasEnglish: false, duration: 90, company: 'MRX', type: '哥特惊悚', typeEn: 'Gothic Horror' },
     'Strike it! Rich!': { priceRMB: 179, hasEnglish: true, duration: 60, company: 'WOW!BOXX', type: '港风欢乐，团队对抗', typeEn: 'Hong Kong-Style Comedy, Team Competition' },
-    '溃烂缪斯': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Dreamland Traveller', type: '美式恐怖酒店，大型机关', typeEn: 'American Horror, Hotel, Large-Scale Mechanisms', players: '4-7' },
+    '溃烂缪斯': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Dreamland Traveller', type: '美式恐怖酒店，大型机关', typeEn: 'American Horror, Hotel, Large-Scale Mechanisms', players: '4-7', reviews: [{ url: 'https://www.instagram.com/p/DcWb-3_F-y9/?stkn=ZGk3bXFwbTZzNGRv' }] },
     'INSANE': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6', type: '闹鬼房屋，真实感恐惧', typeEn: 'Haunted House, Visceral Horror' },
     'AFTERLIFE': { hasEnglish: true, duration: 75, company: 'UMEPLAY', priceRMB: 298, players: '4-6' },
-    '不可名状': { priceRMB: 278, hasEnglish: true, duration: 90, company: 'Dreamland Traveller', type: '泰式惊悚，民俗仪式，大型机关', typeEn: 'Thai Horror, Folk Ritual, Large-Scale Mechanisms', players: '4-7' },
-    'Dream': { priceRMB: 298, hasEnglish: false, duration: 90, company: 'V Factory', type: '盗梦空间，大型机关，催眠', typeEn: 'Inception-Style Dream Heist, Large-Scale Mechanisms, Hypnosis', players: '4-6' },
+    '不可名状': { priceRMB: 278, hasEnglish: true, duration: 90, company: 'Dreamland Traveller', type: '泰式惊悚，民俗仪式，大型机关', typeEn: 'Thai Horror, Folk Ritual, Large-Scale Mechanisms', players: '4-7', reviews: [{ url: 'https://www.instagram.com/p/Dcff20Al29s/?stkn=ejlvd2s5bDVpbmMx' }] },
+    'Dream': { priceRMB: 298, hasEnglish: false, duration: 90, company: 'V Factory', type: '盗梦空间，大型机关，催眠', typeEn: 'Inception-Style Dream Heist, Large-Scale Mechanisms, Hypnosis', players: '4-6', reviews: [{ url: 'https://www.instagram.com/p/DcnZm6dlx7Z/?stkn=MWRmczE1d2czM3V6ag==' }] },
     '暂放的绽放': { hasEnglish: true, duration: 15, company: 'KK x Dreamland Traveller', type: '微型体验装置，情感', typeEn: 'Micro Experience, Emotional', priceRMB: 19.9 },
     '污秽': { priceRMB: 278, hasEnglish: false, duration: 90, company: 'Dreamland Traveller', type: '新中式恐怖', typeEn: 'Modern Chinese Horror', players: '4-7' },
     '幻觉游戏': { priceRMB: 178, hasEnglish: false, duration: 135, company: 'The Lost Planet', type: '探案解密', typeEn: 'Detective, Puzzle' },
     '这没有游戏': { priceRMB: 138, hasEnglish: false, duration: 90, company: 'The Lost Planet' },
     '纸人回魂': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'Dreamland Traveller', type: '中式民俗', typeEn: 'Chinese Folklore', players: '4-6' },
-    '坏机器': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Free City', type: '玩具工厂，怪诞角色，强互动', typeEn: 'Toy Factory, Bizarre Characters, High Interaction', players: '6-7' },
+    '坏机器': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Free City', type: '玩具工厂，怪诞角色，强互动', typeEn: 'Toy Factory, Bizarre Characters, High Interaction', players: '6-7', reviews: [{ url: 'https://www.instagram.com/reel/DcxmsAnglrV/?stkn=MXJkMGducmFoZW41eg==' }] },
     '镇灵村': { priceRMB: 268, hasEnglish: false, duration: 90, company: 'MRX' },
     '萨乌达德': { priceRMB: 238, hasEnglish: true, duration: 90, company: 'Free City', type: '情感演绎互动，家庭', typeEn: 'Emotional Live-Actor Interaction, Family' },
-    '朝圣': { priceRMB: 288, hasEnglish: true, duration: 80, company: 'Witch Travel Agency', type: '赛博朋克，游戏感', typeEn: 'Cyberpunk, Game-like', players: '5-8' },
-    '神佑': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Witch Travel Agency', type: '东方赛博朋克', typeEn: 'Eastern Cyberpunk', players: '6-8' },
+    '朝圣': { priceRMB: 288, hasEnglish: true, duration: 80, company: 'Witch Travel Agency', type: '赛博朋克，游戏感', typeEn: 'Cyberpunk, Game-like', players: '5-8', reviews: [{ url: 'https://www.instagram.com/reel/DdL14L8gnsd/?stkn=MWg3OWVpc3h1ZnN0MQ==' }] },
+    '神佑': { priceRMB: 298, hasEnglish: true, duration: 90, company: 'Witch Travel Agency', type: '东方赛博朋克', typeEn: 'Eastern Cyberpunk', players: '6-8', reviews: [{ url: 'https://www.instagram.com/p/Dc21NvdlyfG/?stkn=MXZ0eHQxdm16OXpweQ==' }] },
     '安乐': { priceRMB: 268, hasEnglish: true, duration: 80, company: 'Witch Travel Agency', type: '日式规则怪谈，奇幻世界', typeEn: 'Japanese Rule-Horror, Fantasy World', players: '5-6' },
-    'Lily': { priceRMB: 268, hasEnglish: true, duration: 80, company: 'Witch Travel Agency', type: '哥特恐怖，暗黑美学', typeEn: 'Gothic Horror, Dark Aesthetics', players: '5-6' },
-    "Dolls' House": { priceRMB: 258, hasEnglish: false, duration: 80, company: 'Lostland', type: '惊悚玩偶，梦想与现实', typeEn: 'Horror Dolls, Dreams vs Reality', players: '5-6' },
+    'Lily': { priceRMB: 268, hasEnglish: true, duration: 80, company: 'Witch Travel Agency', type: '哥特恐怖，暗黑美学', typeEn: 'Gothic Horror, Dark Aesthetics', players: '5-6', reviews: [{ url: 'https://www.instagram.com/reel/DdQfXP8Aiob/?stkn=aXJoYzlhNmFwMzVn' }] },
+    "Dolls' House": { priceRMB: 258, hasEnglish: false, duration: 80, company: 'Lostland', type: '惊悚玩偶，梦想与现实', typeEn: 'Horror Dolls, Dreams vs Reality', players: '5-6', reviews: [{ url: 'https://www.instagram.com/p/Dcp0U0Pl4DE/?stkn=b3J3Mjc4cng0bG9h' }] },
     '再见黛安娜': { priceRMB: 258, hasEnglish: false, duration: 80, company: 'Grey Raven', type: '情感交互，剧情感人', typeEn: 'Emotional Interaction, Touching Story' },
-    '玛雅': { priceRMB: 348, hasEnglish: false, duration: 140, company: 'Brain Storm Lab', type: '大型机关，盗墓，机械解密', typeEn: 'Large-Scale Mechanisms, Tomb Raiding, Mechanical Puzzles', players: '4-8' },
+    '玛雅': { priceRMB: 348, hasEnglish: false, duration: 140, company: 'Brain Storm Lab', type: '大型机关，盗墓，机械解密', typeEn: 'Large-Scale Mechanisms, Tomb Raiding, Mechanical Puzzles', players: '4-8', reviews: [{ url: 'https://www.instagram.com/reel/DdDw7j9A3uD/?stkn=MTQ2b2hkMjRxajY2cA==' }] },
     '观落阴': { priceRMB: 268, hasEnglish: false, duration: 100, company: 'Spiritual Investigation Bureau', type: '大型机关，中式奇幻', typeEn: 'Large-Scale Mechanisms, Chinese Fantasy', players: '5-7' },
-    '太岁': { priceRMB: 238, hasEnglish: false, duration: 90, company: 'RE.Creature', type: '中式民俗，大型', typeEn: 'Chinese Folklore, Large-Scale', players: '6-10' },
+    '太岁': { priceRMB: 238, hasEnglish: true, duration: 90, company: 'RE.Creature', type: '中式民俗，大型', typeEn: 'Chinese Folklore, Large-Scale', players: '6-10', reviews: [{ url: 'https://www.instagram.com/reel/Dc751kpA-6m/?stkn=dWZjd2g1MGp3anp1' }] },
     '活神仙': { priceRMB: 238, hasEnglish: false, duration: 105, company: 'Dragon Gallery', type: '独栋密室，中式民俗', typeEn: 'Standalone Building, Chinese Folklore' },
     '逢魔时': { priceRMB: 198, hasEnglish: false, duration: 75, company: 'City of Fantasy', type: '日式汤泉，大型机关', typeEn: 'Japanese Hot Spring, Large-Scale Mechanisms', players: '4-7' },
     '复原': { priceRMB: 398, hasEnglish: true, duration: 75, company: 'UMEPLAY', players: '4-6' }
@@ -516,7 +518,13 @@
   function roomInfo(name){
     const base = ROOM_INFO[name] || {};
     const cloud = cloudEdits[slugify(name)];
-    return cloud ? Object.assign({}, base, cloud) : Object.assign({}, base);
+    const merged = cloud ? Object.assign({}, base, cloud) : Object.assign({}, base);
+    // reviews come from two places (hardcoded in ROOM_INFO + added live via the edit
+    // form into Firestore) — concatenate instead of letting one silently hide the other
+    const baseReviews = base.reviews || [];
+    const cloudReviews = (cloud && cloud.reviews) || [];
+    if(baseReviews.length || cloudReviews.length) merged.reviews = baseReviews.concat(cloudReviews);
+    return merged;
   }
 
   function buildHorrorPips(level){
