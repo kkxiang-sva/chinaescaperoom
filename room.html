@@ -279,7 +279,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=16"></script>
+<script src="data.js?v=17"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -477,7 +477,8 @@
     const company = buildRoomCompany(info);
     if(company) companyHost.appendChild(company);
 
-    document.getElementById('roomHeroLong').textContent = dict['game.modal.comingSoon'] || '';
+    const noteText = (currentLang === 'zh' ? info.note : (info.noteEn || info.note)) || dict['game.modal.comingSoon'] || '';
+    document.getElementById('roomHeroLong').textContent = noteText;
 
     const draftBadge = document.getElementById('localDraftBadge');
     draftBadge.hidden = !hasLocalEdit(name);
