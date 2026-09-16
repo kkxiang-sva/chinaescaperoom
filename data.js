@@ -152,7 +152,7 @@
       'feature3.title': 'Always Up to Date',
       'feature3.desc': 'Sessions, pricing and availability are continually verified so you never show up to a closed door.',
       'founder.role': 'TERPECA China Ambassador · Escape Room Creator & Designer',
-      'founder.bio': "Hi, I'm KK — TERPECA's China Ambassador and one of China's most-followed escape room creators. I've played over 1,000 immersive experiences around the world, and I'm also a set designer myself, which gives me a builder's eye for what actually makes a room great. Years in the scene have earned me real relationships with China's top studios — connections I put to work getting you into the country's best rooms. I want the world to see what Chinese design can really do. Reach out — I'll personally help you experience China's finest escape rooms.",
+      'founder.bio': "Hi, I'm KK — TERPECA's China Ambassador and one of China's most-followed escape room content creators. I've played over 1,000 immersive experiences around the world, and I'm also a set designer myself, which gives me a builder's eye for what actually makes a room great. Years in the scene have earned me real relationships with China's top studios — connections I put to work getting you into the country's best rooms. I want the world to see what Chinese design can really do. Reach out — I'll personally help you experience China's finest escape rooms.",
       'founder.social': 'Xiaohongshu & Douyin',
       'founder.cta': 'Get in Touch →',
       'faq.title': 'Frequently Asked Questions',
