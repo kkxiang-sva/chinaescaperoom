@@ -791,6 +791,15 @@
   .room-hero-body .game-facts{font-size:14.5px; margin-bottom:8px;}
   .room-hero-body .game-company{font-size:12.5px; margin-bottom:22px;}
   .room-hero-long{font-size:15px; color:var(--text-dim); font-weight:300; margin-bottom:30px; max-width:520px;}
+  .room-details-link-cta{
+    margin-top:-14px; margin-bottom:30px; font-size:15px; padding:15px 32px;
+    animation:roomDetailsPulse 2.4s ease-in-out infinite;
+  }
+  .room-details-link-cta[hidden]{display:none;}
+  @keyframes roomDetailsPulse{
+    0%, 100% { box-shadow:0 0 0 rgba(233,201,138,0.3); }
+    50% { box-shadow:0 0 26px rgba(233,201,138,0.6); }
+  }
   .room-more-cities{margin-top:56px;}
   .room-more-cities h3{font-family:var(--serif); font-weight:700; font-size:20px; margin-bottom:20px;}
 
