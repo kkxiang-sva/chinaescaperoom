@@ -863,6 +863,13 @@
   }
   .room-review-form .btn{align-self:flex-start; font-size:12.5px; padding:9px 16px;}
 
+  .room-cities-note{font-size:14.5px; color:var(--gold-bright); margin-bottom:14px;}
+  .room-cities-list{list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:8px 24px;}
+  .room-cities-list li{display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 10px; padding:9px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .room-cities-city{font-weight:600; color:var(--text); min-width:72px;}
+  .room-cities-venue{color:var(--text-dim); font-weight:300;}
+  .room-cities-venue.is-soon{color:var(--text-dimmer); font-style:italic;}
+  .room-cities-eng{font-size:11px; letter-spacing:.04em; padding:2px 8px; border:1px solid var(--gold); color:var(--gold-bright); border-radius:2px;}
   .room-booking-line{font-size:14.5px; color:var(--text-dim); margin-bottom:8px;}
   .room-booking-line strong{color:var(--text); font-weight:600;}
   .room-booking-line a{color:var(--gold-bright);}

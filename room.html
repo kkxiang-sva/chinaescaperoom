@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -178,6 +178,11 @@
         <div id="roomBookingContent"></div>
       </section>
 
+      <section class="room-extra" id="roomCitiesSection" hidden>
+        <h2 class="room-extra-title" data-i18n="room.availableCities">Available Cities</h2>
+        <div id="roomCitiesContent"></div>
+      </section>
+
       <section class="room-extra" id="roomBookingRulesSection" hidden>
         <h2 class="room-extra-title" data-i18n="room.bookingRules">Booking Rules</h2>
         <div id="roomBookingRulesWrap"></div>
@@ -280,7 +285,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=21"></script>
+<script src="data.js?v=22"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -497,6 +502,7 @@
     renderVideo(info);
     renderReviews(info);
     renderBooking(info);
+    renderAvailableCities(info);
     renderBookingRules(info);
 
     // more rooms in the same city
@@ -675,6 +681,45 @@
     });
     form.hidden = !editModeOn;
     section.hidden = reviews.length === 0 && !editModeOn;
+  }
+
+  function renderAvailableCities(info){
+    const dict = translations[currentLang] || translations.en;
+    const section = document.getElementById('roomCitiesSection');
+    const content = document.getElementById('roomCitiesContent');
+    content.innerHTML = '';
+    const list = info.availableCities || [];
+    if(!list.length){ section.hidden = true; return; }
+    const noteText = currentLang === 'zh' ? info.availableCitiesNote : (info.availableCitiesNoteEn || info.availableCitiesNote);
+    if(noteText){
+      const n = document.createElement('p');
+      n.className = 'room-cities-note';
+      n.textContent = noteText;
+      content.appendChild(n);
+    }
+    const ul = document.createElement('ul');
+    ul.className = 'room-cities-list';
+    list.forEach(c => {
+      const li = document.createElement('li');
+      const city = document.createElement('span');
+      city.className = 'room-cities-city';
+      city.textContent = currentLang === 'zh' ? c.zh : (c.en || c.zh);
+      li.appendChild(city);
+      const venue = document.createElement('span');
+      venue.className = 'room-cities-venue';
+      venue.textContent = c.soon ? (dict['room.availableCitiesSoon'] || 'Coming soon') : (c.venue || '');
+      if(c.soon) venue.classList.add('is-soon');
+      li.appendChild(venue);
+      if(c.english){
+        const b = document.createElement('span');
+        b.className = 'room-cities-eng';
+        b.textContent = dict['room.availableCitiesEnglish'] || 'English version';
+        li.appendChild(b);
+      }
+      ul.appendChild(li);
+    });
+    content.appendChild(ul);
+    section.hidden = false;
   }
 
   function renderBooking(info){
@@ -959,6 +1004,7 @@
       renderVideo(info);
       renderReviews(info);
       renderBooking(info);
+      renderAvailableCities(info);
       renderBookingRules(info);
     }
   }
