@@ -869,6 +869,7 @@
   .room-cities-city{font-weight:600; color:var(--text); min-width:72px;}
   .room-cities-venue{color:var(--text-dim); font-weight:300;}
   .room-cities-venue.is-soon{color:var(--text-dimmer); font-style:italic;}
+  .room-cities-source{margin-top:16px; font-size:12.5px; padding:8px 16px;}
   .room-cities-eng{font-size:11px; letter-spacing:.04em; padding:2px 8px; border:1px solid var(--gold); color:var(--gold-bright); border-radius:2px;}
   .room-booking-line{font-size:14.5px; color:var(--text-dim); margin-bottom:8px;}
   .room-booking-line strong{color:var(--text); font-weight:600;}
