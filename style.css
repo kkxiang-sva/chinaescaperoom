@@ -809,7 +809,7 @@
   .room-extra-hint{font-size:13px; color:var(--text-dimmer); font-style:italic;}
 
   /* gallery: justified rows — every row is the same height, each photo keeps its own proportions, edges line up */
-  .room-gallery-grid{--row-h:170px; --gap:10px;}
+  .room-gallery-grid{--row-h:210px; --gap:10px;}
   .room-gallery-row{display:flex; gap:var(--gap); margin-bottom:var(--gap);}
   .room-gallery-row > *{flex:none;}
   .room-gallery-item{
@@ -846,7 +846,7 @@
   .room-gallery-add:hover{color:var(--gold-bright); border-color:var(--gold-bright);}
   .room-gallery-add.is-busy{pointer-events:none; opacity:.7;}
   .room-gallery-grid.is-dragover{outline-offset:8px;}
-  @media (max-width:560px){ .room-gallery-grid{--row-h:120px; --gap:8px;} }
+  @media (max-width:560px){ .room-gallery-grid{--row-h:140px; --gap:8px;} }
 
   /* lightbox */
   body.lightbox-open{overflow:hidden;}
