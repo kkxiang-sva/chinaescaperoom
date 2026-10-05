@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
 
@@ -285,7 +285,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=37"></script>
+<script src="data.js?v=38"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -636,6 +636,51 @@
     else if(e.key === 'ArrowRight') lightboxState.step(1);
   });
 
+  // Justified-row layout: every row is exactly as wide as the container and each row has one
+  // common height, while every photo keeps its own proportions — edges line up, nothing is cropped.
+  let galleryLayoutQueued = false;
+  function scheduleGalleryLayout(){
+    if(galleryLayoutQueued) return;
+    galleryLayoutQueued = true;
+    requestAnimationFrame(() => { galleryLayoutQueued = false; layoutGallery(); });
+  }
+  function layoutGallery(){
+    const grid = document.getElementById('roomGalleryGrid');
+    if(!grid) return;
+    const W = grid.clientWidth;
+    if(!W) return;
+    const cs = getComputedStyle(grid);
+    const gap = parseFloat(cs.getPropertyValue('--gap')) || 10;
+    const H = parseFloat(cs.getPropertyValue('--row-h')) || 170;
+    const items = Array.from(grid.querySelectorAll('.room-gallery-item, .room-gallery-add'));
+    grid.querySelectorAll('.room-gallery-row').forEach(r => r.remove());
+    const place = (row, h) => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'room-gallery-row';
+      row.forEach(it => {
+        it.style.height = h + 'px';
+        it.style.width = (parseFloat(it.dataset.ar) || 1.33) * h + 'px';
+        rowEl.appendChild(it);
+      });
+      grid.appendChild(rowEl);
+    };
+    let row = [], sum = 0;
+    items.forEach(it => {
+      const ar = parseFloat(it.dataset.ar) || 1.33;
+      row.push(it); sum += ar;
+      if(sum * H + gap * (row.length - 1) >= W){
+        place(row, (W - gap * (row.length - 1)) / sum);
+        row = []; sum = 0;
+      }
+    });
+    if(row.length) place(row, H); // last, short row keeps the standard height
+  }
+  let galleryLastW = 0;
+  window.addEventListener('resize', () => {
+    const g = document.getElementById('roomGalleryGrid');
+    if(g && g.clientWidth !== galleryLastW){ galleryLastW = g.clientWidth; scheduleGalleryLayout(); }
+  });
+
   let galleryBusy = false;
   function renderGallery(info){
     const dict = translations[currentLang] || translations.en;
@@ -651,11 +696,12 @@
       img.src = cloudinarySized(src, 600);
       img.alt = '';
       img.loading = 'lazy';
-      // size each tile by its photo's own proportions so rows stay level and uncropped
+      // each tile is sized from its photo's own proportions (see layoutGallery) so nothing is cropped
+      tile.dataset.ar = '1.33';
       const fit = () => {
         if(!img.naturalWidth || !img.naturalHeight) return;
-        const ar = img.naturalWidth / img.naturalHeight;
-        tile.style.flex = ar + ' 1 calc(var(--row-h) * ' + ar + ')';
+        tile.dataset.ar = String(img.naturalWidth / img.naturalHeight);
+        scheduleGalleryLayout();
       };
       img.addEventListener('load', fit);
       if(img.complete) fit();
@@ -679,6 +725,7 @@
     if(editModeOn){
       const addTile = document.createElement('label');
       addTile.className = 'room-gallery-add';
+      addTile.dataset.ar = '1.1';
       addTile.innerHTML = '<span class="plus">+</span><span class="hint"></span>';
       addTile.querySelector('.hint').textContent = dict['edit.dropHint'] || 'Click, or drag photos here';
       const input = document.createElement('input');
@@ -713,6 +760,7 @@
       grid.appendChild(addTile);
     }
     section.hidden = gallery.length === 0 && !editModeOn;
+    layoutGallery();
   }
 
   function renderVideo(info){

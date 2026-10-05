@@ -809,10 +809,11 @@
   .room-extra-hint{font-size:13px; color:var(--text-dimmer); font-style:italic;}
 
   /* gallery: justified rows — every row is the same height, each photo keeps its own proportions, edges line up */
-  .room-gallery-grid{--row-h:170px; display:flex; flex-wrap:wrap; gap:10px;}
-  .room-gallery-grid::after{content:''; flex-grow:999999;}  /* keeps a short last row from stretching */
+  .room-gallery-grid{--row-h:170px; --gap:10px;}
+  .room-gallery-row{display:flex; gap:var(--gap); margin-bottom:var(--gap);}
+  .room-gallery-row > *{flex:none;}
   .room-gallery-item{
-    position:relative; overflow:hidden; cursor:zoom-in; height:var(--row-h); flex:1.33 1 calc(var(--row-h) * 1.33);
+    position:relative; overflow:hidden; cursor:zoom-in; margin:0;
     border:1px solid var(--line); background:var(--panel-2); border-radius:2px;
     box-shadow:0 6px 18px rgba(0,0,0,0.4);
     opacity:0; transform:translateY(14px);
@@ -836,7 +837,6 @@
   }
   .room-gallery-remove:hover{color:var(--red-bright); border-color:var(--red-bright);}
   .room-gallery-add{
-    height:var(--row-h); flex:0 0 calc(var(--row-h) * 1.1);
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
     border:1px dashed var(--line-strong); border-radius:2px; color:var(--text-dimmer); cursor:pointer;
     transition:color .2s, border-color .2s; text-align:center; padding:18px;
@@ -846,7 +846,7 @@
   .room-gallery-add:hover{color:var(--gold-bright); border-color:var(--gold-bright);}
   .room-gallery-add.is-busy{pointer-events:none; opacity:.7;}
   .room-gallery-grid.is-dragover{outline-offset:8px;}
-  @media (max-width:560px){ .room-gallery-grid{--row-h:120px; gap:8px;} }
+  @media (max-width:560px){ .room-gallery-grid{--row-h:120px; --gap:8px;} }
 
   /* lightbox */
   body.lightbox-open{overflow:hidden;}
