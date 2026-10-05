@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
@@ -285,7 +285,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=30"></script>
+<script src="data.js?v=31"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -553,7 +553,30 @@
     });
   }
 
+  // drag & drop: lets an element accept dropped image files (edit mode only)
+  function makeDropTarget(el, onFiles){
+    const hasFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') !== -1;
+    el.addEventListener('dragover', e => {
+      if(!hasFiles(e)) return;
+      e.preventDefault();
+      el.classList.add('is-dragover');
+    });
+    el.addEventListener('dragleave', e => {
+      if(e.relatedTarget && el.contains(e.relatedTarget)) return;
+      el.classList.remove('is-dragover');
+    });
+    el.addEventListener('drop', e => {
+      if(!hasFiles(e)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      el.classList.remove('is-dragover');
+      const files = Array.from(e.dataTransfer.files || []).filter(f => /^image\//.test(f.type));
+      if(files.length) onFiles(files);
+    });
+  }
+
   function renderGallery(info){
+    const dict = translations[currentLang] || translations.en;
     const section = document.getElementById('roomGallerySection');
     const grid = document.getElementById('roomGalleryGrid');
     grid.innerHTML = '';
@@ -587,8 +610,7 @@
       input.accept = 'image/*';
       input.multiple = true;
       input.hidden = true;
-      input.addEventListener('change', async () => {
-        const files = Array.from(input.files || []);
+      const addGalleryFiles = async (files) => {
         for(const file of files){
           try{
             const dataUrl = await resizeImageFile(file, 1400);
@@ -596,7 +618,10 @@
           }catch(err){ /* skip files that fail to decode */ }
         }
         renderGallery(roomInfo(currentRoomName));
-      });
+      };
+      input.addEventListener('change', () => addGalleryFiles(Array.from(input.files || [])));
+      makeDropTarget(grid, addGalleryFiles);
+      addTile.title = dict['edit.dropHint'] || 'Click or drag photos here';
       addTile.appendChild(input);
       grid.appendChild(addTile);
     }
@@ -841,8 +866,7 @@
       input.type = 'file';
       input.accept = 'image/*';
       input.hidden = true;
-      input.addEventListener('change', async () => {
-        const file = input.files && input.files[0];
+      const setRulesFile = async (file) => {
         if(!file || !currentRoomName) return;
         try{
           const dataUrl = await resizeImageFile(file, 1600);
@@ -854,7 +878,10 @@
             ? '这张图片无法打开，请换一张再试。'
             : "Couldn't open this photo — please try a different one.");
         }
-      });
+      };
+      input.addEventListener('change', () => setRulesFile(input.files && input.files[0]));
+      makeDropTarget(wrap, files => setRulesFile(files[0]));
+      tile.title = dict['edit.dropHint'] || 'Click or drag a photo here';
       tile.appendChild(input);
       wrap.appendChild(tile);
     }
@@ -1247,6 +1274,14 @@
     const file = posterInput.files && posterInput.files[0];
     if(!file || !currentRoomName) return;
     openCropModal(file);
+  });
+  // a file dropped outside a drop zone shouldn't make the browser navigate to the image
+  ['dragover', 'drop'].forEach(evt => window.addEventListener(evt, e => {
+    if(editModeOn && e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') !== -1) e.preventDefault();
+  }));
+  makeDropTarget(document.getElementById('roomHeroMedia'), files => {
+    if(!editModeOn || !currentRoomName) return;
+    openCropModal(files[0]);
   });
 </script>
 </body>

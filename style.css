@@ -1008,3 +1008,6 @@
     .room-hero-media-col{width:min(100%, 260px); margin:0 auto; border-radius:8px 8px 0 0;}
     .room-hero-body{padding:32px;}
   }
+
+  /* drag & drop highlight (edit mode) */
+  .is-dragover{outline:2px dashed var(--gold-bright); outline-offset:4px; background-color:rgba(233,201,138,0.08);}
