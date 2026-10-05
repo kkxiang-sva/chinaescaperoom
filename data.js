@@ -2,10 +2,10 @@
   const CITY_ROOMS = {
     guangzhou: ['不可名状','溃烂缪斯','Dream','暂放的绽放','污秽','幻觉游戏','这没有游戏','纸人回魂',"Dolls' House"],
     shanghai: ['HAVEN','INSANE II','GATEMAN','REVIVER','白夜','Cindy死了九次','WUKONG','SOUL HOUSE','Undeveloped Memory','昆仑寒宫2','找到你了2','Strike it! Rich!','溃烂缪斯','INSANE','AFTERLIFE','复原','艾洛拉'],
-    hangzhou: ['坏机器','镇灵村','不可名状','溃烂缪斯','萨乌达德','纸人回魂','INSANE II'],
+    hangzhou: ['坏机器','镇灵村','不可名状','溃烂缪斯','萨乌达德','纸人回魂','INSANE II','REVIVER','INSANE','ENOLA'],
     chongqing: ['太岁','活神仙','逢魔时','污秽'],
-    chengdu: ['朝圣','神佑','安乐','Lily',"Dolls' House",'再见黛安娜','玛雅','观落阴'],
-    beijing: ['诺亚','女屋','艾洛拉','神话','VISAGE','ENOLA','SINNER','楼兰古墓2',"Dolls' House",'INSANE II','Dream']
+    chengdu: ['朝圣','神佑','安乐','Lily',"Dolls' House",'再见黛安娜','玛雅','观落阴','REVIVER','INSANE','ENOLA'],
+    beijing: ['诺亚','女屋','艾洛拉','神话','VISAGE','ENOLA','SINNER','楼兰古墓2',"Dolls' House",'INSANE II','Dream','REVIVER','INSANE']
   };
   const CITY_ORDER = ['beijing','shanghai','guangzhou','hangzhou','chengdu','chongqing'];
   const TOP30 = [
