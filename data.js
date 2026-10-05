@@ -389,18 +389,9 @@
     });
     return out;
   }
-  // cities offered in the Top 30 filter: the site's own cities first, then any extra city a room is playable in
+  // cities offered in the Top 30 filter: just the site's own cities
   function filterCities(){
-    const out = CITY_ORDER.map(k => ({ key: k }));
-    const seen = new Set(CITY_ORDER);
-    Object.keys(ROOM_INFO).forEach(name => (roomInfo(name).availableCities || []).forEach(c => {
-      if(c.soon) return;
-      const k = availableCityKey(c);
-      if(seen.has(k)) return;
-      seen.add(k);
-      out.push({ key: k, zh: c.zh, en: c.en || c.zh });
-    }));
-    return out;
+    return CITY_ORDER.map(k => ({ key: k }));
   }
   function slugify(name){
     return (name || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-').replace(/^-+|-+$/g, '') || 'room';
