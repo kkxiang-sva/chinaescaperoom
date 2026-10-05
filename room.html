@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
 
@@ -285,7 +285,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=36"></script>
+<script src="data.js?v=37"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -651,6 +651,14 @@
       img.src = cloudinarySized(src, 600);
       img.alt = '';
       img.loading = 'lazy';
+      // size each tile by its photo's own proportions so rows stay level and uncropped
+      const fit = () => {
+        if(!img.naturalWidth || !img.naturalHeight) return;
+        const ar = img.naturalWidth / img.naturalHeight;
+        tile.style.flex = ar + ' 1 calc(var(--row-h) * ' + ar + ')';
+      };
+      img.addEventListener('load', fit);
+      if(img.complete) fit();
       tile.appendChild(img);
       if(editModeOn){
         const rm = document.createElement('button');
