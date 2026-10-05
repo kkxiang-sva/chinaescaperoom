@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 
@@ -285,7 +285,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=31"></script>
+<script src="data.js?v=32"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -553,8 +553,13 @@
     });
   }
 
-  // drag & drop: lets an element accept dropped image files (edit mode only)
+  // drag & drop: lets an element accept dropped image files (edit mode only).
+  // The same element is re-used across re-renders, so listeners are attached ONCE and
+  // only the callback is swapped — attaching per render made every drop fire N handlers.
   function makeDropTarget(el, onFiles){
+    el._onDropFiles = onFiles;
+    if(el._dropWired) return;
+    el._dropWired = true;
     const hasFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') !== -1;
     el.addEventListener('dragover', e => {
       if(!hasFiles(e)) return;
@@ -571,10 +576,67 @@
       e.stopPropagation();
       el.classList.remove('is-dragover');
       const files = Array.from(e.dataTransfer.files || []).filter(f => /^image\//.test(f.type));
-      if(files.length) onFiles(files);
+      if(files.length && el._onDropFiles) el._onDropFiles(files);
     });
   }
 
+  // Cloudinary can resize on the fly — ask for a sensible width instead of the full original
+  function cloudinarySized(url, width){
+    return /res\.cloudinary\.com\/.+\/upload\//.test(url)
+      ? url.replace('/upload/', '/upload/w_' + width + ',q_auto,f_auto/')
+      : url;
+  }
+
+  // ---------- gallery lightbox ----------
+  let lightboxState = null;
+  function openLightbox(list, start){
+    closeLightbox();
+    const overlay = document.createElement('div');
+    overlay.className = 'gallery-lightbox';
+    const img = document.createElement('img');
+    img.className = 'gallery-lightbox-img';
+    const counter = document.createElement('div');
+    counter.className = 'gallery-lightbox-count';
+    const mk = (cls, label, fn) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = cls; b.textContent = label;
+      b.addEventListener('click', e => { e.stopPropagation(); fn(); });
+      return b;
+    };
+    let idx = start;
+    const show = () => {
+      img.src = cloudinarySized(list[idx], 2000);
+      counter.textContent = (idx + 1) + ' / ' + list.length;
+    };
+    const step = d => { idx = (idx + d + list.length) % list.length; show(); };
+    overlay.appendChild(img);
+    overlay.appendChild(counter);
+    overlay.appendChild(mk('gallery-lightbox-close', '×', closeLightbox));
+    if(list.length > 1){
+      overlay.appendChild(mk('gallery-lightbox-nav prev', '‹', () => step(-1)));
+      overlay.appendChild(mk('gallery-lightbox-nav next', '›', () => step(1)));
+    }
+    overlay.addEventListener('click', closeLightbox);
+    img.addEventListener('click', e => e.stopPropagation());
+    document.body.appendChild(overlay);
+    document.body.classList.add('lightbox-open');
+    lightboxState = { overlay, step };
+    show();
+  }
+  function closeLightbox(){
+    if(!lightboxState) return;
+    lightboxState.overlay.remove();
+    document.body.classList.remove('lightbox-open');
+    lightboxState = null;
+  }
+  document.addEventListener('keydown', e => {
+    if(!lightboxState) return;
+    if(e.key === 'Escape') closeLightbox();
+    else if(e.key === 'ArrowLeft') lightboxState.step(-1);
+    else if(e.key === 'ArrowRight') lightboxState.step(1);
+  });
+
+  let galleryBusy = false;
   function renderGallery(info){
     const dict = translations[currentLang] || translations.en;
     const section = document.getElementById('roomGallerySection');
@@ -582,9 +644,14 @@
     grid.innerHTML = '';
     const gallery = info.gallery || [];
     gallery.forEach((src, i) => {
-      const thumb = document.createElement('div');
-      thumb.className = 'room-gallery-thumb';
-      thumb.style.backgroundImage = `url("${src}")`;
+      const tile = document.createElement('figure');
+      tile.className = 'room-gallery-item';
+      tile.style.setProperty('--i', i);
+      const img = document.createElement('img');
+      img.src = cloudinarySized(src, 900);
+      img.alt = '';
+      img.loading = 'lazy';
+      tile.appendChild(img);
       if(editModeOn){
         const rm = document.createElement('button');
         rm.type = 'button';
@@ -595,33 +662,45 @@
           await removeGalleryImage(currentRoomName, i);
           renderGallery(roomInfo(currentRoomName));
         });
-        thumb.appendChild(rm);
+        tile.appendChild(rm);
       } else {
-        thumb.addEventListener('click', () => window.open(src, '_blank', 'noopener'));
+        tile.addEventListener('click', () => openLightbox(gallery, i));
       }
-      grid.appendChild(thumb);
+      grid.appendChild(tile);
     });
     if(editModeOn){
       const addTile = document.createElement('label');
       addTile.className = 'room-gallery-add';
-      addTile.textContent = '+';
+      addTile.innerHTML = '<span class="plus">+</span><span class="hint"></span>';
+      addTile.querySelector('.hint').textContent = dict['edit.dropHint'] || 'Click, or drag photos here';
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
       input.multiple = true;
       input.hidden = true;
       const addGalleryFiles = async (files) => {
-        for(const file of files){
-          try{
-            const dataUrl = await resizeImageFile(file, 1400);
-            await addGalleryImage(currentRoomName, dataUrl);
-          }catch(err){ /* skip files that fail to decode */ }
+        if(galleryBusy || !currentRoomName) return; // ignore a second drop while one is still uploading
+        galleryBusy = true;
+        addTile.classList.add('is-busy');
+        addTile.querySelector('.hint').textContent = dict['edit.uploading'] || 'Uploading…';
+        try{
+          const seen = new Set();
+          for(const file of files){
+            const key = file.name + '|' + file.size + '|' + file.lastModified;
+            if(seen.has(key)) continue; // same file picked twice in one go
+            seen.add(key);
+            try{
+              const dataUrl = await resizeImageFile(file, 1400);
+              await addGalleryImage(currentRoomName, dataUrl);
+            }catch(err){ /* skip files that fail to decode */ }
+          }
+        } finally {
+          galleryBusy = false;
         }
         renderGallery(roomInfo(currentRoomName));
       };
-      input.addEventListener('change', () => addGalleryFiles(Array.from(input.files || [])));
+      input.addEventListener('change', () => { addGalleryFiles(Array.from(input.files || [])); input.value = ''; });
       makeDropTarget(grid, addGalleryFiles);
-      addTile.title = dict['edit.dropHint'] || 'Click or drag photos here';
       addTile.appendChild(input);
       grid.appendChild(addTile);
     }
