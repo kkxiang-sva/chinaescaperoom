@@ -1049,3 +1049,18 @@
 
   /* drag & drop highlight (edit mode) */
   .is-dragover{outline:2px dashed var(--gold-bright); outline-offset:4px; background-color:rgba(233,201,138,0.08);}
+
+  /* Top 30: filter by city */
+  .city-filter{display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:0 auto 34px; max-width:980px;}
+  .city-filter-chip{
+    font-family:var(--sans); font-size:13px; letter-spacing:.04em; padding:7px 16px; cursor:pointer;
+    background:none; border:1px solid var(--line-strong); border-radius:2px; color:var(--text-dim); transition:all .22s;
+  }
+  .city-filter-chip:hover{border-color:var(--gold-bright); color:var(--gold-bright);}
+  .city-filter-chip.active{background:var(--gold-bright); border-color:var(--gold-bright); color:#0a0a0d; font-weight:600;}
+  .city-filter-empty{grid-column:1 / -1; text-align:center; color:var(--text-dimmer); font-style:italic; padding:40px 0;}
+  @media (max-width:680px){
+    .city-filter{flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; margin-bottom:22px; padding-bottom:6px; scrollbar-width:none;}
+    .city-filter::-webkit-scrollbar{display:none;}
+    .city-filter-chip{flex:none; font-size:12.5px; padding:6px 13px;}
+  }

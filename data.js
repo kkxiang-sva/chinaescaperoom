@@ -132,6 +132,8 @@
       'room.detailsLinkCta': 'See Full Details →',
       'room.moreInCity': 'More rooms in ',
       'games.more': 'Browse More by City →',
+      'games.filterAll': 'All Cities',
+      'games.filterEmpty': 'No rooms listed for this city yet.',
       'booking.title': 'How to Book an Escape Room in China',
       'booking.desc': "Most rooms take bookings through local platforms — mainly Dianping and Meituan — rather than their own website. This site is an information hub, not a booking platform: browse and pick a room here, then book directly on one of the platforms below. Can't use the Chinese apps? Contact KK and she'll book it for you.",
       'step1.title': 'Choose a Room & Time',
@@ -292,6 +294,8 @@
       'room.detailsLinkCta': '查看详细信息 →',
       'room.moreInCity': '更多推荐 · ',
       'games.more': '按城市探索更多 →',
+      'games.filterAll': '全部城市',
+      'games.filterEmpty': '这个城市暂时还没有收录主题。',
       'booking.title': '如何预定中国密室',
       'booking.desc': '大多数中国密室主要通过本地平台预定——主要是大众点评和美团，而非门店自己的官网。本网站是信息中心，并不提供预定功能：先在这里挑选主题，再前往下方平台直接预定。如果你无法使用中国的App预定，也可以联系KK，由她代为预定。',
       'step1.title': '选择密室与场次',
@@ -371,6 +375,32 @@
 
   function citiesForName(name){
     return Object.keys(CITY_ROOMS).filter(city => CITY_ROOMS[city].includes(name));
+  }
+  // Rooms can be playable in more than one city: a room's `availableCities` list (ROOM_INFO) adds it
+  // to those cities on top of the home city it is filed under in CITY_ROOMS.
+  const SITE_CITY_ZH = { '北京':'beijing', '上海':'shanghai', '广州':'guangzhou', '杭州':'hangzhou', '成都':'chengdu', '重庆':'chongqing' };
+  function availableCityKey(c){ return SITE_CITY_ZH[c.zh] || ('x:' + c.zh); }
+  function roomsInCity(cityKey){
+    const out = (CITY_ROOMS[cityKey] || []).slice();
+    Object.keys(ROOM_INFO).forEach(name => {
+      if(out.includes(name)) return;
+      const list = roomInfo(name).availableCities || [];
+      if(list.some(c => !c.soon && availableCityKey(c) === cityKey)) out.push(name);
+    });
+    return out;
+  }
+  // cities offered in the Top 30 filter: the site's own cities first, then any extra city a room is playable in
+  function filterCities(){
+    const out = CITY_ORDER.map(k => ({ key: k }));
+    const seen = new Set(CITY_ORDER);
+    Object.keys(ROOM_INFO).forEach(name => (roomInfo(name).availableCities || []).forEach(c => {
+      if(c.soon) return;
+      const k = availableCityKey(c);
+      if(seen.has(k)) return;
+      seen.add(k);
+      out.push({ key: k, zh: c.zh, en: c.en || c.zh });
+    }));
+    return out;
   }
   function slugify(name){
     return (name || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-').replace(/^-+|-+$/g, '') || 'room';
