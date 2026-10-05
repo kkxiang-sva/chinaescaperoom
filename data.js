@@ -1,11 +1,21 @@
 // Shared data, i18n, and room-rendering helpers for index.html and room.html
   const CITY_ROOMS = {
-    guangzhou: ['不可名状','溃烂缪斯','Dream','暂放的绽放','污秽','幻觉游戏','这没有游戏','纸人回魂',"Dolls' House"],
-    shanghai: ['HAVEN','INSANE II','GATEMAN','REVIVER','白夜','Cindy死了九次','WUKONG','SOUL HOUSE','Undeveloped Memory','昆仑寒宫2','找到你了2','Strike it! Rich!','溃烂缪斯','INSANE','AFTERLIFE','复原','艾洛拉'],
-    hangzhou: ['坏机器','镇灵村','不可名状','溃烂缪斯','萨乌达德','纸人回魂','INSANE II','REVIVER','INSANE','ENOLA'],
-    chongqing: ['太岁','活神仙','逢魔时','污秽'],
-    chengdu: ['朝圣','神佑','安乐','Lily',"Dolls' House",'再见黛安娜','玛雅','观落阴','REVIVER','INSANE','ENOLA'],
-    beijing: ['诺亚','女屋','艾洛拉','神话','VISAGE','ENOLA','SINNER','楼兰古墓2',"Dolls' House",'INSANE II','Dream','REVIVER','INSANE']
+    guangzhou: ['不可名状','溃烂缪斯','Dream','暂放的绽放','污秽','幻觉游戏','这没有游戏','纸人回魂'],
+    shanghai: ['HAVEN','INSANE II','GATEMAN','REVIVER','白夜','Cindy死了九次','WUKONG','SOUL HOUSE','Undeveloped Memory','昆仑寒宫2','找到你了2','Strike it! Rich!','溃烂缪斯','INSANE','AFTERLIFE','复原'],
+    hangzhou: ['坏机器','镇灵村','不可名状','溃烂缪斯','萨乌达德'],
+    chongqing: ['太岁','活神仙','逢魔时'],
+    chengdu: ['朝圣','神佑','安乐','Lily',"Dolls' House",'再见黛安娜','玛雅','观落阴'],
+    beijing: ['诺亚','女屋','艾洛拉','神话','VISAGE','ENOLA','SINNER','楼兰古墓2']
+  };
+  // Extra cities a room can ALSO be played in. CITY_ROOMS above is each room's home city (what its
+  // card shows); these only add it to the other cities' filter results and lists.
+  const EXTRA_CITY_ROOMS = {
+    hangzhou: ['纸人回魂','INSANE II','REVIVER','INSANE','ENOLA'],
+    chongqing: ['污秽'],
+    shanghai: ['艾洛拉'],
+    guangzhou: ["Dolls' House"],
+    beijing: ["Dolls' House",'INSANE II','Dream','REVIVER','INSANE','逢魔时'],
+    chengdu: ['REVIVER','INSANE','ENOLA']
   };
   const CITY_ORDER = ['beijing','shanghai','guangzhou','hangzhou','chengdu','chongqing'];
   const TOP30 = [
@@ -382,6 +392,7 @@
   function availableCityKey(c){ return SITE_CITY_ZH[c.zh] || ('x:' + c.zh); }
   function roomsInCity(cityKey){
     const out = (CITY_ROOMS[cityKey] || []).slice();
+    (EXTRA_CITY_ROOMS[cityKey] || []).forEach(n => { if(!out.includes(n)) out.push(n); });
     Object.keys(ROOM_INFO).forEach(name => {
       if(out.includes(name)) return;
       const list = roomInfo(name).availableCities || [];
