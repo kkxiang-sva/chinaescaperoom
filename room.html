@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=24">
 </head>
 <body>
 
@@ -288,7 +288,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=53"></script>
+<script src="data.js?v=54"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -843,24 +843,33 @@
       frame.allowFullscreen = true;
       frame.setAttribute('scrolling', 'no');
       frame.addEventListener('load', () => frame.classList.add('is-ready'));
-      box.appendChild(frame);
+      const clip = document.createElement('div');
+      clip.className = 'room-ig-clip';
+      clip.appendChild(frame);
+      box.appendChild(clip);
       item.appendChild(box);
-      // Instagram lays the embed out 540px wide: header (54px) on top, then the video — a vertical reel is
-      // capped at ~672px tall and centred with black bars. Scale/shift the iframe so the video's own width
-      // fills our 16:9 frame (vertical reels are cropped to a band near the top) and the header slides off.
-      const IG_W = 540, IG_HEADER = 54, IG_MEDIA_MAX = 672;
+      // Instagram lays the embed out 540px wide: a 54px header on top, then the video — a vertical reel is
+      // capped at ~672px tall and centred with black bars. Scale the iframe so the video's width fills our
+      // 16:9 frame and slide Instagram's header out of view; a vertical reel is cropped to its middle band.
+      // Instagram floats a white "view more" bar ~W*9/16 below the media's top edge, so that band is nudged
+      // to the nearest spot that doesn't have the bar across it.
+      const IG_W = 540, IG_HEADER = 54, IG_MEDIA_MAX = 672, IG_BAR_TOP = IG_W * 9 / 16, IG_BAR_BOTTOM = IG_BAR_TOP + 48;
       const fit = () => {
         const w = box.clientWidth;
         if(!w) return;
         const mediaH = ar ? Math.min(IG_W / ar, IG_MEDIA_MAX) : IG_W * 9 / 16;
         const videoW = ar ? Math.min(IG_W, mediaH * ar) : IG_W;
         const s = w / videoW;
-        const x = (IG_W - videoW) / 2;
-        // Instagram parks its "view more" button ~300px below the media's top edge, so a vertical reel's
-        // crop band is taken from the upper part (clear of that button) rather than the exact middle
         const windowH = videoW * 9 / 16;
-        const y = IG_HEADER + Math.max(0, Math.min((mediaH - windowH) / 2, 300 - windowH));
-        frame.style.transform = 'translate(' + (-x * s) + 'px,' + (-y * s) + 'px) scale(' + s + ')';
+        const room = Math.max(0, mediaH - windowH);
+        let start = room / 2; // middle of the video
+        if(start < IG_BAR_BOTTOM && start + windowH > IG_BAR_TOP){
+          const above = Math.max(0, IG_BAR_TOP - windowH), below = Math.min(room, IG_BAR_BOTTOM);
+          start = Math.abs(above - room / 2) < Math.abs(below - room / 2) ? above : below;
+        }
+        const x = (IG_W - videoW) / 2;
+        clip.style.cssText = 'left:0;top:0;width:100%;height:100%';
+        frame.style.transform = 'translate(' + (-x * s) + 'px,' + (-(IG_HEADER + start) * s) + 'px) scale(' + s + ')';
       };
       if('ResizeObserver' in window) new ResizeObserver(fit).observe(box);
       else window.addEventListener('resize', fit);
