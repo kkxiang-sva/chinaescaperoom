@@ -28,27 +28,42 @@ function decodeFields(fields) {
   return out;
 }
 
-async function rooms(request) {
-  const cache = caches.default;
-  const cacheKey = new Request(new URL('/api/rooms', request.url).toString());
-  const hit = await cache.match(cacheKey);
-  if (hit) return hit;
-
+async function loadRooms() {
   const out = {};
   let pageToken = '';
   for (let i = 0; i < 10; i++) {
     const res = await fetch(`${DOCS}/rooms?pageSize=300${pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : ''}`);
-    if (!res.ok) return new Response('{}', { status: 502, headers: { 'content-type': 'application/json' } });
+    if (!res.ok) return null;
     const data = await res.json();
     (data.documents || []).forEach(d => { out[decodeURIComponent(d.name.split('/').pop())] = decodeFields(d.fields || {}); });
     if (!data.nextPageToken) break;
     pageToken = data.nextPageToken;
   }
-  const response = new Response(JSON.stringify(out), {
-    headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${ROOMS_TTL}` }
-  });
-  await cache.put(cacheKey, response.clone());
-  return response;
+  return out;
+}
+
+// Stale-while-revalidate: a copy younger than ROOMS_TTL is served as is; an older one is still served
+// instantly while a fresh one is fetched in the background — so visitors (especially far away ones) never
+// wait on the round trip to Google.
+async function rooms(request, ctx) {
+  const cache = caches.default;
+  const cacheKey = new Request(new URL('/api/rooms', request.url).toString());
+  const refresh = async () => {
+    const data = await loadRooms();
+    if (!data) return null;
+    const response = new Response(JSON.stringify(data), {
+      headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=86400', 'x-fetched-at': String(Date.now()) }
+    });
+    await cache.put(cacheKey, response.clone());
+    return response;
+  };
+  const hit = await cache.match(cacheKey);
+  if (hit) {
+    const age = (Date.now() - Number(hit.headers.get('x-fetched-at') || 0)) / 1000;
+    if (age > ROOMS_TTL) ctx.waitUntil(refresh());
+    return hit;
+  }
+  return (await refresh()) || new Response('{}', { status: 502, headers: { 'content-type': 'application/json' } });
 }
 
 // ---------- /img/<transformation>/<version>/<file> ----------
@@ -110,9 +125,9 @@ async function track(request) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (request.method === 'GET' && url.pathname === '/api/rooms') return rooms(request);
+    if (request.method === 'GET' && url.pathname === '/api/rooms') return rooms(request, ctx);
     if (request.method === 'GET' && url.pathname.startsWith('/img/')) return image(request, url.pathname);
     if (request.method === 'POST' && url.pathname === '/api/track') return track(request);
     return env.ASSETS.fetch(request); // everything else is a normal static file
