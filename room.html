@@ -288,7 +288,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=51"></script>
+<script src="data.js?v=52"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -845,15 +845,19 @@
       frame.addEventListener('load', () => frame.classList.add('is-ready'));
       box.appendChild(frame);
       item.appendChild(box);
-      // the embed is laid out 540px wide: scale it to the frame and slide it up past Instagram's header
-      const IG_W = 540, IG_HEADER = 54, WINDOW_H = IG_W * 9 / 16;
+      // Instagram lays the embed out 540px wide: header (54px) on top, then the video — a vertical reel is
+      // capped at ~672px tall and centred with black bars. Scale/shift the iframe so the video's own width
+      // fills our 16:9 frame (vertical reels are cropped to their middle band) and the header slides off.
+      const IG_W = 540, IG_HEADER = 54, IG_MEDIA_MAX = 672;
       const fit = () => {
         const w = box.clientWidth;
         if(!w) return;
-        const s = w / IG_W;
-        const videoH = ar ? IG_W / ar : WINDOW_H;
-        const offset = IG_HEADER + Math.max(0, (videoH - WINDOW_H) / 2);
-        frame.style.transform = 'translateY(' + (-offset * s) + 'px) scale(' + s + ')';
+        const mediaH = ar ? Math.min(IG_W / ar, IG_MEDIA_MAX) : IG_W * 9 / 16;
+        const videoW = ar ? Math.min(IG_W, mediaH * ar) : IG_W;
+        const s = w / videoW;
+        const x = (IG_W - videoW) / 2;
+        const y = IG_HEADER + mediaH / 2 - videoW * 9 / 32;
+        frame.style.transform = 'translate(' + (-x * s) + 'px,' + (-y * s) + 'px) scale(' + s + ')';
       };
       if('ResizeObserver' in window) new ResizeObserver(fit).observe(box);
       else window.addEventListener('resize', fit);
