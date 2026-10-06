@@ -4,6 +4,7 @@
 //   GET  /api/rooms   room info saved in Firestore (posters, galleries, reviews…), as plain JSON
 //   GET  /img/…       our Cloudinary photos, fetched and cached at Cloudflare's edge
 //   POST /api/track   anonymous visit counter (country/city from Cloudflare — never the IP address)
+//   GET  /api/preview title + opening excerpt of a player's review page, for the review cards
 
 const PROJECT = 'china-escape-room';
 const DOCS = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
@@ -96,6 +97,43 @@ async function image(request, pathname) {
   return response;
 }
 
+// ---------- review preview (/api/preview?url=…) ----------
+const PREVIEW_HOSTS = ['escaperoomers.de', 'www.escaperoomers.de'];
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', hellip: '…', ndash: '–', mdash: '—', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”' };
+const decodeEntities = s => s
+  .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+  .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
+  .replace(/&([a-z]+);/gi, (m, n) => ENTITIES[n.toLowerCase()] || m);
+function metaContent(html, name) {
+  const re1 = new RegExp(`<meta[^>]+(?:property|name)=["']${name}["'][^>]*content=["']([^"']*)["']`, 'i');
+  const re2 = new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+(?:property|name)=["']${name}["']`, 'i');
+  const m = html.match(re1) || html.match(re2);
+  return m ? decodeEntities(m[1]).trim() : '';
+}
+async function preview(request) {
+  const target = new URL(request.url).searchParams.get('url') || '';
+  let u;
+  try { u = new URL(target); } catch (e) { return new Response('{}', { status: 400 }); }
+  if (u.protocol !== 'https:' || !PREVIEW_HOSTS.includes(u.hostname)) return new Response('{}', { status: 400 }); // never an open proxy
+  const cache = caches.default;
+  const cacheKey = new Request(new URL('/api/preview?url=' + encodeURIComponent(u.toString()), request.url).toString());
+  const hit = await cache.match(cacheKey);
+  if (hit) return hit;
+  const res = await fetch(u.toString(), { headers: { 'user-agent': 'Mozilla/5.0 (compatible; ChinaEscapeRoomGuide/1.0)' } });
+  if (!res.ok) return new Response('{}', { status: 502, headers: { 'content-type': 'application/json' } });
+  const html = (await res.text()).slice(0, 400000);
+  const data = {
+    title: metaContent(html, 'og:title') || (html.match(/<title>([^<]*)/i) || [])[1] || '',
+    description: metaContent(html, 'og:description') || metaContent(html, 'description'),
+    site: metaContent(html, 'og:site_name')
+  };
+  const response = new Response(JSON.stringify(data), {
+    headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=86400' }
+  });
+  await cache.put(cacheKey, response.clone());
+  return response;
+}
+
 // ---------- visit counter ----------
 const str = (v, n) => ({ stringValue: String(v || '').slice(0, n) });
 async function track(request) {
@@ -129,6 +167,7 @@ export default {
     const url = new URL(request.url);
     if (request.method === 'GET' && url.pathname === '/api/rooms') return rooms(request, ctx);
     if (request.method === 'GET' && url.pathname.startsWith('/img/')) return image(request, url.pathname);
+    if (request.method === 'GET' && url.pathname === '/api/preview') return preview(request);
     if (request.method === 'POST' && url.pathname === '/api/track') return track(request);
     return env.ASSETS.fetch(request); // everything else is a normal static file
   }

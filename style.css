@@ -1125,3 +1125,15 @@
     .room-hero-name{font-size:30px;}
     .founder{padding:26px 18px;}
   }
+
+  /* player review cards: opening excerpt of the review */
+  .room-review-card.has-preview{padding:0;}
+  .room-review-excerpt-link{display:block; padding:18px 20px; color:var(--text);}
+  .room-review-excerpt-link span{display:block;}
+  .room-review-site{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin-bottom:6px;}
+  .room-review-title{font-family:var(--serif); font-size:20px; font-weight:700; margin-bottom:8px; color:var(--text);}
+  .room-review-excerpt{font-size:14px; line-height:1.65; color:var(--text-dim); font-style:italic;
+    display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:12px;}
+  .room-review-more{font-size:13px; color:var(--gold-bright); font-weight:600;}
+  .room-review-excerpt-link:hover .room-review-more{text-decoration:underline;}
+  .room-review-card.has-preview .room-review-remove{top:10px; right:10px;}

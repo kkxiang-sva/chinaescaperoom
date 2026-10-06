@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="style.css?v=28">
+<link rel="stylesheet" href="style.css?v=29">
 </head>
 <body>
 
@@ -284,7 +284,7 @@
   </div>
 </footer>
 
-<script src="data.js?v=61"></script>
+<script src="data.js?v=62"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -918,6 +918,16 @@
     section.hidden = !urls.length && !editModeOn;
   }
 
+  const reviewPreviewCache = new Map();
+  function getReviewPreview(url){
+    if(!reviewPreviewCache.has(url)){
+      reviewPreviewCache.set(url, fetch('/api/preview?url=' + encodeURIComponent(url))
+        .then(res => res.ok ? res.json() : null)
+        .catch(() => null));
+    }
+    return reviewPreviewCache.get(url);
+  }
+
   function renderReviews(info){
     const dict = translations[currentLang] || translations.en;
     const section = document.getElementById('roomReviewsSection');
@@ -939,6 +949,28 @@
         link.className = 'room-review-link';
         link.textContent = dict['room.viewReview'] || '▶ View Player Review';
         card.appendChild(link);
+        // show the opening of the review itself (title + excerpt) instead of just a play-button link
+        if(/^https:\/\/(www\.)?escaperoomers\.de\//.test(r.url)){
+          getReviewPreview(r.url).then(p => {
+            if(!p || !p.description) return;
+            card.classList.add('has-preview');
+            link.className = 'room-review-excerpt-link';
+            link.innerHTML = '';
+            const site = document.createElement('span');
+            site.className = 'room-review-site';
+            site.textContent = (p.site || 'Escape Roomers DE').replace(/\s*[-–|].*$/, '');
+            const title = document.createElement('span');
+            title.className = 'room-review-title';
+            title.textContent = (p.title || '').replace(/\s*[-–|]\s*Escape Roomers.*$/i, '');
+            const body = document.createElement('span');
+            body.className = 'room-review-excerpt';
+            body.textContent = '“' + p.description.replace(/\s+/g, ' ').replace(/[….]+$/, '') + '…”';
+            const more = document.createElement('span');
+            more.className = 'room-review-more';
+            more.textContent = dict['room.readFullReview'] || 'Read the full review →';
+            link.append(site, title, body, more);
+          });
+        }
       } else {
         const q = document.createElement('p');
         q.className = 'room-review-text';
