@@ -733,3 +733,42 @@
     el.textContent = (dict['room.by'] || 'By ') + info.company;
     return el;
   }
+
+
+  // ---------- anonymous visit counter ----------
+  // Logs one record per visitor per page per browser session: country / city (from Cloudflare, via
+  // /api/geo), page, language and device type. No IP address, cookie or personal data is stored.
+  // Skipped for: Do Not Track, the site owner while signed in, local testing and automated browsers.
+  (function trackVisit(){
+    try{
+      if(navigator.doNotTrack === '1' || navigator.webdriver) return;
+      if(/^(localhost|127\.|0\.0\.0\.0|$)/.test(location.hostname)) return;
+      const page = /room/.test(location.pathname) ? 'room' : 'home';
+      const room = page === 'room' ? (new URLSearchParams(location.search).get('room') || '') : '';
+      const key = 'escapeGuideVisit:' + page + ':' + room;
+      if(sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+      let refHost = '';
+      try{ refHost = document.referrer ? new URL(document.referrer).hostname : ''; }catch(e){}
+      if(refHost === location.hostname) refHost = '';
+      const unsub = fsAuth.onAuthStateChanged(user => {
+        unsub();
+        if(user) return; // the owner browsing while signed in isn't a visitor
+        fetch('/api/geo', { cache: 'no-store' })
+          .then(r => r.ok ? r.json() : {})
+          .catch(() => ({}))
+          .then(geo => fsDB.collection('visits').add({
+            ts: firebase.firestore.FieldValue.serverTimestamp(),
+            country: String(geo.country || '').slice(0, 3),
+            region: String(geo.region || '').slice(0, 60),
+            city: String(geo.city || '').slice(0, 60),
+            page: page,
+            room: room.slice(0, 80),
+            lang: currentLang === 'zh' ? 'zh' : 'en',
+            device: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+            ref: refHost.slice(0, 80)
+          }))
+          .catch(() => {}); // e.g. Firestore rules not set up yet — never bother the visitor
+      });
+    }catch(e){ /* tracking must never break the page */ }
+  })();
