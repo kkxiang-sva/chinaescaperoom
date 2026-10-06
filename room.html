@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="style.css?v=25">
+<link rel="stylesheet" href="style.css?v=26">
 </head>
 <body>
 
@@ -284,7 +284,7 @@
   </div>
 </footer>
 
-<script src="data.js?v=59"></script>
+<script src="data.js?v=60"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -844,6 +844,15 @@
       clip.appendChild(frame);
       box.appendChild(clip);
       item.appendChild(box);
+      if(ar && ar < 1){
+        // Vertical reel: show Instagram's own embed in full, uncropped — Instagram floats a "view more" bar
+        // over the middle of tall videos, so any crop or reframing of it just hides part of the video.
+        item.classList.add('is-native');
+        box.classList.add('is-native');
+        box.appendChild(frame); // out of the clip, straight into the dark frame
+        clip.remove();
+        return item;
+      }
       // Instagram lays the embed out 540px wide: a 54px header on top, then the video — a vertical reel is
       // capped at ~672px tall and centred with black bars. Scale the iframe so the video's own width fills
       // the frame and slide Instagram's header out of view. Landscape reels get a 16:9 frame, vertical
