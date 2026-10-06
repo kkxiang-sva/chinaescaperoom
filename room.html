@@ -288,7 +288,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=55"></script>
+<script src="data.js?v=56"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -852,7 +852,7 @@
       // capped at ~672px tall and centred with black bars. Scale the iframe so the video's own width fills
       // the frame and slide Instagram's header out of view. Landscape reels get a 16:9 frame, vertical
       // reels a portrait frame that shows the whole video.
-      const IG_W = 540, IG_HEADER = 54, IG_MEDIA_MAX = 672;
+      const IG_W = 540, IG_HEADER = 56, IG_MEDIA_MAX = 672;
       const mediaH = ar ? Math.min(IG_W / ar, IG_MEDIA_MAX) : IG_W * 9 / 16;
       const videoW = ar ? Math.min(IG_W, mediaH * ar) : IG_W;
       if(ar && ar < 1){
