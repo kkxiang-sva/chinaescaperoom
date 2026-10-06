@@ -163,7 +163,7 @@
   let visits = [];
 
   const regionNames = (typeof Intl !== 'undefined' && Intl.DisplayNames) ? new Intl.DisplayNames(['en'], { type: 'region' }) : null;
-  const countryName = c => { if(!c) return 'Unknown'; try{ return (regionNames && regionNames.of(c)) || c; }catch(e){ return c; } };
+  const countryName = c => { if(!c) return 'Unknown'; if(c === 'CN') return 'China'; try{ return (regionNames && regionNames.of(c)) || c; }catch(e){ return c; } };
   const flag = c => (c && c.length === 2) ? String.fromCodePoint(...c.toUpperCase().split('').map(ch => 127397 + ch.charCodeAt(0))) : '🌐';
 
   // ---------- sign-in ----------
