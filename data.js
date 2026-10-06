@@ -488,16 +488,37 @@
     }).then(data => data.secure_url);
   }
 
-  let cloudEdits = {}; // slug -> Firestore doc data, cached in memory after the initial load
+  // Cloudinary can resize on the fly — ask for the width we actually display (and a modern format)
+  // instead of the full-size original.
+  function cloudinarySized(url, width){
+    return /res\.cloudinary\.com\/.+\/upload\//.test(url || '')
+      ? url.replace('/upload/', '/upload/w_' + width + ',q_auto,f_auto/')
+      : url;
+  }
+
+  // slug -> Firestore doc data. Seeded from the last visit's copy (localStorage) so posters and other
+  // cloud-saved info are there on the very first paint; the live Firestore read then refreshes it.
+  const CLOUD_CACHE_KEY = 'escapeGuideCloudCacheV1';
+  let cloudEdits = {};
+  try{
+    const cached = JSON.parse(localStorage.getItem(CLOUD_CACHE_KEY) || 'null');
+    if(cached && typeof cached === 'object') cloudEdits = cached;
+  }catch(e){ /* no cache yet, or storage unavailable */ }
+  function saveCloudCache(){
+    try{ localStorage.setItem(CLOUD_CACHE_KEY, JSON.stringify(cloudEdits)); }catch(e){}
+  }
   let postersReadyResolve;
   const postersReady = new Promise(res => { postersReadyResolve = res; });
 
   fsDB.collection('rooms').get().then(snapshot => {
-    snapshot.forEach(doc => { cloudEdits[doc.id] = doc.data(); });
+    const fresh = {};
+    snapshot.forEach(doc => { fresh[doc.id] = doc.data(); });
+    cloudEdits = fresh; // replaces the cached copy, so docs deleted since the last visit disappear too
+    saveCloudCache();
     postersReadyResolve();
   }).catch(err => {
     console.error('Failed to load room edits from Firestore:', err);
-    postersReadyResolve(); // still let the page render with just the static ROOM_INFO
+    postersReadyResolve(); // still let the page render with the cached copy / static ROOM_INFO
   });
 
   // Returns a Promise<boolean> — true once the write has actually been saved.
@@ -509,6 +530,7 @@
     if(!Object.keys(clean).length) return Promise.resolve(true);
     return fsDB.collection('rooms').doc(slug).set(clean, { merge: true }).then(() => {
       cloudEdits[slug] = Object.assign({}, cloudEdits[slug] || {}, clean);
+      saveCloudCache();
       return true;
     }).catch(err => { console.error('setLocalEdit failed:', err); return false; });
   }
@@ -521,6 +543,7 @@
     return uploadToCloudinary(dataUrl)
       .then(url => fsDB.collection('rooms').doc(slug).set({ poster: url }, { merge: true }).then(() => {
         cloudEdits[slug] = Object.assign({}, cloudEdits[slug] || {}, { poster: url });
+        saveCloudCache();
         return true;
       }))
       .catch(err => { console.error('setPoster failed:', err); return false; });
@@ -533,7 +556,7 @@
     if(!fsAuth.currentUser) return Promise.resolve(false);
     const slug = slugify(name);
     return fsDB.collection('rooms').doc(slug).delete()
-      .then(() => { delete cloudEdits[slug]; return true; })
+      .then(() => { delete cloudEdits[slug]; saveCloudCache(); return true; })
       .catch(err => { console.error('clearLocalEdit failed:', err); return false; });
   }
 
@@ -552,6 +575,7 @@
         const rec = cloudEdits[slug] || {};
         rec.gallery = (rec.gallery || []).concat([url]);
         cloudEdits[slug] = rec;
+        saveCloudCache();
         return true;
       }))
       .catch(err => { console.error('addGalleryImage failed:', err); return false; });
@@ -566,7 +590,7 @@
     const [item] = next.splice(from, 1);
     next.splice(Math.max(0, Math.min(to, next.length)), 0, item);
     return fsDB.collection('rooms').doc(slug).set({ gallery: next }, { merge: true })
-      .then(() => { rec.gallery = next; return true; })
+      .then(() => { rec.gallery = next; saveCloudCache(); return true; })
       .catch(err => { console.error('moveGalleryImage failed:', err); return false; });
   }
   function removeGalleryImage(name, index){
@@ -576,7 +600,7 @@
     if(!rec || !rec.gallery) return Promise.resolve(true);
     const newGallery = rec.gallery.filter((_, i) => i !== index);
     return fsDB.collection('rooms').doc(slug).set({ gallery: newGallery }, { merge: true })
-      .then(() => { rec.gallery = newGallery; return true; })
+      .then(() => { rec.gallery = newGallery; saveCloudCache(); return true; })
       .catch(err => { console.error('removeGalleryImage failed:', err); return false; });
   }
 
@@ -589,6 +613,7 @@
     return uploadToCloudinary(dataUrl)
       .then(url => fsDB.collection('rooms').doc(slug).set({ bookingRulesImage: url }, { merge: true }).then(() => {
         cloudEdits[slug] = Object.assign({}, cloudEdits[slug] || {}, { bookingRulesImage: url });
+        saveCloudCache();
         return true;
       }))
       .catch(err => { console.error('setBookingRulesImage failed:', err); return false; });
@@ -604,6 +629,7 @@
       const rec = cloudEdits[slug] || {};
       rec.reviews = (rec.reviews || []).concat([review]);
       cloudEdits[slug] = rec;
+      saveCloudCache();
       return true;
     }).catch(err => { console.error('addReview failed:', err); return false; });
   }
@@ -614,7 +640,7 @@
     if(!rec || !rec.reviews) return Promise.resolve(true);
     const newReviews = rec.reviews.filter((_, i) => i !== index);
     return fsDB.collection('rooms').doc(slug).set({ reviews: newReviews }, { merge: true })
-      .then(() => { rec.reviews = newReviews; return true; })
+      .then(() => { rec.reviews = newReviews; saveCloudCache(); return true; })
       .catch(err => { console.error('removeReview failed:', err); return false; });
   }
 

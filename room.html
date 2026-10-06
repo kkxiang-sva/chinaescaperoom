@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Escape room details — city, price, duration and booking info.">
 <title>Room Details — China Escape Room Guide</title>
+<link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -286,7 +288,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=49"></script>
+<script src="data.js?v=50"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -438,7 +440,7 @@
     media.style.backgroundImage = '';
     if(info.poster){
       media.classList.add('has-poster');
-      media.style.backgroundImage = `url("${info.poster}")`;
+      media.style.backgroundImage = `url("${cloudinarySized(info.poster, 900)}")`;
     } else {
       const mono = document.createElement('span');
       mono.className = 'game-monogram';
@@ -579,13 +581,6 @@
       const files = Array.from(e.dataTransfer.files || []).filter(f => /^image\//.test(f.type));
       if(files.length && el._onDropFiles) el._onDropFiles(files);
     });
-  }
-
-  // Cloudinary can resize on the fly — ask for a sensible width instead of the full original
-  function cloudinarySized(url, width){
-    return /res\.cloudinary\.com\/.+\/upload\//.test(url)
-      ? url.replace('/upload/', '/upload/w_' + width + ',q_auto,f_auto/')
-      : url;
   }
 
   // ---------- gallery lightbox ----------
