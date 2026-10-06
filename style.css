@@ -1092,3 +1092,36 @@
   .room-video-item.is-instagram.is-native{flex:0 1 360px;}
   .room-ig-frame.is-native{aspect-ratio:auto; height:auto; overflow:hidden; padding:0;}
   .room-ig-frame.is-native .room-video-ig{position:static; width:100%; height:820px; transform:none !important; display:block;}
+
+  /* ---------- phone fixes (different screen sizes / browsers) ---------- */
+  html{-webkit-text-size-adjust:100%; text-size-adjust:100%;}           /* iOS: don't re-scale text when rotating */
+  header.nav{-webkit-backdrop-filter:blur(10px);}                        /* older iOS Safari needs the prefix */
+  .hero{min-height:100svh;}                                              /* iOS/Android: 100vh ignores the browser bar; browsers without svh keep the 100vh above */
+  .room-page{min-height:100svh;}
+  .room-cities-list{grid-template-columns:repeat(auto-fill, minmax(min(300px, 100%), 1fr));}  /* never wider than a small phone */
+  .room-cities-venue{min-width:0; overflow-wrap:anywhere;}
+  img, iframe, video{max-width:100%;}
+  .room-video-ig{max-width:none;}                                         /* (scaled by script, must stay 540px wide) */
+  .btn{max-width:100%; white-space:normal; text-align:center; justify-content:center;}  /* long button text wraps instead of overflowing */
+  @media (max-width:680px){
+    .games{padding:84px 0 72px;}
+    .cities{padding:72px 0 72px;}
+    .features{padding:72px 0;}
+    .faq{padding:72px 0 84px;}
+    .room-page{padding:112px 0 72px;}
+    .section-head{margin-bottom:36px;}
+    .room-hero-body{padding:26px 22px;}
+  }
+  @media (max-width:380px){
+    .wrap{padding:0 18px;}
+    .nav-inner{padding:0 14px; gap:10px;}
+    .logo{font-size:15px; gap:8px;}
+    .logo .mark{width:26px; height:26px;}
+    .nav-right{gap:10px;}
+    h1.hero-title{font-size:clamp(34px, 11vw, 44px);}
+    .hero{padding:120px 18px 64px;}
+    .hero-ctas{gap:12px;}
+    .hero-ctas .btn{width:100%;}
+    .room-hero-name{font-size:30px;}
+    .founder{padding:26px 18px;}
+  }
