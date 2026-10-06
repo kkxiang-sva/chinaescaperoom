@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Escape room details — city, price, duration and booking info.">
 <title>Room Details — China Escape Room Guide</title>
-<link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
-<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
@@ -285,10 +284,7 @@
   </div>
 </footer>
 
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="firebase-init.js"></script>
-<script src="data.js?v=57"></script>
+<script src="data.js?v=58"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -1089,7 +1085,7 @@
     if(info.bookingRulesImage){
       const thumb = document.createElement('img');
       thumb.className = 'room-rules-thumb';
-      thumb.src = info.bookingRulesImage;
+      thumb.src = cloudinarySized(info.bookingRulesImage, 1400);
       thumb.alt = '';
       thumb.addEventListener('click', () => window.open(info.bookingRulesImage, '_blank', 'noopener'));
       wrap.appendChild(thumb);
@@ -1240,12 +1236,20 @@
   const authStatus = document.getElementById('authStatus');
   const authStatusEmail = document.getElementById('authStatusEmail');
 
-  fsAuth.onAuthStateChanged(user => {
-    isSignedIn = !!user;
-    authStatus.hidden = !isSignedIn;
-    if(isSignedIn) authStatusEmail.textContent = user.email;
-    if(!isSignedIn) setEditMode(false);
-  });
+  // The Firebase SDK (Google) is only for the owner's edit mode, so it loads quietly in the background after
+  // the page is up — visitors who can't reach Google (mainland China) never wait for it.
+  function wireAuth(){
+    return loadFirebase().then(() => {
+      fsAuth.onAuthStateChanged(user => {
+        isSignedIn = !!user;
+        authStatus.hidden = !isSignedIn;
+        if(isSignedIn) authStatusEmail.textContent = user.email;
+        try{ localStorage.setItem('escapeGuideOwner', isSignedIn ? '1' : '0'); }catch(e){} // keeps the owner out of visit stats
+        if(!isSignedIn) setEditMode(false);
+      });
+    });
+  }
+  window.addEventListener('load', () => setTimeout(() => { wireAuth().catch(() => {}); }, 1200));
 
   function openSignInModal(){
     document.getElementById('signInEmail').value = '';
@@ -1264,6 +1268,7 @@
     errEl.hidden = true;
     if(!email || !password) return;
     try{
+      await wireAuth();
       await fsAuth.signInWithEmailAndPassword(email, password);
       closeSignInModal();
       setEditMode(true);

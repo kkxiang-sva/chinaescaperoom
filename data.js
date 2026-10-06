@@ -488,12 +488,12 @@
     }).then(data => data.secure_url);
   }
 
-  // Cloudinary can resize on the fly — ask for the width we actually display (and a modern format)
-  // instead of the full-size original.
+  // Photos are served through our own domain (/img/…, a Cloudflare function that fetches them from Cloudinary
+  // and caches them) because visitors in mainland China often can't reach Cloudinary or Google directly.
+  // Cloudinary resizes on the fly — we ask for the width we actually display.
   function cloudinarySized(url, width){
-    return /res\.cloudinary\.com\/.+\/upload\//.test(url || '')
-      ? url.replace('/upload/', '/upload/w_' + width + ',q_auto,f_auto/')
-      : url;
+    const m = /^https:\/\/res\.cloudinary\.com\/zmzqssuw\/image\/upload\/(v\d+\/.+)$/.exec(url || '');
+    return m ? '/img/w_' + width + ',q_auto/' + m[1] : url;
   }
 
   // slug -> Firestore doc data. Seeded from the last visit's copy (localStorage) so posters and other
@@ -507,19 +507,42 @@
   function saveCloudCache(){
     try{ localStorage.setItem(CLOUD_CACHE_KEY, JSON.stringify(cloudEdits)); }catch(e){}
   }
+  // Placeholders until the Firebase SDK (owner edit mode only) has been loaded
+  window.fsAuth = window.fsAuth || { currentUser: null, onAuthStateChanged(){ return function(){}; } };
+  let firebasePromise = null;
+  function loadFirebase(){
+    if(firebasePromise) return firebasePromise;
+    const loadScript = src => new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('could not load ' + src));
+      document.head.appendChild(s);
+    });
+    const v = 'https://www.gstatic.com/firebasejs/10.14.1/';
+    firebasePromise = loadScript(v + 'firebase-app-compat.js')
+      .then(() => loadScript(v + 'firebase-firestore-compat.js'))
+      .then(() => loadScript(v + 'firebase-auth-compat.js'))
+      .then(() => loadScript('firebase-init.js'));
+    firebasePromise.catch(() => { firebasePromise = null; });
+    return firebasePromise;
+  }
+
   let postersReadyResolve;
   const postersReady = new Promise(res => { postersReadyResolve = res; });
 
-  fsDB.collection('rooms').get().then(snapshot => {
-    const fresh = {};
-    snapshot.forEach(doc => { fresh[doc.id] = doc.data(); });
-    cloudEdits = fresh; // replaces the cached copy, so docs deleted since the last visit disappear too
-    saveCloudCache();
-    postersReadyResolve();
-  }).catch(err => {
-    console.error('Failed to load room edits from Firestore:', err);
-    postersReadyResolve(); // still let the page render with the cached copy / static ROOM_INFO
-  });
+  // Firebase (Google) can't be reached from mainland China, so the page never waits for it: room info is
+  // read from /api/rooms on our own domain, and the Firebase SDK is only loaded in the background for the
+  // owner's edit mode (see loadFirebase).
+  fetch('/api/rooms', { cache: 'no-store' })
+    .then(r => { if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(fresh => {
+      cloudEdits = fresh; // replaces the cached copy, so docs deleted since the last visit disappear too
+      saveCloudCache();
+      postersReadyResolve();
+    })
+    .catch(err => {
+      console.error('Failed to load room edits:', err);
+      postersReadyResolve(); // still render with the cached copy / static ROOM_INFO
+    });
 
   // Returns a Promise<boolean> — true once the write has actually been saved.
   function setLocalEdit(name, patch){
@@ -736,13 +759,14 @@
 
 
   // ---------- anonymous visit counter ----------
-  // Logs one record per visitor per page per browser session: country / city (from Cloudflare, via
-  // /api/geo), page, language and device type. No IP address, cookie or personal data is stored.
-  // Skipped for: Do Not Track, the site owner while signed in, local testing and automated browsers.
+  // Logs one record per visitor per page per browser session — country/city (worked out by Cloudflare on the
+  // server), page, language and device type. No IP address, cookie or personal data is stored.
+  // Skipped for: Do Not Track, the site owner once signed in on this browser, local testing and automated browsers.
   (function trackVisit(){
     try{
       if(navigator.doNotTrack === '1' || navigator.webdriver) return;
       if(/^(localhost|127\.|0\.0\.0\.0|$)/.test(location.hostname)) return;
+      if(localStorage.getItem('escapeGuideOwner') === '1') return;
       const page = /room/.test(location.pathname) ? 'room' : 'home';
       const room = page === 'room' ? (new URLSearchParams(location.search).get('room') || '') : '';
       const key = 'escapeGuideVisit:' + page + ':' + room;
@@ -751,24 +775,12 @@
       let refHost = '';
       try{ refHost = document.referrer ? new URL(document.referrer).hostname : ''; }catch(e){}
       if(refHost === location.hostname) refHost = '';
-      const unsub = fsAuth.onAuthStateChanged(user => {
-        unsub();
-        if(user) return; // the owner browsing while signed in isn't a visitor
-        fetch('/api/geo', { cache: 'no-store' })
-          .then(r => r.ok ? r.json() : {})
-          .catch(() => ({}))
-          .then(geo => fsDB.collection('visits').add({
-            ts: firebase.firestore.FieldValue.serverTimestamp(),
-            country: String(geo.country || '').slice(0, 3),
-            region: String(geo.region || '').slice(0, 60),
-            city: String(geo.city || '').slice(0, 60),
-            page: page,
-            room: room.slice(0, 80),
-            lang: currentLang === 'zh' ? 'zh' : 'en',
-            device: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-            ref: refHost.slice(0, 80)
-          }))
-          .catch(() => {}); // e.g. Firestore rules not set up yet — never bother the visitor
-      });
+      fetch('/api/track', {
+        method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          page: page, room: room.slice(0, 80), lang: currentLang === 'zh' ? 'zh' : 'en',
+          device: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop', ref: refHost.slice(0, 80)
+        })
+      }).catch(() => {});
     }catch(e){ /* tracking must never break the page */ }
   })();
