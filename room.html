@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body>
 
@@ -288,7 +288,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=50"></script>
+<script src="data.js?v=51"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -815,15 +815,49 @@
       frame.referrerPolicy = 'strict-origin-when-cross-origin';
       item.appendChild(frame);
     } else if(ig){
+      // Instagram: show just the video (header/footer cropped away) in a dark 16:9 frame, with the
+      // account name above. Optional hints live in the link's #fragment: #by=account&ar=0.56
+      // (ar = video width/height; vertical reels are cropped to their middle band).
       item.classList.add('is-instagram');
+      const hint = new URLSearchParams((url.split('#')[1] || ''));
+      const account = (hint.get('by') || '').replace(/^@/, '');
+      const ar = parseFloat(hint.get('ar')) || 0;
+      const postPath = 'https://www.instagram.com/' + (ig[1] === 'reels' ? 'reel' : ig[1]) + '/' + ig[2] + '/';
+      if(account){
+        const label = document.createElement('a');
+        label.className = 'room-ig-label';
+        label.href = postPath;
+        label.target = '_blank';
+        label.rel = 'noopener';
+        label.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>';
+        label.appendChild(document.createTextNode('@' + account));
+        item.appendChild(label);
+      }
+      const box = document.createElement('div');
+      box.className = 'room-ig-frame';
       const frame = document.createElement('iframe');
-      frame.src = 'https://www.instagram.com/' + (ig[1] === 'reels' ? 'reel' : ig[1]) + '/' + ig[2] + '/embed/';
+      frame.src = postPath + 'embed/';
       frame.className = 'room-video-ig';
       frame.title = 'Instagram video';
       frame.loading = 'lazy';
       frame.allowFullscreen = true;
       frame.setAttribute('scrolling', 'no');
-      item.appendChild(frame);
+      frame.addEventListener('load', () => frame.classList.add('is-ready'));
+      box.appendChild(frame);
+      item.appendChild(box);
+      // the embed is laid out 540px wide: scale it to the frame and slide it up past Instagram's header
+      const IG_W = 540, IG_HEADER = 54, WINDOW_H = IG_W * 9 / 16;
+      const fit = () => {
+        const w = box.clientWidth;
+        if(!w) return;
+        const s = w / IG_W;
+        const videoH = ar ? IG_W / ar : WINDOW_H;
+        const offset = IG_HEADER + Math.max(0, (videoH - WINDOW_H) / 2);
+        frame.style.transform = 'translateY(' + (-offset * s) + 'px) scale(' + s + ')';
+      };
+      if('ResizeObserver' in window) new ResizeObserver(fit).observe(box);
+      else window.addEventListener('resize', fit);
+      requestAnimationFrame(fit);
     } else if(/\.(mp4|webm|ogg|mov)(\?|$)/i.test(url)){
       const video = document.createElement('video');
       video.src = url;
