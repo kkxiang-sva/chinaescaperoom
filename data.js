@@ -269,7 +269,7 @@
       'edit.hours': '营业时间',
       'edit.phone': '联系电话',
       'edit.bookingInfo': '预定方式',
-      'edit.videoUrl': '宣传片视频链接',
+      'edit.videoUrl': '宣传片视频链接（多个请用空格隔开）',
       'edit.videoHint': '在上方编辑框中填写宣传片链接。',
       'edit.addReview': '+ 添加评论',
       'edit.reviewText': '玩家的评价内容...',
