@@ -196,7 +196,9 @@
       const snap = await fsDB.collection('visits').orderBy('ts', 'desc').limit(5000).get();
       visits = snap.docs.map(d => {
         const x = d.data();
-        return Object.assign({}, x, { time: x.ts && x.ts.toDate ? x.ts.toDate() : null });
+        // Hong Kong, Macau and Taiwan are counted as China, same as the mainland
+        const country = ['HK', 'MO', 'TW'].includes(x.country) ? 'CN' : x.country;
+        return Object.assign({}, x, { country: country, time: x.ts && x.ts.toDate ? x.ts.toDate() : null });
       }).filter(v => v.time);
       render();
     }catch(e){
