@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
 
@@ -156,6 +156,7 @@
       <section class="room-extra" id="roomGallerySection" hidden>
         <h2 class="room-extra-title" data-i18n="room.gallery">More Photos</h2>
         <div class="room-gallery-grid" id="roomGalleryGrid"></div>
+        <p class="room-extra-hint room-gallery-hint" id="roomGalleryHint" hidden></p>
       </section>
 
       <section class="room-extra" id="roomVideoSection" hidden>
@@ -285,7 +286,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
-<script src="data.js?v=46"></script>
+<script src="data.js?v=47"></script>
 <script>
   // nav scroll state
   const nav = document.getElementById('nav');
@@ -682,6 +683,7 @@
   });
 
   let galleryBusy = false;
+  let galleryDragIndex = null; // index of the photo being dragged to a new position, null otherwise
   function renderGallery(info){
     const dict = translations[currentLang] || translations.en;
     const section = document.getElementById('roomGallerySection');
@@ -707,6 +709,41 @@
       if(img.complete) fit();
       tile.appendChild(img);
       if(editModeOn){
+        img.draggable = false; // so the tile itself is what gets dragged
+        tile.draggable = true;
+        tile.classList.add('is-sortable');
+        tile.addEventListener('dragstart', e => {
+          galleryDragIndex = i;
+          e.dataTransfer.effectAllowed = 'move';
+          try{ e.dataTransfer.setData('text/plain', String(i)); }catch(err){}
+          requestAnimationFrame(() => tile.classList.add('is-dragging'));
+        });
+        tile.addEventListener('dragend', () => {
+          galleryDragIndex = null;
+          grid.querySelectorAll('.is-dragging, .drop-before, .drop-after').forEach(el => el.classList.remove('is-dragging', 'drop-before', 'drop-after'));
+        });
+        tile.addEventListener('dragover', e => {
+          if(galleryDragIndex === null || galleryDragIndex === i) return; // not a reorder drag (e.g. files) — let the grid handle it
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          const r = tile.getBoundingClientRect();
+          const after = e.clientX > r.left + r.width / 2;
+          tile.classList.toggle('drop-after', after);
+          tile.classList.toggle('drop-before', !after);
+        });
+        tile.addEventListener('dragleave', () => tile.classList.remove('drop-before', 'drop-after'));
+        tile.addEventListener('drop', async e => {
+          if(galleryDragIndex === null) return;
+          e.preventDefault();
+          e.stopPropagation();
+          const from = galleryDragIndex;
+          const after = tile.classList.contains('drop-after');
+          galleryDragIndex = null;
+          let to = after ? i + 1 : i;   // slot in the list as it is now
+          if(from < to) to -= 1;        // the removed photo shifts everything after it up by one
+          await moveGalleryImage(currentRoomName, from, to);
+          renderGallery(roomInfo(currentRoomName));
+        });
         const rm = document.createElement('button');
         rm.type = 'button';
         rm.className = 'room-gallery-remove';
@@ -759,8 +796,55 @@
       addTile.appendChild(input);
       grid.appendChild(addTile);
     }
+    const hint = document.getElementById('roomGalleryHint');
+    hint.textContent = dict['edit.reorderHint'] || 'Drag a photo onto another to change the order.';
+    hint.hidden = !(editModeOn && gallery.length > 1);
     section.hidden = gallery.length === 0 && !editModeOn;
     layoutGallery();
+  }
+
+  // one trailer -> embed it; several (separated by spaces/commas/new lines) -> shown side by side
+  function buildTrailer(url, dict){
+    const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/);
+    const ig = url.match(/instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(reel|reels|p|tv)\/([A-Za-z0-9_-]+)/);
+    const item = document.createElement('div');
+    item.className = 'room-video-item';
+    if(yt){
+      const frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + yt[1];
+      frame.className = 'room-video-player';
+      frame.title = 'Trailer';
+      frame.loading = 'lazy';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.allowFullscreen = true;
+      frame.referrerPolicy = 'strict-origin-when-cross-origin';
+      item.appendChild(frame);
+    } else if(ig){
+      item.classList.add('is-instagram');
+      const frame = document.createElement('iframe');
+      frame.src = 'https://www.instagram.com/' + (ig[1] === 'reels' ? 'reel' : ig[1]) + '/' + ig[2] + '/embed/';
+      frame.className = 'room-video-ig';
+      frame.title = 'Instagram video';
+      frame.loading = 'lazy';
+      frame.allowFullscreen = true;
+      frame.setAttribute('scrolling', 'no');
+      item.appendChild(frame);
+    } else if(/\.(mp4|webm|ogg|mov)(\?|$)/i.test(url)){
+      const video = document.createElement('video');
+      video.src = url;
+      video.controls = true;
+      video.className = 'room-video-player';
+      item.appendChild(video);
+    } else {
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.className = 'btn btn-primary';
+      link.textContent = dict['room.watchTrailer'] || '▶ Watch Trailer';
+      item.appendChild(link);
+    }
+    return item;
   }
 
   function renderVideo(info){
@@ -768,40 +852,18 @@
     const section = document.getElementById('roomVideoSection');
     const wrap = document.getElementById('roomVideoWrap');
     wrap.innerHTML = '';
-    if(info.videoUrl){
-      const ytMatch = info.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/);
-      if(ytMatch){
-        const frame = document.createElement('iframe');
-        frame.src = 'https://www.youtube-nocookie.com/embed/' + ytMatch[1];
-        frame.className = 'room-video-player';
-        frame.title = 'Trailer';
-        frame.loading = 'lazy';
-        frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-        frame.allowFullscreen = true;
-        frame.referrerPolicy = 'strict-origin-when-cross-origin';
-        wrap.appendChild(frame);
-      } else if(/\.(mp4|webm|ogg|mov)(\?|$)/i.test(info.videoUrl)){
-        const video = document.createElement('video');
-        video.src = info.videoUrl;
-        video.controls = true;
-        video.className = 'room-video-player';
-        wrap.appendChild(video);
-      } else {
-        const link = document.createElement('a');
-        link.href = info.videoUrl;
-        link.target = '_blank';
-        link.rel = 'noopener';
-        link.className = 'btn btn-primary';
-        link.textContent = dict['room.watchTrailer'] || '▶ Watch Trailer';
-        wrap.appendChild(link);
-      }
+    const urls = (info.videoUrl || '').split(/[\s,]+/).filter(Boolean);
+    if(urls.length){
+      wrap.classList.add('room-video-row');
+      urls.forEach(u => wrap.appendChild(buildTrailer(u, dict)));
     } else if(editModeOn){
+      wrap.classList.remove('room-video-row');
       const hint = document.createElement('p');
       hint.className = 'room-extra-hint';
       hint.textContent = dict['edit.videoHint'] || 'Add a trailer URL above in the edit form.';
       wrap.appendChild(hint);
     }
-    section.hidden = !info.videoUrl && !editModeOn;
+    section.hidden = !urls.length && !editModeOn;
   }
 
   function renderReviews(info){

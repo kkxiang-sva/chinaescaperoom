@@ -867,6 +867,10 @@
   .gallery-lightbox-nav.prev{left:22px;} .gallery-lightbox-nav.next{right:22px;}
   .gallery-lightbox-close:hover,.gallery-lightbox-nav:hover{border-color:var(--gold-bright); color:var(--gold-bright);}
 
+  .room-video-row{display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start;}
+  .room-video-item{flex:1 1 340px; max-width:640px; min-width:0;}
+  .room-video-item.is-instagram{flex:0 1 340px;}
+  .room-video-ig{width:100%; height:600px; border:0; border-radius:8px; background:#000; display:block;}
   .room-video-player{width:100%; max-width:640px; aspect-ratio:16 / 9; border-radius:8px; background:#000; border:0; display:block;}
 
   .room-reviews-list{display:flex; flex-direction:column; gap:14px; margin-bottom:16px;}
@@ -1064,3 +1068,15 @@
     .city-filter::-webkit-scrollbar{display:none;}
     .city-filter-chip{flex:none; font-size:12.5px; padding:6px 13px;}
   }
+
+  /* gallery: drag to reorder (edit mode) */
+  .room-gallery-item.is-sortable{cursor:grab;}
+  .room-gallery-item.is-dragging{opacity:.35 !important;}
+  .room-gallery-item.drop-before::before,.room-gallery-item.drop-after::before{
+    content:''; position:absolute; top:0; bottom:0; width:4px; background:var(--gold-bright);
+    box-shadow:0 0 12px var(--gold-bright); z-index:3;
+  }
+  .room-gallery-item.drop-before::before{left:0;}
+  .room-gallery-item.drop-after::before{right:0;}
+  .room-gallery-hint[hidden]{display:none;}
+  .room-gallery-hint{margin-top:2px;}
